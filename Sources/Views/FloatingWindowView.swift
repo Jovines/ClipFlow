@@ -100,8 +100,6 @@ final class FloatingWindowManager: ObservableObject {
 
         floatingWindow = window
         isWindowLoaded = true
-
-        setupKeyboardShortcuts()
     }
 
     private func positionWindow() {
@@ -151,20 +149,6 @@ final class FloatingWindowManager: ObservableObject {
         window.setFrameOrigin(windowOrigin)
     }
 
-    private func setupKeyboardShortcuts() {
-        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self = self else { return nil }
-
-            switch event.keyCode {
-            case 53: // Escape
-                self.hideWindow()
-                return nil
-            default:
-                return event
-            }
-        }
-    }
-
     func cleanup() {
         hideWindow()
         floatingWindowHostingController = nil
@@ -179,14 +163,26 @@ struct FloatingWindowView: View {
     let maxVisibleItems: Int
     let clipboardMonitor: ClipboardMonitor
     @State private var searchText = ""
+    @State private var isSelectionMode = false
     @State private var selectedItem: ClipboardItem?
     @State private var selectedIndex: Int = 0
     @State private var showImagePreview = false
-    @FocusState private var isSearchFocused: Bool
+    @State private var selectedTag: Tag?
+    @State private var allTags: [Tag] = []
 
     var body: some View {
         VStack(spacing: 0) {
-            headerView
+            if !searchText.isEmpty {
+                searchIndicatorView
+                Divider()
+            }
+            TagFilterBar(
+                tags: allTags,
+                selectedTag: $selectedTag,
+                onTagSelected: handleTagSelected
+            )
+            Divider()
+            modeIndicatorView
             Divider()
             contentView
         }
@@ -196,7 +192,8 @@ struct FloatingWindowView: View {
         .frame(width: 360, height: 420)
         .onAppear {
             clipboardMonitor.refresh()
-            isSearchFocused = true
+            resetSearch()
+            loadAllTags()
         }
         .onChange(of: filteredItems.count) { _ in
             if selectedIndex >= filteredItems.count {
@@ -211,6 +208,10 @@ struct FloatingWindowView: View {
             navigateSelection(direction: .up)
             return .handled
         }
+        .onKeyPress(.tab) {
+            toggleMode()
+            return .handled
+        }
         .onKeyPress(.return) {
             if let item = getSelectedItem() {
                 handleItemSelection(item)
@@ -218,10 +219,32 @@ struct FloatingWindowView: View {
             return .handled
         }
         .onKeyPress(.delete) {
-            if let item = getSelectedItem() {
-                clipboardMonitor.deleteItem(item)
+            if searchText.isEmpty {
+                if let item = getSelectedItem() {
+                    clipboardMonitor.deleteItem(item)
+                }
+            } else {
+                removeLastSearchCharacter()
             }
             return .handled
+        }
+        .onKeyPress(.escape) {
+            if isSelectionMode {
+                isSelectionMode = false
+                selectedIndex = 0
+            } else if !searchText.isEmpty {
+                searchText = ""
+                selectedIndex = 0
+            } else if selectedTag != nil {
+                selectedTag = nil
+                selectedIndex = 0
+            } else {
+                onClose()
+            }
+            return .handled
+        }
+        .onKeyPress(phases: .down) { press in
+            handleKeyPress(press)
         }
         .sheet(isPresented: $showImagePreview) {
             if let item = selectedItem {
@@ -257,46 +280,6 @@ struct FloatingWindowView: View {
         let index = min(selectedIndex, filteredItems.count - 1)
         guard index >= 0 && index < filteredItems.count else { return nil }
         return filteredItems[index]
-    }
-
-    private var headerView: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
-                .font(.system(size: 13))
-
-            TextField("Search...", text: $searchText)
-                .textFieldStyle(.plain)
-                .font(.system(size: 13))
-                .focused($isSearchFocused)
-                .onSubmit {
-                    if let firstItem = filteredItems.first {
-                        onItemSelected(firstItem)
-                    }
-                }
-
-            if !searchText.isEmpty {
-                Button(action: { searchText = "" }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                }
-                .buttonStyle(.plain)
-            }
-
-            Divider()
-                .frame(height: 20)
-
-            Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .foregroundStyle(.secondary)
-                    .font(.system(size: 13))
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
     }
 
     @ViewBuilder
@@ -337,6 +320,7 @@ struct FloatingWindowView: View {
     private func itemRow(for item: ClipboardItem, index: Int) -> some View {
         FloatingItemRow(
             item: item,
+            index: index,
             isSelected: selectedIndex == index,
             onSelect: {
                 handleItemSelection(item)
@@ -375,17 +359,213 @@ struct FloatingWindowView: View {
     }
 
     private var filteredItems: [ClipboardItem] {
-        if searchText.isEmpty {
-            return clipboardMonitor.capturedItems
+        var items = clipboardMonitor.capturedItems
+        
+        // 标签筛选
+        if let selectedTag = selectedTag {
+            items = items.filter { item in
+                item.tags.contains { $0.id == selectedTag.id }
+            }
         }
-        return clipboardMonitor.capturedItems.filter {
-            $0.content.localizedCaseInsensitiveContains(searchText) ||
-            $0.tags.contains { $0.name.localizedCaseInsensitiveContains(searchText) }
+        
+        // 搜索文本筛选
+        if !searchText.isEmpty {
+            items = items.filter { item in
+                item.content.localizedCaseInsensitiveContains(searchText) ||
+                item.tags.contains { $0.name.localizedCaseInsensitiveContains(searchText) }
+            }
         }
+        
+        return items
     }
 
     private var searchResultCount: Int {
         filteredItems.count
+    }
+
+    private func loadAllTags() {
+        let entities = PersistenceController.shared.fetchAllTags()
+        allTags = entities.compactMap { entity -> Tag? in
+            guard let name = entity.value(forKey: "name") as? String,
+                  let color = entity.value(forKey: "color") as? String,
+                  let id = entity.value(forKey: "id") as? UUID else {
+                return nil
+            }
+            return Tag(id: id, name: name, color: color)
+        }
+    }
+
+    private func handleTagSelected(_ tag: Tag?) {
+        selectedTag = tag
+        selectedIndex = 0
+        searchText = ""
+        isSelectionMode = false
+        
+        if let tag = tag {
+            TagUsageManager.shared.recordUsage(for: tag.id)
+        }
+    }
+
+    private var searchIndicatorView: some View {
+        HStack(spacing: 8) {
+            Image(systemName: isSelectionMode ? "number" : "magnifyingglass")
+                .foregroundStyle(isSelectionMode ? Color.accentColor : .secondary)
+                .font(.system(size: 13))
+            
+            if isSelectionMode {
+                Text("选择模式")
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundStyle(Color.accentColor)
+            } else {
+                Text(searchText)
+                    .font(.system(size: 13))
+                    .lineLimit(1)
+            }
+            
+            Spacer()
+            
+            Text("\(filteredItems.count)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color(NSColor.controlBackgroundColor))
+                .clipShape(Capsule())
+            
+            Button(action: resetSearch) {
+                Image(systemName: "xmark.circle.fill")
+                    .foregroundStyle(.secondary)
+                    .font(.system(size: 14))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+    }
+
+    private var modeIndicatorView: some View {
+        HStack(spacing: 8) {
+            HStack(spacing: 4) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 11))
+                    .foregroundStyle(isSelectionMode ? .secondary : Color.accentColor)
+                
+                Text("搜索")
+                    .font(.system(size: 11))
+                    .foregroundStyle(isSelectionMode ? .secondary : Color.accentColor)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(isSelectionMode ? Color.clear : Color.accentColor.opacity(0.15))
+            .clipShape(Capsule())
+            
+            HStack(spacing: 4) {
+                Image(systemName: "number")
+                    .font(.system(size: 11))
+                    .foregroundStyle(isSelectionMode ? Color.accentColor : .secondary)
+                
+                Text("选择")
+                    .font(.system(size: 11))
+                    .foregroundStyle(isSelectionMode ? Color.accentColor : .secondary)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(isSelectionMode ? Color.accentColor.opacity(0.15) : Color.clear)
+            .clipShape(Capsule())
+            
+            Spacer()
+            
+            HStack(spacing: 4) {
+                if !searchText.isEmpty && !isSelectionMode {
+                    Text(searchText)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .padding(.trailing, 4)
+                }
+                
+                HStack(spacing: 2) {
+                    Text("Tab")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(.tertiary)
+                    Image(systemName: "arrow.left.arrow.right")
+                        .font(.system(size: 8))
+                        .foregroundStyle(.tertiary)
+                }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 2)
+                .background(Color(NSColor.controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 3))
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(Color(NSColor.controlBackgroundColor).opacity(0.3))
+    }
+
+    private func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
+        let key = press.characters
+        
+        if isSelectionMode {
+            return handleSelectionModeKeyPress(key)
+        } else {
+            return handleSearchModeKeyPress(key)
+        }
+    }
+    
+    private func handleSelectionModeKeyPress(_ key: String) -> KeyPress.Result {
+        if key >= "1" && key <= "9" {
+            let index = Int(key)! - 1
+            if index < filteredItems.count {
+                handleItemSelection(filteredItems[index])
+            }
+            return .handled
+        }
+        return .ignored
+    }
+    
+    private func handleSearchModeKeyPress(_ key: String) -> KeyPress.Result {
+        if key == "\u{7F}" || key == "\u{08}" {
+            if !searchText.isEmpty {
+                removeLastSearchCharacter()
+            }
+            return .handled
+        }
+        
+        if key.count == 1 {
+            let char = key.first!
+            let isValidChar = char.isLetter || char.isNumber || char == " " || char == "-" || char == "_" || char == "."
+            
+            if isValidChar {
+                searchText += key
+                selectedIndex = 0
+                return .handled
+            }
+        }
+        
+        return .ignored
+    }
+
+    private func toggleMode() {
+        isSelectionMode.toggle()
+        if isSelectionMode {
+            selectedIndex = 0
+        }
+    }
+
+    private func removeLastSearchCharacter() {
+        if !searchText.isEmpty {
+            searchText.removeLast()
+            selectedIndex = 0
+        }
+    }
+
+    private func resetSearch() {
+        searchText = ""
+        isSelectionMode = false
+        selectedTag = nil
+        selectedIndex = 0
     }
 }
 
@@ -393,6 +573,7 @@ struct FloatingWindowView: View {
 
 struct FloatingItemRow: View {
     let item: ClipboardItem
+    let index: Int
     let isSelected: Bool
     let onSelect: () -> Void
     let onDelete: () -> Void
@@ -401,6 +582,15 @@ struct FloatingItemRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
+            if index < 9 {
+                Text("\(index + 1)")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(isSelected ? Color.accentColor : .secondary)
+                    .frame(width: 16, height: 16)
+                    .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+
             contentPreview
 
             Spacer()
