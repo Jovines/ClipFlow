@@ -40,7 +40,7 @@ struct ContentView: View {
             clipboardMonitor.refresh()
         }
         .sheet(isPresented: $showingSettings) {
-            SettingsView()
+            SettingsView(onClose: { showingSettings = false })
         }
     }
 
