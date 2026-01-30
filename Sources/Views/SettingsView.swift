@@ -4,7 +4,40 @@ import ServiceManagement
 // Import shared types from HotKeyManager and other services
 @_exported import Foundation
 
+// MARK: - Settings Tab Enum
+
+enum SettingsTab: String, CaseIterable, Identifiable {
+    case general = "General"
+    case tags = "Tags"
+    case cache = "Cache"
+    case about = "About"
+
+    var id: String { rawValue }
+
+    var icon: String {
+        switch self {
+        case .general: return "gear"
+        case .tags: return "tag"
+        case .cache: return "internaldrive"
+        case .about: return "info.circle"
+        }
+    }
+
+    var localizedName: String {
+        switch self {
+        case .general: return NSLocalizedString("General", comment: "")
+        case .tags: return NSLocalizedString("Tags", comment: "")
+        case .cache: return NSLocalizedString("Cache", comment: "")
+        case .about: return NSLocalizedString("About", comment: "")
+        }
+    }
+}
+
+// MARK: - Main Settings View
+
 struct SettingsView: View {
+    let onClose: (() -> Void)?
+
     @AppStorage("maxHistoryItems") private var maxHistoryItems = 100
     @AppStorage("saveImages") private var saveImages = true
     @AppStorage("autoStart") private var autoStart = false
@@ -13,6 +46,7 @@ struct SettingsView: View {
     @State private var showConflictAlert = false
     @State private var conflictMessage = ""
     @State private var autoStartStatus: AutoStartStatus = .unknown
+    @State private var selectedTab: SettingsTab = .general
 
     enum AutoStartStatus {
         case unknown
@@ -21,37 +55,22 @@ struct SettingsView: View {
         case error(String)
     }
 
+    init(onClose: (() -> Void)? = nil) {
+        self.onClose = onClose
+    }
+
     var body: some View {
-        TabView {
-            GeneralSettingsView(
-                shortcut: $shortcut,
-                maxHistoryItems: $maxHistoryItems,
-                saveImages: $saveImages,
-                autoStart: $autoStart,
-                autoStartStatus: $autoStartStatus,
-                showConflictAlert: $showConflictAlert,
-                conflictMessage: $conflictMessage
-            )
-            .tabItem {
-                Label("General", systemImage: "gear")
-            }
+        HStack(spacing: 0) {
+            // Sidebar
+            sidebar
+                .frame(width: 140)
+                .background(Color(NSColor.controlBackgroundColor))
 
-            TagsManagementView()
-                .tabItem {
-                    Label("Tags", systemImage: "tag")
-                }
-
-            CacheManagementView()
-                .tabItem {
-                    Label("Cache", systemImage: "internaldrive")
-                }
-
-            AboutView()
-                .tabItem {
-                    Label("About", systemImage: "info.circle")
-                }
+            // Content
+            contentView
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 520, height: 420)
+        .frame(width: 560, height: 440)
         .alert("Shortcut Conflict", isPresented: $showConflictAlert) {
             Button("OK") {}
         } message: {
@@ -62,6 +81,238 @@ struct SettingsView: View {
         }
         .onChange(of: autoStart) { _, newValue in
             setAutoStart(newValue)
+        }
+    }
+
+    // MARK: - Sidebar
+
+    private var sidebar: some View {
+        VStack(spacing: 0) {
+            // Title area
+            HStack {
+                Text("Settings")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 16)
+            .padding(.bottom, 12)
+
+            Divider()
+                .padding(.horizontal, 12)
+
+            // Tab buttons
+            VStack(spacing: 2) {
+                ForEach(SettingsTab.allCases) { tab in
+                    SidebarTabButton(
+                        tab: tab,
+                        isSelected: selectedTab == tab,
+                        action: { selectedTab = tab }
+                    )
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.top, 8)
+
+            Spacer()
+        }
+    }
+
+    // MARK: - Content View
+
+    @ViewBuilder
+    private var contentView: some View {
+        VStack(spacing: 0) {
+            // Header with close button
+            HStack {
+                Spacer()
+                Button(action: { onClose?() }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+                .keyboardShortcut(.escape, modifiers: [])
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.bottom, 8)
+
+            // Tab content
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    switch selectedTab {
+                    case .general:
+                        generalSettingsContent
+                    case .tags:
+                        TagsManagementView()
+                    case .cache:
+                        CacheManagementView()
+                    case .about:
+                        AboutView()
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 20)
+            }
+        }
+        .background(Color(NSColor.windowBackgroundColor))
+    }
+
+    // MARK: - General Settings Content
+
+    private var generalSettingsContent: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            // Shortcut Section
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "keyboard")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Global Shortcut")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Click to record a new shortcut")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    ShortcutRecorderView(shortcut: Binding(
+                        get: { shortcut },
+                        set: { newShortcut in
+                            shortcut = newShortcut
+                            applyShortcut(newShortcut)
+                        }
+                    ))
+                }
+                .padding(12)
+                .background(Color(NSColor.controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Divider()
+
+            // History Section
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("History")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    HStack {
+                        Text("Max Items")
+                            .font(.system(size: 13))
+                        Spacer()
+                        Text("\(maxHistoryItems)")
+                            .font(.system(size: 13, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                            .frame(width: 40, alignment: .trailing)
+                    }
+
+                    Slider(value: Binding(
+                        get: { Double(maxHistoryItems) },
+                        set: { maxHistoryItems = Int($0) }
+                    ), in: 10...1000, step: 10)
+                    .controlSize(.small)
+
+                    Toggle(isOn: $saveImages) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "photo")
+                                .font(.system(size: 12))
+                            Text("Save Images")
+                                .font(.system(size: 13))
+                        }
+                    }
+                    .toggleStyle(.checkbox)
+                }
+                .padding(12)
+                .background(Color(NSColor.controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Divider()
+
+            // Launch Section
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "power")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Launch")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    Toggle(isOn: $autoStart) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.forward.circle")
+                                .font(.system(size: 12))
+                            Text("Start at Login")
+                                .font(.system(size: 13))
+                        }
+                    }
+                    .toggleStyle(.checkbox)
+
+                    HStack {
+                        Text("Status")
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        statusBadge
+                    }
+                }
+                .padding(12)
+                .background(Color(NSColor.controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
+    private var statusBadge: some View {
+        switch autoStartStatus {
+        case .unknown:
+            Text("Unknown")
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.gray.opacity(0.2))
+                .clipShape(Capsule())
+        case .enabled:
+            Text("Enabled")
+                .font(.system(size: 11))
+                .foregroundStyle(.green)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.green.opacity(0.15))
+                .clipShape(Capsule())
+        case .disabled:
+            Text("Disabled")
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.gray.opacity(0.2))
+                .clipShape(Capsule())
+        case .error(let message):
+            Text("Error")
+                .font(.system(size: 11))
+                .foregroundStyle(.red)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(Color.red.opacity(0.15))
+                .clipShape(Capsule())
+                .help(message)
         }
     }
 
@@ -87,82 +338,6 @@ struct SettingsView: View {
             ClipFlowLogger.error("Failed to set auto-start: \(error.localizedDescription)")
         }
     }
-}
-
-struct GeneralSettingsView: View {
-    @Binding var shortcut: Shortcut
-    @Binding var maxHistoryItems: Int
-    @Binding var saveImages: Bool
-    @Binding var autoStart: Bool
-    @Binding var autoStartStatus: SettingsView.AutoStartStatus
-    @Binding var showConflictAlert: Bool
-    @Binding var conflictMessage: String
-
-    var body: some View {
-        Form {
-            Section("Shortcut") {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Global Shortcut")
-                        .font(.headline)
-                    Text("Click to record a new shortcut")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    
-                    ShortcutRecorderView(shortcut: Binding(
-                        get: { shortcut },
-                        set: { newShortcut in
-                            shortcut = newShortcut
-                            applyShortcut(newShortcut)
-                        }
-                    ))
-                }
-            }
-
-            Section("History") {
-                Stepper(value: $maxHistoryItems, in: 10...1000, step: 10) {
-                    HStack {
-                        Text("Max Items")
-                        Spacer()
-                        Text("\(maxHistoryItems)")
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                Toggle("Save Images", isOn: $saveImages)
-            }
-
-            Section("Launch") {
-                Toggle("Start at Login", isOn: $autoStart)
-
-                HStack {
-                    Text("Status")
-                    Spacer()
-                    statusBadge
-                }
-            }
-        }
-        .formStyle(.grouped)
-        .padding()
-    }
-
-    @ViewBuilder
-    private var statusBadge: some View {
-        switch autoStartStatus {
-        case .unknown:
-            Text("Unknown")
-                .foregroundStyle(.secondary)
-        case .enabled:
-            Text("Enabled")
-                .foregroundStyle(.green)
-        case .disabled:
-            Text("Disabled")
-                .foregroundStyle(.secondary)
-        case .error(let message):
-            Text("Error: \(message)")
-                .foregroundStyle(.red)
-                .font(.caption)
-        }
-    }
 
     private func applyShortcut(_ newShortcut: Shortcut) {
         if newShortcut.isValid && !newShortcut.modifiers.isEmpty {
@@ -177,6 +352,40 @@ struct GeneralSettingsView: View {
     }
 }
 
+// MARK: - Sidebar Tab Button
+
+struct SidebarTabButton: View {
+    let tab: SettingsTab
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: tab.icon)
+                    .font(.system(size: 13))
+                    .frame(width: 18, height: 18)
+
+                Text(tab.localizedName)
+                    .font(.system(size: 13, weight: isSelected ? .medium : .regular))
+
+                Spacer()
+            }
+            .foregroundStyle(isSelected ? .white : .primary)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isSelected ? Color.accentColor : Color.clear)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Tags Management View
+
 struct TagsManagementView: View {
     @State private var tags: [Tag] = []
     @State private var newTagName = ""
@@ -184,45 +393,68 @@ struct TagsManagementView: View {
     @State private var showEditSheet = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                TextField("New Tag...", text: $newTagName)
-                    .textFieldStyle(.plain)
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 8) {
+                Image(systemName: "tag")
+                    .foregroundStyle(.secondary)
+                    .font(.system(size: 14))
+                Text("Manage Tags")
+                    .font(.system(size: 14, weight: .semibold))
+            }
+
+            // Add new tag
+            HStack(spacing: 8) {
+                TextField("New tag name...", text: $newTagName)
+                    .textFieldStyle(.roundedBorder)
+                    .font(.system(size: 13))
+
                 Button("Add") {
                     addTag()
                 }
                 .disabled(newTagName.isEmpty)
+                .controlSize(.small)
             }
-            .padding()
+            .padding(12)
+            .background(Color(NSColor.controlBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            Divider()
-
-            List {
-                ForEach(tags) { tag in
-                    HStack {
-                        Circle()
-                            .fill(colorForName(tag.color))
-                            .frame(width: 12, height: 12)
-                        Text(tag.name)
-                        Spacer()
-                        Button(action: { editTag(tag) }) {
-                            Image(systemName: "pencil")
-                        }
-                        .buttonStyle(.plain)
+            // Tags list
+            if tags.isEmpty {
+                VStack(spacing: 8) {
+                    Image(systemName: "tag.slash")
+                        .font(.system(size: 32))
+                        .foregroundStyle(.tertiary)
+                    Text("No tags yet")
+                        .font(.system(size: 13))
                         .foregroundStyle(.secondary)
-                        Button(action: { removeTag(tag) }) {
-                            Image(systemName: "trash")
+                    Text("Create tags to organize your clipboard items")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .frame(maxWidth: .infinity, minHeight: 150)
+                .background(Color(NSColor.controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(tags) { tag in
+                        TagRow(
+                            tag: tag,
+                            onEdit: { editTag(tag) },
+                            onDelete: { removeTag(tag) }
+                        )
+
+                        if tag.id != tags.last?.id {
+                            Divider()
+                                .padding(.leading, 40)
                         }
-                        .buttonStyle(.plain)
-                        .foregroundStyle(.red)
                     }
                 }
-                .onDelete(perform: deleteTags)
+                .padding(8)
+                .background(Color(NSColor.controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
-            .listStyle(.inset)
-        }
-        .tabItem {
-            Label("Tags", systemImage: "tag")
+
+            Spacer()
         }
         .sheet(isPresented: $showEditSheet) {
             if let tag = editingTag {
@@ -263,16 +495,6 @@ struct TagsManagementView: View {
         tags.removeAll { $0.id == tag.id }
     }
 
-    private func deleteTags(at offsets: IndexSet) {
-        for index in offsets {
-            let tag = tags[index]
-            if let entity = PersistenceController.shared.fetchTag(byId: tag.id) {
-                PersistenceController.shared.deleteTag(entity)
-            }
-        }
-        tags.remove(atOffsets: offsets)
-    }
-
     private func editTag(_ tag: Tag) {
         editingTag = tag
         showEditSheet = true
@@ -296,11 +518,49 @@ struct TagsManagementView: View {
         }
         return Tag(id: id, name: name, color: color)
     }
+}
 
-    private func colorForName(_ name: String) -> Color {
-        Color.fromHex(Tag.colorForName(name))
+// MARK: - Tag Row
+
+struct TagRow: View {
+    let tag: Tag
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(Color.fromHex(Tag.colorForName(tag.color)))
+                .frame(width: 10, height: 10)
+
+            Text(tag.name)
+                .font(.system(size: 13))
+
+            Spacer()
+
+            HStack(spacing: 4) {
+                Button(action: onEdit) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 11))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 11))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.red)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .contentShape(Rectangle())
     }
 }
+
+// MARK: - Edit Tag Sheet
 
 struct EditTagSheet: View {
     let tag: Tag
@@ -366,39 +626,59 @@ struct EditTagSheet: View {
     }
 }
 
+// MARK: - Cache Management View
+
 struct CacheManagementView: View {
     @State private var cacheSize: Int64 = 0
     @State private var itemCount: Int = 0
     @State private var isLoading = true
 
     var body: some View {
-        VStack(spacing: 20) {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("Image Cache")
-                        .font(.headline)
-                    Text("\(itemCount) items")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 8) {
+                Image(systemName: "internaldrive")
+                    .foregroundStyle(.secondary)
+                    .font(.system(size: 14))
+                Text("Image Cache")
+                    .font(.system(size: 14, weight: .semibold))
+            }
+
+            VStack(spacing: 16) {
+                // Stats cards
+                HStack(spacing: 12) {
+                    StatCard(
+                        icon: "photo.stack",
+                        title: "Items",
+                        value: "\(itemCount)"
+                    )
+
+                    StatCard(
+                        icon: "memorychip",
+                        title: "Size",
+                        value: formattedCacheSize
+                    )
                 }
 
-                Spacer()
+                Divider()
 
-                Text(formattedCacheSize)
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundStyle(.secondary)
+                // Clear button
+                Button(role: .destructive) {
+                    clearCache()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "trash")
+                        Text("Clear Cache")
+                    }
+                }
+                .disabled(isLoading)
+                .controlSize(.regular)
             }
-
-            Divider()
-
-            Button("Clear Cache", role: .destructive) {
-                clearCache()
-            }
-            .disabled(isLoading)
+            .padding(12)
+            .background(Color(NSColor.controlBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Spacer()
         }
-        .padding()
         .onAppear {
             loadCacheInfo()
         }
@@ -433,27 +713,135 @@ struct CacheManagementView: View {
     }
 }
 
+// MARK: - Stat Card
+
+struct StatCard: View {
+    let icon: String
+    let title: String
+    let value: String
+
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                Text(title)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Text(value)
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundStyle(.primary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .background(Color(NSColor.windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+    }
+}
+
+// MARK: - About View
+
 struct AboutView: View {
     var body: some View {
-        Form {
-            Section {
-                HStack {
-                    Text("Version")
-                    Spacer()
-                    Text("1.0.0")
-                        .foregroundStyle(.secondary)
+        VStack(spacing: 0) {
+            // App icon area
+            VStack(spacing: 16) {
+                // App icon placeholder
+                ZStack {
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.accentColor.opacity(0.8), Color.accentColor],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 80, height: 80)
+                        .shadow(color: Color.accentColor.opacity(0.3), radius: 10, x: 0, y: 4)
+
+                    Image(systemName: "doc.on.clipboard")
+                        .font(.system(size: 36, weight: .medium))
+                        .foregroundStyle(.white)
                 }
 
-                Link("GitHub Repository", destination: URL(string: "https://github.com/clipflow/clipflow") ?? URL(string: "https://github.com")!)
+                VStack(spacing: 4) {
+                    Text("ClipFlow")
+                        .font(.system(size: 20, weight: .bold))
 
-                Link("Report Issue", destination: URL(string: "https://github.com/clipflow/clipflow/issues") ?? URL(string: "https://github.com")!)
+                    Text("Version 1.0.0")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                }
             }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 30)
+
+            // Links
+            VStack(spacing: 0) {
+                LinkRow(
+                    icon: "globe",
+                    title: "GitHub Repository",
+                    url: URL(string: "https://github.com/clipflow/clipflow") ?? URL(string: "https://github.com")!
+                )
+
+                Divider()
+                    .padding(.leading, 44)
+
+                LinkRow(
+                    icon: "exclamationmark.bubble",
+                    title: "Report Issue",
+                    url: URL(string: "https://github.com/clipflow/clipflow/issues") ?? URL(string: "https://github.com")!
+                )
+            }
+            .background(Color(NSColor.controlBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+            Spacer()
+
+            Text("© 2026 ClipFlow. All rights reserved.")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .padding(.bottom, 8)
         }
-        .formStyle(.grouped)
-        .padding()
+    }
+}
+
+// MARK: - Link Row
+
+struct LinkRow: View {
+    let icon: String
+    let title: String
+    let url: URL
+
+    var body: some View {
+        Link(destination: url) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 14))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 20, height: 20)
+
+                Text(title)
+                    .font(.system(size: 13))
+
+                Spacer()
+
+                Image(systemName: "arrow.up.right")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 
 #Preview {
-    SettingsView()
+    SettingsView(onClose: {})
 }
