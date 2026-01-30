@@ -40,7 +40,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func requestPermissions() {
-        let trusted = AXIsProcessTrusted()
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
+        let trusted = AXIsProcessTrustedWithOptions(options as CFDictionary)
         if !trusted {
             ClipFlowLogger.warning("Accessibility permissions not granted. Global shortcuts may not work.")
             ClipFlowLogger.info("Please enable 'ClipFlow' in System Settings > Privacy & Security > Accessibility")

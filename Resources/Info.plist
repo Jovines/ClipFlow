@@ -30,5 +30,7 @@
     <string></string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
+    <key>NSAccessibilityUsageDescription</key>
+    <string>ClipFlow needs accessibility access to register global keyboard shortcuts for quick clipboard access.</string>
 </dict>
 </plist>
