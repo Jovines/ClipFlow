@@ -145,7 +145,6 @@ enum ImageOptimizer {
     static let fullCompressionQuality: CGFloat = 0.85
 
     static func compressImage(_ nsImage: NSImage, quality: CGFloat = fullCompressionQuality) -> Data? {
-        guard let tiffRepresentation = nsImage.tiffRepresentation else { return nil }
         let resizedImage = resizeIfNeeded(nsImage)
         guard let resizedTiff = resizedImage.tiffRepresentation,
               let bitmapRep = NSBitmapImageRep(data: resizedTiff) else { return nil }
@@ -310,9 +309,6 @@ final class ClipboardMonitor: ObservableObject {
                        let imageData = ImageCacheManager.shared.loadImage(forKey: imagePath),
                        let image = NSImage(data: imageData) {
                         self.pasteboard.writeObjects([image])
-                    } else if let imageData = item.imageData,
-                              let image = NSImage(data: imageData) {
-                        self.pasteboard.writeObjects([image])
                     }
                 }
             }
@@ -373,7 +369,7 @@ final class ClipboardMonitor: ObservableObject {
 
     private func setupTimerPolling() {
         let interval = UserDefaults.standard.double(forKey: "pollingInterval")
-        let effectiveInterval = interval > 0 ? interval : 5.0
+        let effectiveInterval = interval > 0 ? interval : 1.0
 
         timer = Timer.scheduledTimer(withTimeInterval: effectiveInterval, repeats: true) { [weak self] _ in
             self?.checkClipboard()
@@ -413,7 +409,14 @@ final class ClipboardMonitor: ObservableObject {
     }
 
     private func readFromPasteboard() -> ClipboardItem? {
+        let shouldSaveImages = UserDefaults.standard.bool(forKey: "saveImages")
+
         if let image = pasteboard.readObjects(forClasses: [NSImage.self], options: nil)?.first as? NSImage {
+            guard shouldSaveImages else {
+                ClipFlowLogger.debug("Image capture skipped - saveImages is disabled")
+                return nil
+            }
+
             guard let compressedData = ImageOptimizer.compressImage(image),
                   let thumbnailData = ImageOptimizer.generateThumbnail(from: image) else {
                 return nil
@@ -513,18 +516,12 @@ final class ClipboardMonitor: ObservableObject {
             return Tag(id: UUID(), name: name, color: color)
         } ?? []
 
-        var imageData: Data? = nil
-        if let path = imagePath {
-            imageData = ImageCacheManager.shared.loadImage(forKey: path)
-        }
-
         return ClipboardItem(
             id: id,
             content: content,
             contentType: ClipboardItem.ContentType(rawValue: contentTypeStr) ?? .text,
             imagePath: imagePath,
             thumbnailPath: thumbnailPath,
-            imageData: imageData,
             createdAt: createdAt,
             tags: tags,
             contentHash: contentHash
