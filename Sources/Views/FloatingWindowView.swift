@@ -153,11 +153,15 @@ final class FloatingWindowManager: ObservableObject {
 
     private func setupKeyboardShortcuts() {
         NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            if event.keyCode == 53 {
-                self?.hideWindow()
+            guard let self = self else { return nil }
+
+            switch event.keyCode {
+            case 53: // Escape
+                self.hideWindow()
                 return nil
+            default:
+                return event
             }
-            return event
         }
     }
 
@@ -169,8 +173,6 @@ final class FloatingWindowManager: ObservableObject {
     }
 }
 
-// MARK: - Floating Window View
-
 struct FloatingWindowView: View {
     let onClose: () -> Void
     let onItemSelected: (ClipboardItem) -> Void
@@ -179,6 +181,7 @@ struct FloatingWindowView: View {
     @EnvironmentObject private var clipboardMonitor: ClipboardMonitor
     @State private var searchText = ""
     @State private var selectedItem: ClipboardItem?
+    @State private var selectedIndex: Int = 0
     @State private var showImagePreview = false
     @FocusState private var isSearchFocused: Bool
 
@@ -196,11 +199,65 @@ struct FloatingWindowView: View {
             clipboardMonitor.refresh()
             isSearchFocused = true
         }
+        .onChange(of: filteredItems.count) { _ in
+            if selectedIndex >= filteredItems.count {
+                selectedIndex = max(0, filteredItems.count - 1)
+            }
+        }
+        .onKeyPress(.downArrow) {
+            navigateSelection(direction: .down)
+            return .handled
+        }
+        .onKeyPress(.upArrow) {
+            navigateSelection(direction: .up)
+            return .handled
+        }
+        .onKeyPress(.return) {
+            if let item = getSelectedItem() {
+                handleItemSelection(item)
+            }
+            return .handled
+        }
+        .onKeyPress(.delete) {
+            if let item = getSelectedItem() {
+                clipboardMonitor.deleteItem(item)
+            }
+            return .handled
+        }
         .sheet(isPresented: $showImagePreview) {
             if let item = selectedItem {
                 ImagePreviewView(item: item)
             }
         }
+    }
+
+    private enum NavigationDirection {
+        case up, down
+    }
+
+    private func navigateSelection(direction: NavigationDirection) {
+        let maxIndex = min(filteredItems.count - 1, maxVisibleItems - 1)
+
+        switch direction {
+        case .down:
+            if selectedIndex < maxIndex {
+                withAnimation(.easeOut(duration: 0.1)) {
+                    selectedIndex += 1
+                }
+            }
+        case .up:
+            if selectedIndex > 0 {
+                withAnimation(.easeOut(duration: 0.1)) {
+                    selectedIndex -= 1
+                }
+            }
+        }
+    }
+
+    private func getSelectedItem() -> ClipboardItem? {
+        let index = min(selectedIndex, filteredItems.count - 1)
+        guard index >= 0 && index < filteredItems.count else { return nil }
+        return filteredItems[index]
     }
 
     private var headerView: some View {
@@ -248,22 +305,40 @@ struct FloatingWindowView: View {
         if filteredItems.isEmpty {
             emptyStateView
         } else {
-            ScrollView {
-                LazyVStack(spacing: 4) {
-                    ForEach(Array(filteredItems.prefix(maxVisibleItems).enumerated()), id: \.element.id) { index, item in
-                        itemRow(for: item, index: index)
-                    }
+            VStack(spacing: 0) {
+                if !searchText.isEmpty {
+                    searchResultHeader
                 }
-                .padding(8)
+                ScrollView {
+                    LazyVStack(spacing: 4) {
+                        ForEach(Array(filteredItems.prefix(maxVisibleItems).enumerated()), id: \.element.id) { index, item in
+                            itemRow(for: item, index: index)
+                        }
+                    }
+                    .padding(8)
+                }
             }
         }
+    }
+
+    @ViewBuilder
+    private var searchResultHeader: some View {
+        HStack {
+            Text("\(searchResultCount) result\(searchResultCount == 1 ? "" : "s")")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
+        .background(Color(NSColor.controlBackgroundColor).opacity(0.3))
     }
 
     @ViewBuilder
     private func itemRow(for item: ClipboardItem, index: Int) -> some View {
         FloatingItemRow(
             item: item,
-            isSelected: selectedItem?.id == item.id,
+            isSelected: selectedIndex == index,
             onSelect: {
                 handleItemSelection(item)
             },
@@ -307,6 +382,10 @@ struct FloatingWindowView: View {
             $0.content.localizedCaseInsensitiveContains(searchText) ||
             $0.tags.contains { $0.name.localizedCaseInsensitiveContains(searchText) }
         }
+    }
+
+    private var searchResultCount: Int {
+        filteredItems.count
     }
 }
 
