@@ -1,105 +1,77 @@
 import Foundation
-import Carbon
 import AppKit
 
 struct Shortcut: Equatable, Codable {
-    var keyCode: UInt32
-    var modifiers: UInt32
-    
-    static let defaultShortcut = Shortcut(keyCode: 9, modifiers: cmdKey | shiftKey)
-    
-    init(keyCode: UInt32, modifiers: UInt32) {
+    var keyCode: UInt16
+    var modifierFlags: UInt
+
+    static let defaultShortcut = Shortcut(keyCode: kVK_ANSI_V, modifiers: [.command, .shift])
+
+    init(keyCode: UInt16, modifiers: NSEvent.ModifierFlags) {
         self.keyCode = keyCode
-        self.modifiers = modifiers
+        self.modifierFlags = modifiers.rawValue
     }
-    
+
+    init(keyCode: UInt16, modifierFlags: UInt) {
+        self.keyCode = keyCode
+        self.modifierFlags = modifierFlags
+    }
+
+    var modifiers: NSEvent.ModifierFlags {
+        get { NSEvent.ModifierFlags(rawValue: modifierFlags) }
+        set { modifierFlags = newValue.rawValue }
+    }
+
     var displayString: String {
         var parts: [String] = []
-        
-        if modifiers & cmdKey != 0 { parts.append("⌘") }
-        if modifiers & shiftKey != 0 { parts.append("⇧") }
-        if modifiers & controlKey != 0 { parts.append("⌃") }
-        if modifiers & optionKey != 0 { parts.append("⌥") }
-        
+
+        if modifiers.contains(.command) { parts.append("⌘") }
+        if modifiers.contains(.shift) { parts.append("⇧") }
+        if modifiers.contains(.control) { parts.append("⌃") }
+        if modifiers.contains(.option) { parts.append("⌥") }
+
         let keyString = keyStringFromKeyCode(keyCode)
         return parts.joined() + keyString
     }
-    
+
     var isValid: Bool {
-        keyCode != 0
+        keyCode != 0 && !modifiers.isEmpty
     }
-    
-    private func keyStringFromKeyCode(_ code: UInt32) -> String {
-        switch code {
-        case 0: return "A"
-        case 11: return "B"
-        case 8: return "C"
-        case 2: return "D"
-        case 14: return "E"
-        case 3: return "F"
-        case 5: return "G"
-        case 4: return "H"
-        case 34: return "I"
-        case 38: return "J"
-        case 40: return "K"
-        case 37: return "L"
-        case 46: return "M"
-        case 45: return "N"
-        case 31: return "O"
-        case 35: return "P"
-        case 12: return "Q"
-        case 15: return "R"
-        case 1: return "S"
-        case 17: return "T"
-        case 32: return "U"
-        case 9: return "V"
-        case 13: return "W"
-        case 7: return "X"
-        case 16: return "Y"
-        case 6: return "Z"
-        case 29: return "0"
-        case 18: return "1"
-        case 19: return "2"
-        case 20: return "3"
-        case 21: return "4"
-        case 22: return "5"
-        case 23: return "6"
-        case 24: return "7"
-        case 25: return "8"
-        case 26: return "9"
-        case 27: return "-"
-        case 24: return "="
-        case 41: return ";"
-        case 39: return "'"
-        case 42: return "\\"
-        case 43: return ","
-        case 47: return "."
-        case 44: return "/"
-        case 49: return "Space"
-        case 36: return "Return"
-        case 51: return "Delete"
-        case 53: return "Escape"
-        case 48: return "Tab"
-        case 126: return "↑"
-        case 125: return "↓"
-        case 123: return "←"
-        case 124: return "→"
-        case 122: return "F1"
-        case 120: return "F2"
-        case 99: return "F3"
-        case 118: return "F4"
-        case 96: return "F5"
-        case 97: return "F5"
-        case 98: return "F7"
-        case 100: return "F8"
-        case 101: return "F9"
-        case 109: return "F10"
-        case 103: return "F11"
-        case 111: return "F12"
-        default: return ""
-        }
+
+    var carbonModifiers: UInt32 {
+        var carbonMods: UInt32 = 0
+        if modifiers.contains(.command) { carbonMods |= cmdKey }
+        if modifiers.contains(.shift) { carbonMods |= shiftKey }
+        if modifiers.contains(.control) { carbonMods |= controlKey }
+        if modifiers.contains(.option) { carbonMods |= optionKey }
+        return carbonMods
     }
-    
+
+    private func keyStringFromKeyCode(_ code: UInt16) -> String {
+        let keyMap: [UInt16: String] = [
+            kVK_ANSI_A: "A", kVK_ANSI_B: "B", kVK_ANSI_C: "C", kVK_ANSI_D: "D",
+            kVK_ANSI_E: "E", kVK_ANSI_F: "F", kVK_ANSI_G: "G", kVK_ANSI_H: "H",
+            kVK_ANSI_I: "I", kVK_ANSI_J: "J", kVK_ANSI_K: "K", kVK_ANSI_L: "L",
+            kVK_ANSI_M: "M", kVK_ANSI_N: "N", kVK_ANSI_O: "O", kVK_ANSI_P: "P",
+            kVK_ANSI_Q: "Q", kVK_ANSI_R: "R", kVK_ANSI_S: "S", kVK_ANSI_T: "T",
+            kVK_ANSI_U: "U", kVK_ANSI_V: "V", kVK_ANSI_W: "W", kVK_ANSI_X: "X",
+            kVK_ANSI_Y: "Y", kVK_ANSI_Z: "Z",
+            kVK_ANSI_0: "0", kVK_ANSI_1: "1", kVK_ANSI_2: "2", kVK_ANSI_3: "3",
+            kVK_ANSI_4: "4", kVK_ANSI_5: "5", kVK_ANSI_6: "6", kVK_ANSI_7: "7",
+            kVK_ANSI_8: "8", kVK_ANSI_9: "9",
+            kVK_ANSI_Minus: "-", kVK_ANSI_Equal: "=", kVK_ANSI_Semicolon: ";",
+            kVK_ANSI_Quote: "'", kVK_ANSI_Backslash: "\\", kVK_ANSI_Comma: ",",
+            kVK_ANSI_Period: ".", kVK_ANSI_Slash: "/",
+            kVK_Space: "Space", kVK_Return: "Return", kVK_Delete: "Delete",
+            kVK_Escape: "Escape", kVK_Tab: "Tab",
+            kVK_UpArrow: "↑", kVK_DownArrow: "↓", kVK_LeftArrow: "←", kVK_RightArrow: "→",
+            kVK_F1: "F1", kVK_F2: "F2", kVK_F3: "F3", kVK_F4: "F4",
+            kVK_F5: "F5", kVK_F6: "F6", kVK_F7: "F7", kVK_F8: "F8",
+            kVK_F9: "F9", kVK_F10: "F10", kVK_F11: "F11", kVK_F12: "F12"
+        ]
+        return keyMap[code] ?? ""
+    }
+
     static func == (lhs: Shortcut, rhs: Shortcut) -> Bool {
         lhs.keyCode == rhs.keyCode && lhs.modifiers == rhs.modifiers
     }
@@ -107,102 +79,219 @@ struct Shortcut: Equatable, Codable {
 
 final class HotKeyManager {
     static let shared = HotKeyManager()
-    
-    private var eventHotKeyRef: EventHotKeyRef?
-    
+
+    private var globalMonitor: Any?
+    private var localMonitor: Any?
+
     var onHotKeyPressed: (() -> Void)?
-    
+
     private let userDefaultsKey = "hotkey_shortcut"
-    
+    private var currentShortcut: Shortcut?
+
+    private let reservedKeyCodes: Set<UInt16> = [
+        kVK_F1, kVK_F2, kVK_F3, kVK_F4, kVK_F5, kVK_F6, kVK_F7, kVK_F8,
+        kVK_F9, kVK_F10, kVK_F11, kVK_F12,
+        kVK_Escape, kVK_Command_R, kVK_Command_L,
+        kVK_Powerbook_KeybdCommands, kVK_VolumeUp, kVK_VolumeDown, kVK_Mute
+    ]
+
     private init() {}
-    
+
     func register(_ shortcut: Shortcut) -> Bool {
-        unregister()
-        
         guard shortcut.isValid else {
-            print("Invalid shortcut")
+            print("[WARNING] HotKeyManager - Invalid shortcut: must have at least one modifier")
             return false
         }
-        
-        if hasConflict(shortcut) {
+
+        let conflict = checkForConflicts(shortcut)
+        if let conflict = conflict {
+            print("[WARNING] HotKeyManager - Shortcut conflict: \(conflict)")
             return false
         }
-        
-        let signature = fourCharCode("Clip")
-        let id = EventHotKeyID(signature: signature, id: 1)
-        
-        var hotKeyRef: EventHotKeyRef?
-        let status = RegisterEventHotKey(
-            shortcut.keyCode,
-            shortcut.modifiers,
-            id,
-            GetApplicationEventTarget(),
-            0,
-            &hotKeyRef
-        )
-        
-        if status == noErr {
-            eventHotKeyRef = hotKeyRef
-            saveShortcut(shortcut)
-            return true
-        }
-        
-        return false
+
+        unregister()
+        currentShortcut = shortcut
+        startMonitoring(shortcut)
+        saveShortcut(shortcut)
+        print("[INFO] HotKeyManager - Registered shortcut: \(shortcut.displayString)")
+        return true
     }
-    
+
     func unregister() {
-        if let ref = eventHotKeyRef {
-            UnregisterEventHotKey(ref)
-            eventHotKeyRef = nil
-        }
+        stopMonitoring()
+        currentShortcut = nil
     }
-    
+
     func loadSavedShortcut() -> Shortcut {
         guard let data = UserDefaults.standard.data(forKey: userDefaultsKey),
-              let shortcut = try? JSONDecoder().decode(Shortcut.self, from: data) else {
+              let shortcut = try? JSONDecoder().decode(Shortcut.self, from: data),
+              shortcut.isValid else {
             return Shortcut.defaultShortcut
         }
         return shortcut
     }
-    
+
     func registerSavedShortcut() -> Bool {
         let shortcut = loadSavedShortcut()
         return register(shortcut)
     }
-    
+
+    private func startMonitoring(_ shortcut: Shortcut) {
+        stopMonitoring()
+
+        localMonitor = NSEvent.addLocalMonitorForEvents(
+            matching: .keyDown
+        ) { [weak self] event in
+            guard let self = self else { return nil }
+            return self.handleKeyDown(event, shortcut: shortcut)
+        }
+
+        globalMonitor = NSEvent.addGlobalMonitorForEvents(
+            matching: .keyDown
+        ) { [weak self] event in
+            guard let self = self else { return }
+            if self.matchesShortcut(event, shortcut: shortcut) {
+                DispatchQueue.main.async {
+                    self.onHotKeyPressed?()
+                }
+            }
+        }
+    }
+
+    private func stopMonitoring() {
+        if let monitor = localMonitor {
+            NSEvent.removeMonitor(monitor)
+            localMonitor = nil
+        }
+        if let monitor = globalMonitor {
+            NSEvent.removeMonitor(monitor)
+            globalMonitor = nil
+        }
+    }
+
+    private func handleKeyDown(_ event: NSEvent, shortcut: Shortcut) -> NSEvent? {
+        if event.keyCode == kVK_Escape {
+            stopMonitoring()
+            return nil
+        }
+
+        if matchesShortcut(event, shortcut: shortcut) {
+            onHotKeyPressed?()
+            return nil
+        }
+
+        return event
+    }
+
+    private func matchesShortcut(_ event: NSEvent, shortcut: Shortcut) -> Bool {
+        guard event.keyCode == shortcut.keyCode else { return false }
+
+        let eventMods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        return eventMods == shortcut.modifiers
+    }
+
+    private func checkForConflicts(_ shortcut: Shortcut) -> String? {
+        if shortcut.keyCode == 0 {
+            return "Invalid key code"
+        }
+
+        if reservedKeyCodes.contains(shortcut.keyCode) {
+            return "System reserved key"
+        }
+
+        if shortcut.keyCode == kVK_Space {
+            if shortcut.modifiers.contains(.command) || shortcut.modifiers.contains(.control) {
+                return "Conflict with Spotlight/Quick Look"
+            }
+        }
+
+        return nil
+    }
+
     private func saveShortcut(_ shortcut: Shortcut) {
         if let data = try? JSONEncoder().encode(shortcut) {
             UserDefaults.standard.set(data, forKey: userDefaultsKey)
         }
     }
-    
-    private func hasConflict(_ shortcut: Shortcut) -> Bool {
-        if shortcut.keyCode == 0 {
-            return true
-        }
-        
-        if shortcut.keyCode == kVK_Space {
-            if shortcut.modifiers == cmdKey || shortcut.modifiers == controlKey {
-                return true
-            }
-        }
-        
-        return false
-    }
-    
-    private func fourCharCode(_ string: String) -> UInt32 {
-        guard string.count == 4 else { return 0 }
-        var code: UInt32 = 0
-        for char in string {
-            if let asciiValue = char.asciiValue {
-                code = (code << 8) | UInt32(asciiValue)
-            }
-        }
-        return code
-    }
 }
 
-let cmdKey: UInt32 = UInt32(1 << 16)
-let shiftKey: UInt32 = UInt32(1 << 17)
-let controlKey: UInt32 = UInt32(1 << 18)
-let optionKey: UInt32 = UInt32(1 << 19)
+// MARK: - Key Code Constants
+// (definitions at end of file)
+
+// Legacy Carbon modifiers (for internal use)
+private let cmdKey: UInt32 = UInt32(1 << 16)
+private let shiftKey: UInt32 = UInt32(1 << 17)
+private let controlKey: UInt32 = UInt32(1 << 18)
+private let optionKey: UInt32 = UInt32(1 << 19)
+
+let kVK_ANSI_A: UInt16 = 0x00
+let kVK_ANSI_B: UInt16 = 0x0B
+let kVK_ANSI_C: UInt16 = 0x08
+let kVK_ANSI_D: UInt16 = 0x02
+let kVK_ANSI_E: UInt16 = 0x0E
+let kVK_ANSI_F: UInt16 = 0x03
+let kVK_ANSI_G: UInt16 = 0x05
+let kVK_ANSI_H: UInt16 = 0x04
+let kVK_ANSI_I: UInt16 = 0x22
+let kVK_ANSI_J: UInt16 = 0x26
+let kVK_ANSI_K: UInt16 = 0x28
+let kVK_ANSI_L: UInt16 = 0x25
+let kVK_ANSI_M: UInt16 = 0x2E
+let kVK_ANSI_N: UInt16 = 0x2D
+let kVK_ANSI_O: UInt16 = 0x1F
+let kVK_ANSI_P: UInt16 = 0x23
+let kVK_ANSI_Q: UInt16 = 0x0C
+let kVK_ANSI_R: UInt16 = 0x0F
+let kVK_ANSI_S: UInt16 = 0x01
+let kVK_ANSI_T: UInt16 = 0x11
+let kVK_ANSI_U: UInt16 = 0x20
+let kVK_ANSI_V: UInt16 = 0x09
+let kVK_ANSI_W: UInt16 = 0x0D
+let kVK_ANSI_X: UInt16 = 0x07
+let kVK_ANSI_Y: UInt16 = 0x10
+let kVK_ANSI_Z: UInt16 = 0x06
+let kVK_ANSI_0: UInt16 = 0x1D
+let kVK_ANSI_1: UInt16 = 0x12
+let kVK_ANSI_2: UInt16 = 0x13
+let kVK_ANSI_3: UInt16 = 0x14
+let kVK_ANSI_4: UInt16 = 0x15
+let kVK_ANSI_5: UInt16 = 0x16
+let kVK_ANSI_6: UInt16 = 0x17
+let kVK_ANSI_7: UInt16 = 0x18
+let kVK_ANSI_8: UInt16 = 0x19
+let kVK_ANSI_9: UInt16 = 0x1A
+let kVK_ANSI_Minus: UInt16 = 0x1B
+let kVK_ANSI_Equal: UInt16 = 0x18
+let kVK_ANSI_Semicolon: UInt16 = 0x29
+let kVK_ANSI_Quote: UInt16 = 0x27
+let kVK_ANSI_Backslash: UInt16 = 0x2A
+let kVK_ANSI_Comma: UInt16 = 0x2B
+let kVK_ANSI_Period: UInt16 = 0x2F
+let kVK_ANSI_Slash: UInt16 = 0x2C
+let kVK_Space: UInt16 = 0x31
+let kVK_Return: UInt16 = 0x24
+let kVK_Delete: UInt16 = 0x33
+let kVK_Escape: UInt16 = 0x35
+let kVK_Tab: UInt16 = 0x30
+let kVK_UpArrow: UInt16 = 0x7E
+let kVK_DownArrow: UInt16 = 0x7D
+let kVK_LeftArrow: UInt16 = 0x7B
+let kVK_RightArrow: UInt16 = 0x7C
+let kVK_F1: UInt16 = 0x7A
+let kVK_F2: UInt16 = 0x78
+let kVK_F3: UInt16 = 0x63
+let kVK_F4: UInt16 = 0x76
+let kVK_F5: UInt16 = 0x60
+let kVK_F6: UInt16 = 0x61
+let kVK_F7: UInt16 = 0x62
+let kVK_F8: UInt16 = 0x64
+let kVK_F9: UInt16 = 0x65
+let kVK_F10: UInt16 = 0x6D
+let kVK_F11: UInt16 = 0x67
+let kVK_F12: UInt16 = 0x6F
+let kVK_Command_R: UInt16 = 0x36
+let kVK_Command_L: UInt16 = 0x37
+let kVK_Powerbook_KeybdCommands: UInt16 = 0x60
+let kVK_VolumeUp: UInt16 = 0x48
+let kVK_VolumeDown: UInt16 = 0x49
+let kVK_Mute: UInt16 = 0x4A

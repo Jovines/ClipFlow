@@ -185,6 +185,52 @@ enum ClipboardContentDetector {
 
         return false
     }
+
+    /// 检测内容是否包含敏感信息
+    /// - Parameter content: 要检测的文本内容
+    /// - Returns: 如果包含敏感信息返回 true
+    static func containsSensitiveData(_ content: String) -> Bool {
+        let patterns = [
+            // 信用卡号 (基本格式检测)
+            "\\b(?:\\d{4}[-\\s]?){3}\\d{4}\\b",
+            // 邮箱地址
+            "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
+            // 密码关键词 (前后有空格或特殊字符)
+            "(?i)(?:password|passwd|pwd|secret|token|key|api[_-]?key|auth)[\\s:]*\\S+",
+            // API密钥格式 (AWS风格)
+            "(?:AKIA|ABIA|ACCA|ASIA)[A-Z0-9]{16}",
+            // SSH私钥
+            "-----BEGIN\\s+(?:RSA\\s+)?PRIVATE KEY-----",
+            // JWT Token
+            "eyJ[A-Za-z0-9_-]*\\.eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]*",
+            // 社交安全号 (SSN格式)
+            "\\b\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{4}\\b"
+        ]
+
+        for pattern in patterns {
+            if content.range(of: pattern, options: .regularExpression) != nil {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    /// 获取内容的风险等级
+    /// - Parameter content: 要评估的文本内容
+    /// - Returns: 风险等级
+    static func contentRiskLevel(_ content: String) -> RiskLevel {
+        if containsSensitiveData(content) {
+            return .high
+        }
+        return .low
+    }
+
+    enum RiskLevel {
+        case low
+        case medium
+        case high
+    }
 }
 
 // MARK: - Clipboard Monitor

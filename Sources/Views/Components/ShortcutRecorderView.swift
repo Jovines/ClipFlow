@@ -1,5 +1,8 @@
 import SwiftUI
 
+// Import HotKeyManager to access Shortcut type
+@_exported import Foundation
+
 struct ShortcutRecorderView: View {
     @Binding var shortcut: Shortcut
     
@@ -88,7 +91,7 @@ struct ShortcutRecorderView: View {
             }
             
             let modifiers = self.modifiersFromEvent(event)
-            let newShortcut = Shortcut(keyCode: UInt32(event.keyCode), modifiers: modifiers)
+            let newShortcut = Shortcut(keyCode: event.keyCode, modifiers: modifiers)
             
             if self.validateShortcut(newShortcut) {
                 self.shortcut = newShortcut
@@ -110,12 +113,12 @@ struct ShortcutRecorderView: View {
         }
     }
     
-    private func modifiersFromEvent(_ event: NSEvent) -> UInt32 {
-        var modifiers: UInt32 = 0
-        if event.modifierFlags.contains(.command) { modifiers |= cmdKey }
-        if event.modifierFlags.contains(.shift) { modifiers |= shiftKey }
-        if event.modifierFlags.contains(.control) { modifiers |= controlKey }
-        if event.modifierFlags.contains(.option) { modifiers |= optionKey }
+    private func modifiersFromEvent(_ event: NSEvent) -> NSEvent.ModifierFlags {
+        var modifiers: NSEvent.ModifierFlags = []
+        if event.modifierFlags.contains(.command) { modifiers.insert(.command) }
+        if event.modifierFlags.contains(.shift) { modifiers.insert(.shift) }
+        if event.modifierFlags.contains(.control) { modifiers.insert(.control) }
+        if event.modifierFlags.contains(.option) { modifiers.insert(.option) }
         return modifiers
     }
     
@@ -123,13 +126,13 @@ struct ShortcutRecorderView: View {
         guard shortcut.isValid else { return false }
         
         // At least one modifier required
-        let hasModifier = shortcut.modifiers != 0
+        let hasModifier = !shortcut.modifiers.isEmpty
         return hasModifier
     }
 }
 
 #Preview {
-    ShortcutRecorderView(shortcut: .constant(Shortcut(keyCode: 9, modifiers: cmdKey | shiftKey)))
+    ShortcutRecorderView(shortcut: .constant(Shortcut(keyCode: kVK_ANSI_V, modifiers: [.command, .shift])))
         .frame(width: 220)
         .padding()
 }
