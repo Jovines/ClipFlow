@@ -11,6 +11,8 @@
 		2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */; };
 		3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */; };
 		423891FB4C39BA5FDF08B1BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B153DF2BA49164525C42A0 /* AppDelegate.swift */; };
+		55B0264C9A61E6E0088EFE08 /* TagFilterBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E5096EBCB66391809C214D /* TagFilterBar.swift */; };
+		5EA1021084E61B983A8C34EB /* TagUsageStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC5E6DFAC5ED865697543356 /* TagUsageStats.swift */; };
 		5FC7B2B68756A340589CF3E3 /* FloatingWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */; };
 		66F348A0C42EE07792027C6B /* TagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34FF707D95A3A58D777275D /* TagView.swift */; };
 		747258764F890F953960B89B /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAB4DFF745C159D542E8DB9 /* EmptyStateView.swift */; };
@@ -34,6 +36,7 @@
 		93E6F611F5CEAB8D5193F057 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A34FF707D95A3A58D777275D /* TagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagView.swift; sourceTree = "<group>"; };
 		A4AC65C65E8D9EF183514721 /* ClipFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipFlowApp.swift; sourceTree = "<group>"; };
+		AC5E6DFAC5ED865697543356 /* TagUsageStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagUsageStats.swift; sourceTree = "<group>"; };
 		B65CFDF0F19C599B64730880 /* ClipboardItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardItemRow.swift; sourceTree = "<group>"; };
 		BA4353840CA24F045A37B133 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		C9BD6759A4218875050954FC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -41,6 +44,7 @@
 		E614E0B350221DC20564FFE6 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowView.swift; sourceTree = "<group>"; };
 		F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardItem.swift; sourceTree = "<group>"; };
+		F7E5096EBCB66391809C214D /* TagFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagFilterBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -57,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */,
+				AC5E6DFAC5ED865697543356 /* TagUsageStats.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -122,6 +127,7 @@
 				1EAB4DFF745C159D542E8DB9 /* EmptyStateView.swift */,
 				BA4353840CA24F045A37B133 /* SearchBar.swift */,
 				756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */,
+				F7E5096EBCB66391809C214D /* TagFilterBar.swift */,
 				A34FF707D95A3A58D777275D /* TagView.swift */,
 			);
 			path = Components;
@@ -234,6 +240,8 @@
 				0C8AE76378B0FCCF8957B3A0 /* SearchBar.swift in Sources */,
 				C950E8741D6C858B817F87B6 /* SettingsView.swift in Sources */,
 				2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */,
+				55B0264C9A61E6E0088EFE08 /* TagFilterBar.swift in Sources */,
+				5EA1021084E61B983A8C34EB /* TagUsageStats.swift in Sources */,
 				66F348A0C42EE07792027C6B /* TagView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
