@@ -1,9 +1,7 @@
 import Cocoa
 import Combine
 import Foundation
-
-// Models need to be accessible
-@_exported import Foundation
+import GRDB
 
 // MARK: - NSImage Extension
 
@@ -185,24 +183,14 @@ enum ClipboardContentDetector {
         return false
     }
 
-    /// 检测内容是否包含敏感信息
-    /// - Parameter content: 要检测的文本内容
-    /// - Returns: 如果包含敏感信息返回 true
     static func containsSensitiveData(_ content: String) -> Bool {
         let patterns = [
-            // 信用卡号 (基本格式检测)
             "\\b(?:\\d{4}[-\\s]?){3}\\d{4}\\b",
-            // 邮箱地址
             "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
-            // 密码关键词 (前后有空格或特殊字符)
             "(?i)(?:password|passwd|pwd|secret|token|key|api[_-]?key|auth)[\\s:]*\\S+",
-            // API密钥格式 (AWS风格)
             "(?:AKIA|ABIA|ACCA|ASIA)[A-Z0-9]{16}",
-            // SSH私钥
             "-----BEGIN\\s+(?:RSA\\s+)?PRIVATE KEY-----",
-            // JWT Token
             "eyJ[A-Za-z0-9_-]*\\.eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]*",
-            // 社交安全号 (SSN格式)
             "\\b\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{4}\\b"
         ]
 
@@ -215,9 +203,6 @@ enum ClipboardContentDetector {
         return false
     }
 
-    /// 获取内容的风险等级
-    /// - Parameter content: 要评估的文本内容
-    /// - Returns: 风险等级
     static func contentRiskLevel(_ content: String) -> RiskLevel {
         if containsSensitiveData(content) {
             return .high
@@ -246,15 +231,14 @@ final class ClipboardMonitor: ObservableObject {
     private let changeCountLock = NSLock()
     private var pasteboardObserver: NSObjectProtocol?
     private var timer: Timer?
-    private let persistence: PersistenceController
+    private let database = DatabaseManager.shared
     private var cancellables = Set<AnyCancellable>()
     private var recentHashes: Set<Int> = []
     private let maxRecentHashes = 1000
     private var hashCacheLock = NSLock()
     private let monitorQueue = DispatchQueue(label: "com.clipflow.monitor", qos: .userInitiated)
 
-    init(persistence: PersistenceController = .shared) {
-        self.persistence = persistence
+    private init() {
         self.changeCount = pasteboard.changeCount
         setupBindings()
     }
@@ -267,7 +251,10 @@ final class ClipboardMonitor: ObservableObject {
     }
 
     func start() {
-        guard !isMonitoring else { return }
+        guard !isMonitoring else {
+            ClipFlowLogger.info("Clipboard monitoring already started, skipping")
+            return
+        }
 
         setupPasteboardObserver()
         setupTimerPolling()
@@ -278,7 +265,7 @@ final class ClipboardMonitor: ObservableObject {
 
         isMonitoring = true
         loadRecentItems()
-        ClipFlowLogger.info("Clipboard monitoring started")
+        ClipFlowLogger.info("Clipboard monitoring started - changeCount: \(changeCount), pasteboard: \(pasteboard.name)")
     }
 
     func stop() {
@@ -316,8 +303,12 @@ final class ClipboardMonitor: ObservableObject {
     }
 
     func loadRecentItems(limit: Int = 50) {
-        let entities = persistence.fetchClipboardItems(limit: limit)
-        capturedItems = entities.compactMap { mapToClipboardItem($0) }
+        do {
+            capturedItems = try database.fetchClipboardItems(limit: limit)
+        } catch {
+            ClipFlowLogger.error("Failed to load recent items: \(error)")
+            capturedItems = []
+        }
     }
 
     func refresh() {
@@ -332,18 +323,24 @@ final class ClipboardMonitor: ObservableObject {
             if let thumbnailPath = item.thumbnailPath {
                 ImageCacheManager.shared.deleteImage(forKey: thumbnailPath)
             }
-            if let entity = persistence.fetchClipboardItem(by: item.id) {
-                persistence.deleteClipboardItem(entity)
+            do {
+                try database.deleteClipboardItem(id: item.id)
+                capturedItems.remove(at: index)
+            } catch {
+                ClipFlowLogger.error("Failed to delete item: \(error)")
             }
-            capturedItems.remove(at: index)
         }
     }
 
     func clearAllHistory() {
         ImageCacheManager.shared.clearCache()
-        persistence.deleteAllClipboardItems()
-        recentHashes.removeAll()
-        capturedItems.removeAll()
+        do {
+            try database.deleteAllClipboardItems()
+            recentHashes.removeAll()
+            capturedItems.removeAll()
+        } catch {
+            ClipFlowLogger.error("Failed to clear history: \(error)")
+        }
     }
 
     private func setupBindings() {
@@ -391,12 +388,18 @@ final class ClipboardMonitor: ObservableObject {
 
         guard currentChangeCount != lastChangeCount else { return }
 
+        ClipFlowLogger.info("Clipboard changed detected - changeCount: \(currentChangeCount)")
+
         if !ClipboardContentDetector.hasReadableContent(from: pasteboard) {
+            ClipFlowLogger.info("No readable content in pasteboard - types: \(pasteboard.types ?? [])")
             return
         }
 
         if let item = readFromPasteboard() {
-            guard !isDuplicate(item) else { return }
+            guard !isDuplicate(item) else {
+                ClipFlowLogger.info("Duplicate item skipped")
+                return
+            }
             saveToDatabase(item)
             addToHashCache(item.contentHash)
 
@@ -404,7 +407,10 @@ final class ClipboardMonitor: ObservableObject {
                 guard let self = self else { return }
                 self.capturedItems.insert(item, at: 0)
                 self.enforceHistoryLimit()
+                ClipFlowLogger.info("Captured new item - type: \(item.contentType), content: \(item.content.prefix(50))...")
             }
+        } else {
+            ClipFlowLogger.info("Failed to read from pasteboard")
         }
     }
 
@@ -447,14 +453,18 @@ final class ClipboardMonitor: ObservableObject {
     }
 
     private func saveToDatabase(_ item: ClipboardItem) {
-        persistence.createClipboardItem(
-            content: item.content,
-            contentType: item.contentType == .text ? "text" : "image",
-            imagePath: item.imagePath,
-            thumbnailPath: item.thumbnailPath,
-            contentHash: item.contentHash,
-            tagNames: item.tags.map { $0.name }
-        )
+        do {
+            _ = try database.createClipboardItem(
+                content: item.content,
+                contentType: item.contentType,
+                imagePath: item.imagePath,
+                thumbnailPath: item.thumbnailPath,
+                contentHash: item.contentHash,
+                tagNames: item.tags.map { $0.name }
+            )
+        } catch {
+            ClipFlowLogger.error("Failed to save to database: \(error)")
+        }
     }
 
     private func isDuplicate(_ item: ClipboardItem) -> Bool {
@@ -463,7 +473,13 @@ final class ClipboardMonitor: ObservableObject {
         hashCacheLock.unlock()
 
         if inMemoryCache { return true }
-        return persistence.existsItem(withHash: item.contentHash)
+
+        do {
+            return try database.existsItem(withHash: item.contentHash)
+        } catch {
+            ClipFlowLogger.error("Failed to check duplicate: \(error)")
+            return false
+        }
     }
 
     private func addToHashCache(_ hash: Int) {
@@ -493,39 +509,12 @@ final class ClipboardMonitor: ObservableObject {
             }
 
             capturedItems = Array(capturedItems.prefix(effectiveMaxItems))
-            persistence.cleanupExcessItems(keepCount: effectiveMaxItems)
+            do {
+                try database.cleanupExcessItems(keepCount: effectiveMaxItems)
+            } catch {
+                ClipFlowLogger.error("Failed to cleanup excess items: \(error)")
+            }
         }
-    }
-
-    private func mapToClipboardItem(_ entity: NSManagedObject) -> ClipboardItem? {
-        guard let id = entity.value(forKey: "id") as? UUID,
-              let contentTypeStr = entity.value(forKey: "contentType") as? String,
-              let createdAt = entity.value(forKey: "createdAt") as? Date else {
-            return nil
-        }
-
-        let content = entity.value(forKey: "content") as? String ?? ""
-        let imagePath = entity.value(forKey: "imagePath") as? String
-        let thumbnailPath = entity.value(forKey: "thumbnailPath") as? String
-        let contentHash = entity.value(forKey: "contentHash") as? Int ?? 0
-
-        let tagsSet = entity.value(forKey: "tags") as? Set<NSManagedObject>
-        let tags = tagsSet?.compactMap { tagEntity -> Tag? in
-            guard let name = tagEntity.value(forKey: "name") as? String,
-                  let color = tagEntity.value(forKey: "color") as? String else { return nil }
-            return Tag(id: UUID(), name: name, color: color)
-        } ?? []
-
-        return ClipboardItem(
-            id: id,
-            content: content,
-            contentType: ClipboardItem.ContentType(rawValue: contentTypeStr) ?? .text,
-            imagePath: imagePath,
-            thumbnailPath: thumbnailPath,
-            createdAt: createdAt,
-            tags: tags,
-            contentHash: contentHash
-        )
     }
 }
 

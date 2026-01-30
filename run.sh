@@ -16,5 +16,9 @@ if [ -z "$APP_PATH" ]; then
 fi
 
 echo "✅ Build succeeded"
-echo "📦 Opening: $APP_PATH"
-open "$APP_PATH"
+echo "📦 Running: $APP_PATH"
+echo "📝 Logs will appear below..."
+echo ""
+
+# Run directly in foreground to see logs
+"$APP_PATH/Contents/MacOS/ClipFlow"

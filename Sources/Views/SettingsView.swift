@@ -1,9 +1,6 @@
 import SwiftUI
 import ServiceManagement
 
-// Import shared types from HotKeyManager and other services
-@_exported import Foundation
-
 // MARK: - Settings Tab Enum
 
 enum SettingsTab: String, CaseIterable, Identifiable {
@@ -469,30 +466,31 @@ struct TagsManagementView: View {
     }
 
     private func loadTags() {
-        let tagEntities = PersistenceController.shared.fetchAllTags()
-        tags = tagEntities.compactMap { entity -> Tag? in
-            guard let name = entity.value(forKey: "name") as? String,
-                  let color = entity.value(forKey: "color") as? String,
-                  let id = entity.value(forKey: "id") as? UUID else {
-                return nil
-            }
-            return Tag(id: id, name: name, color: color)
+        do {
+            tags = try DatabaseManager.shared.fetchAllTags()
+        } catch {
+            ClipFlowLogger.error("Failed to load tags: \(error)")
+            tags = []
         }
     }
 
     private func addTag() {
-        let entity = PersistenceController.shared.createTag(name: newTagName, color: "blue")
-        if let tag = mapTagEntity(entity) {
+        do {
+            let tag = try DatabaseManager.shared.createTag(name: newTagName, color: "blue")
             tags.append(tag)
+            newTagName = ""
+        } catch {
+            ClipFlowLogger.error("Failed to add tag: \(error)")
         }
-        newTagName = ""
     }
 
     private func removeTag(_ tag: Tag) {
-        if let entity = PersistenceController.shared.fetchTag(byId: tag.id) {
-            PersistenceController.shared.deleteTag(entity)
+        do {
+            try DatabaseManager.shared.deleteTag(id: tag.id)
+            tags.removeAll { $0.id == tag.id }
+        } catch {
+            ClipFlowLogger.error("Failed to remove tag: \(error)")
         }
-        tags.removeAll { $0.id == tag.id }
     }
 
     private func editTag(_ tag: Tag) {
@@ -501,22 +499,15 @@ struct TagsManagementView: View {
     }
 
     private func updateTag(_ oldTag: Tag, with newTag: Tag) {
-        if let entity = PersistenceController.shared.fetchTag(byId: oldTag.id) {
-            PersistenceController.shared.updateTagName(entity, name: newTag.name)
-            PersistenceController.shared.updateTagColor(entity, color: newTag.color)
+        do {
+            try DatabaseManager.shared.updateTagName(id: oldTag.id, name: newTag.name)
+            try DatabaseManager.shared.updateTagColor(id: oldTag.id, color: newTag.color)
+            if let index = tags.firstIndex(where: { $0.id == oldTag.id }) {
+                tags[index] = newTag
+            }
+        } catch {
+            ClipFlowLogger.error("Failed to update tag: \(error)")
         }
-        if let index = tags.firstIndex(where: { $0.id == oldTag.id }) {
-            tags[index] = newTag
-        }
-    }
-
-    private func mapTagEntity(_ entity: NSManagedObject) -> Tag? {
-        guard let name = entity.value(forKey: "name") as? String,
-              let color = entity.value(forKey: "color") as? String,
-              let id = entity.value(forKey: "id") as? UUID else {
-            return nil
-        }
-        return Tag(id: id, name: name, color: color)
     }
 }
 
