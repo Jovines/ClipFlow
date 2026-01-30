@@ -76,11 +76,11 @@ final class FloatingWindowManager: ObservableObject {
                 self?.clipboardMonitor.copyToClipboard(item)
                 self?.hideWindow()
             },
-            maxVisibleItems: maxVisibleItems
+            maxVisibleItems: maxVisibleItems,
+            clipboardMonitor: clipboardMonitor
         )
 
         floatingWindowHostingController = NSHostingController(rootView: floatingView)
-        floatingWindowHostingController?.rootView.environmentObject(clipboardMonitor)
 
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: windowWidth, height: windowHeight),
@@ -177,8 +177,7 @@ struct FloatingWindowView: View {
     let onClose: () -> Void
     let onItemSelected: (ClipboardItem) -> Void
     let maxVisibleItems: Int
-
-    @EnvironmentObject private var clipboardMonitor: ClipboardMonitor
+    let clipboardMonitor: ClipboardMonitor
     @State private var searchText = ""
     @State private var selectedItem: ClipboardItem?
     @State private var selectedIndex: Int = 0
@@ -344,7 +343,8 @@ struct FloatingWindowView: View {
             },
             onDelete: {
                 clipboardMonitor.deleteItem(item)
-            }
+            },
+            clipboardMonitor: clipboardMonitor
         )
     }
 
@@ -396,8 +396,7 @@ struct FloatingItemRow: View {
     let isSelected: Bool
     let onSelect: () -> Void
     let onDelete: () -> Void
-
-    @EnvironmentObject private var clipboardMonitor: ClipboardMonitor
+    let clipboardMonitor: ClipboardMonitor
     @State private var isHovered = false
 
     var body: some View {
@@ -545,21 +544,6 @@ struct ImagePreviewView: View {
                 if let imagePath = item.imagePath,
                    let imageData = ImageCacheManager.shared.loadImage(forKey: imagePath),
                    let nsImage = NSImage(data: imageData) {
-                    ScrollView([.horizontal, .vertical]) {
-                        Image(nsImage: nsImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .scaleEffect(scale)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .onTapGesture(count: 2) {
-                                withAnimation(.spring()) {
-                                    scale = scale > 1.0 ? 1.0 : 2.0
-                                }
-                            }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let imageData = item.imageData,
-                          let nsImage = NSImage(data: imageData) {
                     ScrollView([.horizontal, .vertical]) {
                         Image(nsImage: nsImage)
                             .resizable()
