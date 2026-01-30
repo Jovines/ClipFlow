@@ -1,14 +1,15 @@
 import SwiftUI
 import ServiceManagement
 
+// Import shared types from HotKeyManager and other services
+@_exported import Foundation
+
 struct SettingsView: View {
-    @AppStorage("shortcutKey") private var shortcutKey = "v"
-    @AppStorage("useCommandKey") private var useCommandKey = true
-    @AppStorage("useShiftKey") private var useShiftKey = true
     @AppStorage("maxHistoryItems") private var maxHistoryItems = 100
     @AppStorage("saveImages") private var saveImages = true
     @AppStorage("autoStart") private var autoStart = false
 
+    @State private var shortcut = Shortcut.defaultShortcut
     @State private var showConflictAlert = false
     @State private var conflictMessage = ""
     @State private var autoStartStatus: AutoStartStatus = .unknown
@@ -23,9 +24,7 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             GeneralSettingsView(
-                shortcutKey: $shortcutKey,
-                useCommandKey: $useCommandKey,
-                useShiftKey: $useShiftKey,
+                shortcut: $shortcut,
                 maxHistoryItems: $maxHistoryItems,
                 saveImages: $saveImages,
                 autoStart: $autoStart,
@@ -91,9 +90,7 @@ struct SettingsView: View {
 }
 
 struct GeneralSettingsView: View {
-    @Binding var shortcutKey: String
-    @Binding var useCommandKey: Bool
-    @Binding var useShiftKey: Bool
+    @Binding var shortcut: Shortcut
     @Binding var maxHistoryItems: Int
     @Binding var saveImages: Bool
     @Binding var autoStart: Bool
@@ -104,21 +101,20 @@ struct GeneralSettingsView: View {
     var body: some View {
         Form {
             Section("Shortcut") {
-                Toggle("Use Command Key", isOn: $useCommandKey)
-                Toggle("Use Shift Key", isOn: $useShiftKey)
-
-                HStack {
-                    Text("Action Key")
-                    Spacer()
-                    Text(shortcutKey.uppercased())
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(Color(NSColor.textBackgroundColor))
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
-                }
-
-                Button("Apply Shortcut") {
-                    applyShortcut()
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Global Shortcut")
+                        .font(.headline)
+                    Text("Click to record a new shortcut")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    
+                    ShortcutRecorderView(shortcut: Binding(
+                        get: { shortcut },
+                        set: { newShortcut in
+                            shortcut = newShortcut
+                            applyShortcut(newShortcut)
+                        }
+                    ))
                 }
             }
 
@@ -168,18 +164,9 @@ struct GeneralSettingsView: View {
         }
     }
 
-    private func applyShortcut() {
-        var modifiers: NSEvent.ModifierFlags = []
-        if useCommandKey { modifiers.insert(.command) }
-        if useShiftKey { modifiers.insert(.shift) }
-
-        let keyCode: UInt16 = shortcutKey.utf16.first ?? 0
-
-        let shortcut = Shortcut(keyCode: keyCode, modifiers: modifiers)
-
-        if shortcut.isValid && !shortcut.modifiers.isEmpty {
-            if HotKeyManager.shared.register(shortcut) {
-            } else {
+    private func applyShortcut(_ newShortcut: Shortcut) {
+        if newShortcut.isValid && !newShortcut.modifiers.isEmpty {
+            if !HotKeyManager.shared.register(newShortcut) {
                 conflictMessage = "Unable to register this shortcut. It may be in use by another application."
                 showConflictAlert = true
             }
