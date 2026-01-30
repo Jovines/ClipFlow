@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04F68D02C68BC941A62A4FD8 /* MenuBarPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */; };
 		0C8AE76378B0FCCF8957B3A0 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA4353840CA24F045A37B133 /* SearchBar.swift */; };
 		2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */; };
 		3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */; };
@@ -30,6 +31,7 @@
 /* Begin PBXFileReference section */
 		1EAB4DFF745C159D542E8DB9 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyManager.swift; sourceTree = "<group>"; };
+		3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPopoverView.swift; sourceTree = "<group>"; };
 		49493FC09DDDFB3A81EF6D61 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
 		756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorderView.swift; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 			children = (
 				C9BD6759A4218875050954FC /* ContentView.swift */,
 				E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */,
+				3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */,
 				93E6F611F5CEAB8D5193F057 /* SettingsView.swift */,
 				E534313217E75EB58E2BB586 /* Components */,
 			);
@@ -254,6 +257,7 @@
 				747258764F890F953960B89B /* EmptyStateView.swift in Sources */,
 				5FC7B2B68756A340589CF3E3 /* FloatingWindowView.swift in Sources */,
 				3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */,
+				04F68D02C68BC941A62A4FD8 /* MenuBarPopoverView.swift in Sources */,
 				0C8AE76378B0FCCF8957B3A0 /* SearchBar.swift in Sources */,
 				C950E8741D6C858B817F87B6 /* SettingsView.swift in Sources */,
 				2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */,

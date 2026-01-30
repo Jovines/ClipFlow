@@ -8,36 +8,30 @@ struct TagFilterBar: View {
     @State private var sortedTags: [Tag] = []
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                FilterChip(
-                    name: "全部",
-                    color: nil,
-                    isSelected: selectedTag == nil
-                ) {
-                    onTagSelected(nil)
-                }
-                
-                ForEach(sortedTags) { tag in
-                    FilterChip(
-                        name: tag.name,
-                        color: tag.color,
-                        isSelected: selectedTag?.id == tag.id
-                    ) {
-                        onTagSelected(tag)
+        if !sortedTags.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 6) {
+                    ForEach(sortedTags) { tag in
+                        FilterChip(
+                            name: tag.name,
+                            color: tag.color,
+                            isSelected: selectedTag?.id == tag.id
+                        ) {
+                            onTagSelected(tag)
+                        }
                     }
                 }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-        }
-        .frame(height: 32)
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.3))
-        .onAppear {
-            updateSortedTags()
-        }
-        .onChange(of: tags) { _, _ in
-            updateSortedTags()
+            .frame(height: 32)
+            .background(Color.flexokiSurface.opacity(0.3))
+            .onAppear {
+                updateSortedTags()
+            }
+            .onChange(of: tags) { _, _ in
+                updateSortedTags()
+            }
         }
     }
     
@@ -65,7 +59,7 @@ struct FilterChip: View {
             HStack(spacing: 4) {
                 if let color = color {
                     Circle()
-                        .fill(Color.fromHex(color))
+                        .fill(Color.flexokiTagColor(for: color))
                         .frame(width: 6, height: 6)
                 }
                 Text(name)
@@ -83,21 +77,21 @@ struct FilterChip: View {
     private var backgroundColor: Color {
         if isSelected {
             if let color = color {
-                return Color.fromHex(color).opacity(0.3)
+                return Color.flexokiTagColor(for: color).opacity(0.3)
             }
-            return Color.accentColor.opacity(0.3)
+            return Color.flexokiAccent.opacity(0.3)
         }
-        return Color(NSColor.controlBackgroundColor).opacity(0.5)
+        return Color.flexokiSurface.opacity(0.5)
     }
     
     private var foregroundColor: Color {
         if isSelected {
             if let color = color {
-                return Color.fromHex(color)
+                return Color.flexokiTagColor(for: color)
             }
-            return Color.accentColor
+            return Color.flexokiAccent
         }
-        return Color.primary
+        return Color.flexokiText
     }
 }
 

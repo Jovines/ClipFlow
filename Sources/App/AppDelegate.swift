@@ -3,16 +3,31 @@ import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    var statusBarItem: NSStatusItem?
     private let windowManager = FloatingWindowManager.shared
     private var hasCheckedPermission = false
     private var isFloatingWindowActive = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        setupStatusBarItem()
         setupClipboardMonitor()
         checkAndRequestAccessibilityPermission()
         setupWindowFocusMonitoring()
+        setupWindowNotifications()
+        print("[INFO] 应用启动，当前窗口: \(NSApp.windows.map { "\($0.title):\($0.isVisible)" })")
+    }
+
+    private func setupWindowNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(windowDidClose),
+            name: NSWindow.willCloseNotification,
+            object: nil
+        )
+    }
+
+    @objc private func windowDidClose(_ notification: Notification) {
+        if let window = notification.object as? NSWindow {
+            print("[INFO] 窗口关闭: \(window.title), 剩余窗口: \(NSApp.windows.map { "\($0.title):\($0.isVisible)" })")
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {
@@ -29,15 +44,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             if trusted && !hasShortcut {
                 registerGlobalShortcut()
             }
-        }
-    }
-
-    private func setupStatusBarItem() {
-        statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let button = statusBarItem?.button {
-            button.image = NSImage(systemSymbolName: "doc.on.clipboard", accessibilityDescription: "ClipFlow")
-            button.target = self
-            button.action = #selector(toggleFloatingWindow)
         }
     }
 
@@ -105,6 +111,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func applicationDidResignActive() {
+        ClipFlowLogger.info("applicationDidResignActive - isFloatingWindowActive: \(isFloatingWindowActive), windows: \(NSApp.windows.map { "\($0.title):\($0.isVisible)" })")
         if !isFloatingWindowActive {
             closeMainWindow()
         }
@@ -121,7 +128,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func closeMainWindow() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
-            NSApp.windows.filter { $0 != self.windowManager.floatingWindow }.forEach { window in
+            NSApp.windows.filter { window in
+                window.title == "ClipFlow"
+            }.forEach { window in
+                print("[INFO] 关闭主窗口: \(window.title)")
                 window.close()
             }
         }

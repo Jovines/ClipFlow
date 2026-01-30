@@ -136,14 +136,14 @@ extension Tag: FetchableRecord, PersistableRecord {
     }
 
     static let availableColors: [(name: String, hex: String)] = [
-        ("blue", "#007AFF"),
-        ("green", "#34C759"),
-        ("red", "#FF3B30"),
-        ("orange", "#FF9500"),
-        ("purple", "#AF52DE"),
-        ("pink", "#FF2D55"),
-        ("yellow", "#FFCC00"),
-        ("gray", "#8E8E93")
+        ("blue", "#205EA6"),
+        ("green", "#66800B"),
+        ("red", "#AF3029"),
+        ("orange", "#BC5215"),
+        ("purple", "#5E409D"),
+        ("magenta", "#A02F6F"),
+        ("yellow", "#AD8301"),
+        ("cyan", "#24837B")
     ]
 
     static func colorForName(_ name: String) -> String {

@@ -54,6 +54,12 @@ final class FloatingWindowManager: ObservableObject {
         positionWindow()
         floatingWindow?.orderFront(nil)
         floatingWindow?.makeKeyAndOrderFront(nil)
+
+        DispatchQueue.main.async {
+            NSApp.activate(ignoringOtherApps: true)
+            self.floatingWindow?.makeKey()
+        }
+
         isWindowVisible = true
         startClickOutsideMonitoring()
     }
@@ -128,7 +134,7 @@ final class FloatingWindowManager: ObservableObject {
 
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: windowWidth, height: windowHeight),
-            styleMask: [.borderless, .nonactivatingPanel],
+            styleMask: [.borderless, .utilityWindow],
             backing: .buffered,
             defer: false
         )
@@ -239,7 +245,7 @@ struct FloatingWindowView: View {
     }
     @State private var isSelectionMode = false
     @State private var selectedItem: ClipboardItem?
-    @State private var selectedIndex: Int = 0
+    @State private var selectedIndex: Int = -1
     @State private var showImagePreview = false
     @State private var selectedTag: Tag?
     @State private var allTags: [Tag] = []
@@ -260,7 +266,7 @@ struct FloatingWindowView: View {
             Divider()
             contentView
         }
-        .background(.ultraThinMaterial)
+        .background(Color.flexokiSurface.opacity(0.95))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.15), radius: 15, x: 0, y: 5)
         .frame(width: 360, height: 420)
@@ -269,9 +275,9 @@ struct FloatingWindowView: View {
             resetSearch()
             loadAllTags()
         }
-        .onChange(of: filteredItems.count) { _ in
-            if selectedIndex >= filteredItems.count {
-                selectedIndex = max(0, filteredItems.count - 1)
+        .onChange(of: filteredItems.count) { newCount in
+            if selectedIndex >= newCount && selectedIndex >= 0 {
+                selectedIndex = max(0, newCount - 1)
             }
         }
         .onKeyPress(.downArrow) {
@@ -305,13 +311,13 @@ struct FloatingWindowView: View {
         .onKeyPress(.escape) {
             if isSelectionMode {
                 isSelectionMode = false
-                selectedIndex = 0
+                selectedIndex = -1
             } else if !searchText.isEmpty {
                 searchText = ""
-                selectedIndex = 0
+                selectedIndex = -1
             } else if selectedTag != nil {
                 selectedTag = nil
-                selectedIndex = 0
+                selectedIndex = -1
             } else {
                 onClose()
             }
@@ -336,13 +342,17 @@ struct FloatingWindowView: View {
 
         switch direction {
         case .down:
-            if selectedIndex < maxIndex {
+            if selectedIndex < 0 {
+                selectedIndex = -1
+            } else if selectedIndex < maxIndex {
                 withAnimation(.easeOut(duration: 0.1)) {
                     selectedIndex += 1
                 }
             }
         case .up:
-            if selectedIndex > 0 {
+            if selectedIndex < 0 {
+                selectedIndex = maxIndex
+            } else if selectedIndex > 0 {
                 withAnimation(.easeOut(duration: 0.1)) {
                     selectedIndex -= 1
                 }
@@ -382,12 +392,12 @@ struct FloatingWindowView: View {
         HStack {
             Text("\(searchResultCount) result\(searchResultCount == 1 ? "" : "s")")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.flexokiTextSecondary)
             Spacer()
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 4)
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.3))
+        .background(Color.flexokiSurface.opacity(0.5))
     }
 
     @ViewBuilder
@@ -419,11 +429,11 @@ struct FloatingWindowView: View {
         VStack(spacing: 12) {
             Image(systemName: "doc.on.clipboard")
                 .font(.system(size: 36))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.flexokiTextSecondary)
 
             Text("No clipboard history")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.flexokiTextSecondary)
 
             Text("Copy something to see it here")
                 .font(.caption)
@@ -468,7 +478,7 @@ struct FloatingWindowView: View {
 
     private func handleTagSelected(_ tag: Tag?) {
         selectedTag = tag
-        selectedIndex = 0
+        selectedIndex = -1
         searchText = ""
         isSelectionMode = false
         
@@ -480,13 +490,13 @@ struct FloatingWindowView: View {
     private var searchIndicatorView: some View {
         HStack(spacing: 8) {
             Image(systemName: isSelectionMode ? "number" : "magnifyingglass")
-                .foregroundStyle(isSelectionMode ? Color.accentColor : .secondary)
+                .foregroundStyle(isSelectionMode ? Color.flexokiAccent : .secondary)
                 .font(.system(size: 13))
             
             if isSelectionMode {
                 Text("选择模式")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color.flexokiAccent)
             } else {
                 Text(searchText)
                     .font(.system(size: 13))
@@ -497,15 +507,15 @@ struct FloatingWindowView: View {
             
             Text("\(filteredItems.count)")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.flexokiTextSecondary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(Color.flexokiSurface)
                 .clipShape(Capsule())
             
             Button(action: resetSearch) {
                 Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.flexokiTextSecondary)
                     .font(.system(size: 14))
             }
             .buttonStyle(.plain)
@@ -520,29 +530,29 @@ struct FloatingWindowView: View {
             HStack(spacing: 4) {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 11))
-                    .foregroundStyle(isSelectionMode ? .secondary : Color.accentColor)
+                    .foregroundStyle(isSelectionMode ? .secondary : Color.flexokiAccent)
                 
                 Text("搜索")
                     .font(.system(size: 11))
-                    .foregroundStyle(isSelectionMode ? .secondary : Color.accentColor)
+                    .foregroundStyle(isSelectionMode ? .secondary : Color.flexokiAccent)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(isSelectionMode ? Color.clear : Color.accentColor.opacity(0.15))
+            .background(isSelectionMode ? Color.clear : Color.flexokiAccent.opacity(0.15))
             .clipShape(Capsule())
             
             HStack(spacing: 4) {
                 Image(systemName: "number")
                     .font(.system(size: 11))
-                    .foregroundStyle(isSelectionMode ? Color.accentColor : .secondary)
+                    .foregroundStyle(isSelectionMode ? Color.flexokiAccent : .secondary)
                 
                 Text("选择")
                     .font(.system(size: 11))
-                    .foregroundStyle(isSelectionMode ? Color.accentColor : .secondary)
+                    .foregroundStyle(isSelectionMode ? Color.flexokiAccent : .secondary)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(isSelectionMode ? Color.accentColor.opacity(0.15) : Color.clear)
+            .background(isSelectionMode ? Color.flexokiAccent.opacity(0.15) : Color.clear)
             .clipShape(Capsule())
             
             Spacer()
@@ -551,7 +561,7 @@ struct FloatingWindowView: View {
                 if !searchText.isEmpty && !isSelectionMode {
                     Text(searchText)
                         .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.flexokiTextSecondary)
                         .lineLimit(1)
                         .padding(.trailing, 4)
                 }
@@ -566,13 +576,13 @@ struct FloatingWindowView: View {
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 2)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(Color.flexokiSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 3))
             }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.3))
+        .background(Color.flexokiSurface.opacity(0.8))
     }
 
     private func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
@@ -610,7 +620,7 @@ struct FloatingWindowView: View {
             
             if isValidChar {
                 searchText += key
-                selectedIndex = 0
+                selectedIndex = -1
                 return .handled
             }
         }
@@ -621,14 +631,14 @@ struct FloatingWindowView: View {
     private func toggleMode() {
         isSelectionMode.toggle()
         if isSelectionMode {
-            selectedIndex = 0
+            selectedIndex = -1
         }
     }
 
     private func removeLastSearchCharacter() {
         if !searchText.isEmpty {
             searchText.removeLast()
-            selectedIndex = 0
+            selectedIndex = -1
         }
     }
 
@@ -636,7 +646,7 @@ struct FloatingWindowView: View {
         searchText = ""
         isSelectionMode = false
         selectedTag = nil
-        selectedIndex = 0
+        selectedIndex = -1
     }
 }
 
@@ -656,9 +666,9 @@ struct FloatingItemRow: View {
             if index < 9 {
                 Text("\(index + 1)")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(isSelected ? Color.accentColor : .secondary)
+                    .foregroundStyle(isSelected ? Color.flexokiAccent : .secondary)
                     .frame(width: 16, height: 16)
-                    .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+        .background(isSelected ? Color.flexokiAccent.opacity(0.2) : Color.flexokiSurface.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 4))
             }
 
@@ -667,13 +677,6 @@ struct FloatingItemRow: View {
             Spacer()
 
             if isHovered {
-                Button(action: onSelect) {
-                    Image(systemName: "doc.on.doc")
-                        .font(.system(size: 12))
-                }
-                .buttonStyle(.plain)
-                .keyboardShortcut(KeyEquivalent.return, modifiers: [])
-
                 Button(action: onDelete) {
                     Image(systemName: "trash")
                         .font(.system(size: 12))
@@ -708,7 +711,7 @@ struct FloatingItemRow: View {
 
                     if !item.tags.isEmpty {
                         HStack(spacing: 2) {
-                            ForEach(item.tags.prefix(2)) { tag in
+                            ForEach(item.tags.prefix(1)) { tag in
                                 Text(tag.name)
                                     .font(.caption2)
                                     .padding(.horizontal, 4)
@@ -720,7 +723,7 @@ struct FloatingItemRow: View {
                     }
                 }
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.flexokiTextSecondary)
             }
         }
     }
@@ -730,7 +733,7 @@ struct FloatingItemRow: View {
             switch item.contentType {
             case .text:
                 Image(systemName: "doc.text")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.flexokiTextSecondary)
                     .font(.system(size: 14))
             case .image:
                 thumbnailView
@@ -751,7 +754,7 @@ struct FloatingItemRow: View {
                 .clipShape(RoundedRectangle(cornerRadius: 4))
         } else {
             Image(systemName: "photo")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.flexokiTextSecondary)
                 .font(.system(size: 14))
         }
     }
@@ -768,14 +771,49 @@ struct FloatingItemRow: View {
     }
 
     private var timeText: some View {
-        Text(item.createdAt, style: .relative)
+        Text(formatTimeAgo(from: item.createdAt))
+    }
+
+    private func formatTimeAgo(from date: Date) -> String {
+        let now = Date()
+        let elapsed = now.timeIntervalSince(date)
+
+        if elapsed < 60 {
+            return "刚刚"
+        } else if elapsed < 120 {
+            return "1 分钟前"
+        } else if elapsed < 180 {
+            return "2 分钟前"
+        } else if elapsed < 240 {
+            return "3 分钟前"
+        } else if elapsed < 300 {
+            return "4 分钟前"
+        } else if elapsed < 600 {
+            return "5 分钟前"
+        } else if elapsed < 900 {
+            return "10 分钟前"
+        } else if elapsed < 1200 {
+            return "15 分钟前"
+        } else if elapsed < 1800 {
+            return "20 分钟前"
+        } else if elapsed < 3600 {
+            return "半小时前"
+        } else if elapsed < 7200 {
+            return "1 小时前"
+        } else if elapsed < 86400 {
+            let hours = Int(elapsed / 3600)
+            return "\(hours) 小时前"
+        } else {
+            let days = Int(elapsed / 86400)
+            return "\(days) 天前"
+        }
     }
 
     private var backgroundColor: Color {
         if isSelected {
-            return Color.accentColor.opacity(0.3)
+            return Color.flexokiAccent.opacity(0.2)
         }
-        return isHovered ? Color(NSColor.selectedContentBackgroundColor).opacity(0.5) : .clear
+        return isHovered ? Color.flexokiBase200.opacity(0.5) : .clear
     }
 
     private var accessibilityLabel: String {

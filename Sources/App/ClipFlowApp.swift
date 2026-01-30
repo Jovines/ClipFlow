@@ -5,14 +5,17 @@ struct ClipFlowApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        MenuBarExtra {
+            MenuBarPopoverView()
+        } label: {
+            Image(systemName: "doc.on.clipboard")
         }
-        .windowStyle(.hiddenTitleBar)
-        .windowResizability(.contentSize)
+        .menuBarExtraStyle(.window)
 
-        Settings {
+        Window("设置", id: "settings") {
             SettingsView()
         }
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
     }
 }
