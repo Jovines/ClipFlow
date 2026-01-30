@@ -199,6 +199,14 @@ final class DatabaseManager {
         }
     }
 
+    func updateItemContent(id: UUID, content: String) throws {
+        try dbPool.write { db in
+            guard var item = try ClipboardItem.fetchOne(db, key: ["id": id.uuidString]) else { return }
+            item.content = content
+            try item.update(db)
+        }
+    }
+
     func deleteClipboardItem(id: UUID) throws {
         try dbPool.write { db in
             try db.execute(sql: "DELETE FROM item_tags WHERE item_id = ?", arguments: [id.uuidString])

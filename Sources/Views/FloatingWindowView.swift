@@ -250,26 +250,56 @@ struct FloatingWindowView: View {
     @State private var selectedTag: Tag?
     @State private var allTags: [Tag] = []
 
+    @State private var editingItem: ClipboardItem?
+    @State private var editContent: String = ""
+    @State private var originalContent: String = ""
+    @State private var editorPosition: EditorPosition = .right
+    @State private var editorWidth: CGFloat = 280
+
+    enum EditorPosition {
+        case left
+        case right
+    }
+
+    private var isEditing: Bool {
+        editingItem != nil
+    }
+
+    private var characterCount: Int {
+        editContent.count
+    }
+
+    private var maxCharacterCount: Int {
+        10000
+    }
+
     var body: some View {
-        VStack(spacing: 0) {
-            if !searchText.isEmpty {
-                searchIndicatorView
+        HStack(spacing: 0) {
+            VStack(spacing: 0) {
+                if !searchText.isEmpty {
+                    searchIndicatorView
+                    Divider()
+                }
+                TagFilterBar(
+                    tags: allTags,
+                    selectedTag: $selectedTag,
+                    onTagSelected: handleTagSelected
+                )
                 Divider()
+                modeIndicatorView
+                Divider()
+                contentView
             }
-            TagFilterBar(
-                tags: allTags,
-                selectedTag: $selectedTag,
-                onTagSelected: handleTagSelected
-            )
-            Divider()
-            modeIndicatorView
-            Divider()
-            contentView
+            .frame(width: 360, height: 420)
+
+            if isEditing {
+                editorPanel
+                    .frame(width: editorWidth, height: 420)
+            }
         }
         .background(Color.flexokiSurface.opacity(0.95))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.15), radius: 15, x: 0, y: 5)
-        .frame(width: 360, height: 420)
         .focusable(true)
         .onAppear {
             clipboardMonitor.refresh()
@@ -290,16 +320,24 @@ struct FloatingWindowView: View {
             return .handled
         }
         .onKeyPress(.tab) {
+            if isEditing {
+                return .ignored
+            }
             toggleMode()
             return .handled
         }
         .onKeyPress(.return) {
-            if let item = getSelectedItem() {
+            if isEditing {
+                saveEdit()
+            } else if let item = getSelectedItem() {
                 handleItemSelection(item)
             }
             return .handled
         }
         .onKeyPress(.delete) {
+            if isEditing {
+                return .ignored
+            }
             if searchText.isEmpty {
                 if let item = getSelectedItem() {
                     clipboardMonitor.deleteItem(item)
@@ -310,7 +348,9 @@ struct FloatingWindowView: View {
             return .handled
         }
         .onKeyPress(.escape) {
-            if isSelectionMode {
+            if isEditing {
+                cancelEdit()
+            } else if isSelectionMode {
                 isSelectionMode = false
                 selectedIndex = -1
             } else if !searchText.isEmpty {
@@ -325,7 +365,14 @@ struct FloatingWindowView: View {
             return .handled
         }
         .onKeyPress(phases: .down) { press in
-            handleKeyPress(press)
+            if isEditing {
+                if press.characters == "r" && press.modifiers.contains(.command) {
+                    resetEdit()
+                    return .handled
+                }
+                return .ignored
+            }
+            return handleKeyPress(press)
         }
         .sheet(isPresented: $showImagePreview) {
             if let item = selectedItem {
@@ -407,8 +454,12 @@ struct FloatingWindowView: View {
             item: item,
             index: index,
             isSelected: selectedIndex == index,
+            isEditing: editingItem?.id == item.id,
             onSelect: {
                 handleItemSelection(item)
+            },
+            onEdit: {
+                startEdit(item)
             },
             onDelete: {
                 clipboardMonitor.deleteItem(item)
@@ -441,6 +492,132 @@ struct FloatingWindowView: View {
                 .foregroundStyle(.tertiary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var editorPanel: some View {
+        VStack(spacing: 0) {
+            editorHeader
+            Divider()
+            editorContent
+            Divider()
+            editorFooter
+        }
+        .background(Color.flexokiSurface.opacity(0.95))
+    }
+
+    private var editorHeader: some View {
+        HStack {
+            Text("编辑记录")
+                .font(.system(size: 13, weight: .medium))
+            Spacer()
+            Button(action: { cancelEdit() }) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.flexokiTextSecondary)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+    }
+
+    private var editorContent: some View {
+        VStack(spacing: 0) {
+            TextEditor(text: $editContent)
+                .font(.system(size: 13))
+                .padding(8)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+
+            HStack {
+                Text("\(characterCount)/\(maxCharacterCount)")
+                    .font(.caption)
+                    .foregroundStyle(Color.flexokiTextSecondary)
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
+        }
+    }
+
+    private var editorFooter: some View {
+        HStack(spacing: 8) {
+            Button(action: { resetEdit() }) {
+                Text("重置")
+                    .font(.system(size: 12))
+            }
+            .buttonStyle(.bordered)
+            .disabled(editContent == originalContent)
+
+            Spacer()
+
+            Button(action: { cancelEdit() }) {
+                Text("取消")
+                    .font(.system(size: 12))
+            }
+            .buttonStyle(.bordered)
+
+            Button(action: { saveEdit() }) {
+                Text("保存")
+                    .font(.system(size: 12, weight: .medium))
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(editContent.isEmpty || editContent == originalContent)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+    }
+
+    private func startEdit(_ item: ClipboardItem) {
+        guard item.contentType == .text else { return }
+        editingItem = item
+        editContent = item.content
+        originalContent = item.content
+        determineEditorPosition()
+    }
+
+    private func saveEdit() {
+        guard let item = editingItem else { return }
+        clipboardMonitor.updateItemContent(id: item.id, newContent: editContent)
+        clipboardMonitor.moveItemToTop(id: item.id)
+        editingItem = nil
+        editContent = ""
+        originalContent = ""
+        selectedIndex = -1
+    }
+
+    private func cancelEdit() {
+        editingItem = nil
+        editContent = ""
+        originalContent = ""
+    }
+
+    private func resetEdit() {
+        editContent = originalContent
+    }
+
+    private func determineEditorPosition() {
+        guard let window = FloatingWindowManager.shared.floatingWindow else {
+            editorPosition = .right
+            return
+        }
+
+        let mouseLocation = NSEvent.mouseLocation
+        let screenFrame = NSScreen.screens.first { screen in
+            NSMouseInRect(mouseLocation, screen.frame, false)
+        }?.visibleFrame ?? NSScreen.main?.visibleFrame ?? CGRect.zero
+
+        let windowFrame = window.frame
+        let rightSpace = screenFrame.maxX - windowFrame.maxX
+        let leftSpace = windowFrame.minX - screenFrame.minX
+
+        if rightSpace >= editorWidth + 10 {
+            editorPosition = .right
+        } else if leftSpace >= editorWidth + 10 {
+            editorPosition = .left
+        } else {
+            editorPosition = .right
+        }
     }
 
     private var filteredItems: [ClipboardItem] {
@@ -657,7 +834,9 @@ struct FloatingItemRow: View {
     let item: ClipboardItem
     let index: Int
     let isSelected: Bool
+    let isEditing: Bool
     let onSelect: () -> Void
+    let onEdit: () -> Void
     let onDelete: () -> Void
     let clipboardMonitor: ClipboardMonitor
     @State private var isHovered = false
@@ -667,9 +846,9 @@ struct FloatingItemRow: View {
             if index < 9 {
                 Text("\(index + 1)")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(isSelected ? Color.flexokiAccent : .secondary)
+                    .foregroundStyle(isSelected || isEditing ? Color.flexokiAccent : .secondary)
                     .frame(width: 16, height: 16)
-        .background(isSelected ? Color.flexokiAccent.opacity(0.2) : Color.flexokiSurface.opacity(0.3))
+                    .background((isSelected || isEditing) ? Color.flexokiAccent.opacity(0.2) : Color.flexokiSurface.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 4))
             }
 
@@ -677,7 +856,14 @@ struct FloatingItemRow: View {
 
             Spacer()
 
-            if isHovered {
+            if isHovered && !isEditing {
+                Button(action: onEdit) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.flexokiAccent)
+
                 Button(action: onDelete) {
                     Image(systemName: "trash")
                         .font(.system(size: 12))
@@ -690,6 +876,10 @@ struct FloatingItemRow: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .background(backgroundColor)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(isEditing ? Color.flexokiAccent : Color.clear, lineWidth: 2)
+        )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .onHover { hovering in
             isHovered = hovering
@@ -811,6 +1001,9 @@ struct FloatingItemRow: View {
     }
 
     private var backgroundColor: Color {
+        if isEditing {
+            return Color.flexokiAccent.opacity(0.15)
+        }
         if isSelected {
             return Color.flexokiAccent.opacity(0.2)
         }

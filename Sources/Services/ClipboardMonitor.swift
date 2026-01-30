@@ -332,6 +332,48 @@ final class ClipboardMonitor: ObservableObject {
         }
     }
 
+    func updateItem(_ item: ClipboardItem) {
+        if let index = capturedItems.firstIndex(where: { $0.id == item.id }) {
+            do {
+                try database.updateClipboardItem(
+                    id: item.id,
+                    content: item.content,
+                    imagePath: item.imagePath,
+                    thumbnailPath: item.thumbnailPath
+                )
+                capturedItems[index] = item
+            } catch {
+                ClipFlowLogger.error("Failed to update item: \(error)")
+            }
+        }
+    }
+
+    func updateItemContent(id: UUID, newContent: String) {
+        if let index = capturedItems.firstIndex(where: { $0.id == id }) {
+            do {
+                try database.updateItemContent(id: id, content: newContent)
+                capturedItems[index].content = newContent
+            } catch {
+                ClipFlowLogger.error("Failed to update item content: \(error)")
+            }
+        }
+    }
+
+    func moveItemToTop(id: UUID) {
+        if let index = capturedItems.firstIndex(where: { $0.id == id }) {
+            let item = capturedItems[index]
+            var updatedItem = item
+            updatedItem.createdAt = Date()
+            capturedItems.remove(at: index)
+            capturedItems.insert(updatedItem, at: 0)
+            do {
+                try database.updateClipboardItem(id: id, content: updatedItem.content)
+            } catch {
+                ClipFlowLogger.error("Failed to update item timestamp: \(error)")
+            }
+        }
+    }
+
     func clearAllHistory() {
         ImageCacheManager.shared.clearCache()
         do {
