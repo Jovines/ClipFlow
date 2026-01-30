@@ -10,6 +10,12 @@ packages:
   GRDB:
     url: https://github.com/groue/GRDB.swift
     from: 6.29.3
+  OpenAI:
+    url: https://github.com/MacPaw/OpenAI.git
+    branch: main
+  KeychainAccess:
+    url: https://github.com/kishikawakatsumi/KeychainAccess.git
+    from: "4.2.2"
 
 settings:
   base:
@@ -28,6 +34,8 @@ targets:
         type: group
     dependencies:
       - package: GRDB
+      - package: OpenAI
+      - package: KeychainAccess
     resources:
       - path: Resources/Assets.xcassets
       - path: Resources/en.lproj

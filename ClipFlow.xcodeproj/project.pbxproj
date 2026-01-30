@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		04F68D02C68BC941A62A4FD8 /* MenuBarPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */; };
 		0C8AE76378B0FCCF8957B3A0 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA4353840CA24F045A37B133 /* SearchBar.swift */; };
+		2524E6BB6091BEF55A67FC35 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DA421858CFFE55FE1B1533 /* OpenAIService.swift */; };
 		2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */; };
 		3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */; };
 		423891FB4C39BA5FDF08B1BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B153DF2BA49164525C42A0 /* AppDelegate.swift */; };
@@ -16,12 +17,15 @@
 		5EA1021084E61B983A8C34EB /* TagUsageStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC5E6DFAC5ED865697543356 /* TagUsageStats.swift */; };
 		5FC7B2B68756A340589CF3E3 /* FloatingWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */; };
 		66F348A0C42EE07792027C6B /* TagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34FF707D95A3A58D777275D /* TagView.swift */; };
+		6F45C76367DCDF0B874FD6E4 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 93DA6328C315427CBC5C5F7B /* OpenAI */; };
 		747258764F890F953960B89B /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EAB4DFF745C159D542E8DB9 /* EmptyStateView.swift */; };
 		78E577E9D83EE664EFC33918 /* ClipboardItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65CFDF0F19C599B64730880 /* ClipboardItemRow.swift */; };
+		7D14FB63ABC308A8499DCC12 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = F09E4ED7C74796759763D9FC /* KeychainAccess */; };
 		9692EEC7F0FBB8CEC61AD003 /* ClipFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4AC65C65E8D9EF183514721 /* ClipFlowApp.swift */; };
 		9743788D4E2160656F7BBE32 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = E614E0B350221DC20564FFE6 /* Color+Hex.swift */; };
 		979907B6767D38B84F61B428 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49493FC09DDDFB3A81EF6D61 /* DatabaseManager.swift */; };
 		BA97ED45F0BC7A5BBFF54B7D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9BD6759A4218875050954FC /* ContentView.swift */; };
+		BDFBCA8D624F1CDFF9A3EA07 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB7D34E47BB34B91999777F7 /* KeychainManager.swift */; };
 		C950E8741D6C858B817F87B6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E6F611F5CEAB8D5193F057 /* SettingsView.swift */; };
 		D02B3F67AB115455AE2F6B8C /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = FB5748915AE3BA482B05925F /* GRDB */; };
 		E359ED8EB6ABFE521170F244 /* ClipboardItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */; };
@@ -36,6 +40,7 @@
 		4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
 		756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorderView.swift; sourceTree = "<group>"; };
 		77B153DF2BA49164525C42A0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		79DA421858CFFE55FE1B1533 /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIService.swift; sourceTree = "<group>"; };
 		93E6F611F5CEAB8D5193F057 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A34FF707D95A3A58D777275D /* TagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagView.swift; sourceTree = "<group>"; };
 		A4AC65C65E8D9EF183514721 /* ClipFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipFlowApp.swift; sourceTree = "<group>"; };
@@ -44,6 +49,7 @@
 		BA4353840CA24F045A37B133 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		C9BD6759A4218875050954FC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D5EB1FAFD466C4B3D85F8658 /* ClipFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClipFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DB7D34E47BB34B91999777F7 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		E614E0B350221DC20564FFE6 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowView.swift; sourceTree = "<group>"; };
 		F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardItem.swift; sourceTree = "<group>"; };
@@ -56,6 +62,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D02B3F67AB115455AE2F6B8C /* GRDB in Frameworks */,
+				6F45C76367DCDF0B874FD6E4 /* OpenAI in Frameworks */,
+				7D14FB63ABC308A8499DCC12 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +75,8 @@
 			children = (
 				4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */,
 				2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */,
+				DB7D34E47BB34B91999777F7 /* KeychainManager.swift */,
+				79DA421858CFFE55FE1B1533 /* OpenAIService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -177,6 +187,8 @@
 			name = ClipFlow;
 			packageProductDependencies = (
 				FB5748915AE3BA482B05925F /* GRDB */,
+				93DA6328C315427CBC5C5F7B /* OpenAI */,
+				F09E4ED7C74796759763D9FC /* KeychainAccess */,
 			);
 			productName = ClipFlow;
 			productReference = D5EB1FAFD466C4B3D85F8658 /* ClipFlow.app */;
@@ -209,6 +221,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2825F39A5EFB2B8B34509246 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+				5F41585E1C0E572ABAC23937 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				4483FB88A7B1AF3E02188299 /* XCRemoteSwiftPackageReference "OpenAI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
@@ -257,7 +271,9 @@
 				747258764F890F953960B89B /* EmptyStateView.swift in Sources */,
 				5FC7B2B68756A340589CF3E3 /* FloatingWindowView.swift in Sources */,
 				3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */,
+				BDFBCA8D624F1CDFF9A3EA07 /* KeychainManager.swift in Sources */,
 				04F68D02C68BC941A62A4FD8 /* MenuBarPopoverView.swift in Sources */,
+				2524E6BB6091BEF55A67FC35 /* OpenAIService.swift in Sources */,
 				0C8AE76378B0FCCF8957B3A0 /* SearchBar.swift in Sources */,
 				C950E8741D6C858B817F87B6 /* SettingsView.swift in Sources */,
 				2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */,
@@ -457,9 +473,35 @@
 				minimumVersion = 6.29.3;
 			};
 		};
+		4483FB88A7B1AF3E02188299 /* XCRemoteSwiftPackageReference "OpenAI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MacPaw/OpenAI.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		5F41585E1C0E572ABAC23937 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.2.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		93DA6328C315427CBC5C5F7B /* OpenAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4483FB88A7B1AF3E02188299 /* XCRemoteSwiftPackageReference "OpenAI" */;
+			productName = OpenAI;
+		};
+		F09E4ED7C74796759763D9FC /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5F41585E1C0E572ABAC23937 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
 		FB5748915AE3BA482B05925F /* GRDB */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2825F39A5EFB2B8B34509246 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
