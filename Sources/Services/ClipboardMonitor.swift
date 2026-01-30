@@ -373,7 +373,7 @@ final class ClipboardMonitor: ObservableObject {
 
     private func setupTimerPolling() {
         let interval = UserDefaults.standard.double(forKey: "pollingInterval")
-        let effectiveInterval = interval > 0 ? interval : 2.0
+        let effectiveInterval = interval > 0 ? interval : 5.0
 
         timer = Timer.scheduledTimer(withTimeInterval: effectiveInterval, repeats: true) { [weak self] _ in
             self?.checkClipboard()
