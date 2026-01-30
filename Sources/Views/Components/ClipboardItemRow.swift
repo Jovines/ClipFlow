@@ -14,6 +14,7 @@ struct ClipboardItemRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: iconName)
+            Image(systemName: iconName)
                 .foregroundStyle(.secondary)
                 .frame(width: 24)
 
@@ -23,7 +24,7 @@ struct ClipboardItemRow: View {
                     .lineLimit(2)
 
                 HStack {
-                    Text(item.createdAt, style: .relative)
+                    Text(formatTimeAgo(from: item.createdAt))
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -34,7 +35,7 @@ struct ClipboardItemRow: View {
                                     .font(.caption2)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 2)
-                                    .background(Color.fromHex(tag.color).opacity(0.2))
+                                    .background(Color.flexokiTagColor(for: tag.color).opacity(0.2))
                                     .clipShape(Capsule())
                             }
                         }
@@ -58,8 +59,10 @@ struct ClipboardItemRow: View {
             }
             .opacity(isHovered ? 1 : 0)
         }
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
         .padding(12)
-        .background(isHovered ? Color(NSColor.selectedContentBackgroundColor).opacity(0.3) : Color.clear)
+        .background(isHovered ? Color.flexokiAccent.opacity(0.15) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .onHover { hovering in
             isHovered = hovering
@@ -89,6 +92,41 @@ struct ClipboardItemRow: View {
 
     private func copyItem() {
         ClipboardMonitor.shared.copyToClipboard(item)
+    }
+
+    private func formatTimeAgo(from date: Date) -> String {
+        let now = Date()
+        let elapsed = now.timeIntervalSince(date)
+
+        if elapsed < 60 {
+            return "刚刚"
+        } else if elapsed < 120 {
+            return "1 分钟前"
+        } else if elapsed < 180 {
+            return "2 分钟前"
+        } else if elapsed < 240 {
+            return "3 分钟前"
+        } else if elapsed < 300 {
+            return "4 分钟前"
+        } else if elapsed < 600 {
+            return "5 分钟前"
+        } else if elapsed < 900 {
+            return "10 分钟前"
+        } else if elapsed < 1200 {
+            return "15 分钟前"
+        } else if elapsed < 1800 {
+            return "20 分钟前"
+        } else if elapsed < 3600 {
+            return "半小时前"
+        } else if elapsed < 7200 {
+            return "1 小时前"
+        } else if elapsed < 86400 {
+            let hours = Int(elapsed / 3600)
+            return "\(hours) 小时前"
+        } else {
+            let days = Int(elapsed / 86400)
+            return "\(days) 天前"
+        }
     }
 }
 
@@ -134,13 +172,13 @@ struct TagSelectionSheet: View {
                         ForEach(Array(availableTags.enumerated()), id: \.element.id) { index, tag in
                             HStack {
                                 Circle()
-                                    .fill(Color.fromHex(tag.color))
+                                    .fill(Color.flexokiTagColor(for: tag.color))
                                     .frame(width: 12, height: 12)
                                 Text(tag.name)
                                 Spacer()
                                 if currentTags.contains(where: { $0.id == tag.id }) {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(Color.accentColor)
+                                    .foregroundStyle(Color.flexokiAccent)
                                 }
                             }
                             .contentShape(Rectangle())

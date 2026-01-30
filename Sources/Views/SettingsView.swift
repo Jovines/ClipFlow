@@ -61,7 +61,7 @@ struct SettingsView: View {
             // Sidebar
             sidebar
                 .frame(width: 140)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(Color.flexokiSurface)
 
             // Content
             contentView
@@ -185,7 +185,7 @@ struct SettingsView: View {
                     ))
                 }
                 .padding(12)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(Color.flexokiSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -230,7 +230,7 @@ struct SettingsView: View {
                     .toggleStyle(.checkbox)
                 }
                 .padding(12)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(Color.flexokiSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -266,7 +266,7 @@ struct SettingsView: View {
                     }
                 }
                 .padding(12)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(Color.flexokiSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -368,13 +368,13 @@ struct SidebarTabButton: View {
 
                 Spacer()
             }
-            .foregroundStyle(isSelected ? .white : .primary)
+                    .foregroundStyle(isSelected ? Color.flexokiPaper : Color.flexokiText)
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(isSelected ? Color.accentColor : Color.clear)
-            )
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(isSelected ? Color.flexokiAccent : Color.clear)
+                    )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -429,7 +429,7 @@ struct TagsManagementView: View {
                         .foregroundStyle(.tertiary)
                 }
                 .frame(maxWidth: .infinity, minHeight: 150)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(Color.flexokiSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 VStack(spacing: 0) {
@@ -447,7 +447,7 @@ struct TagsManagementView: View {
                     }
                 }
                 .padding(8)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(Color.flexokiSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -745,17 +745,17 @@ struct AboutView: View {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
                             LinearGradient(
-                                colors: [Color.accentColor.opacity(0.8), Color.accentColor],
+                                colors: [Color.flexokiAccent.opacity(0.8), Color.flexokiAccent],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 80, height: 80)
-                        .shadow(color: Color.accentColor.opacity(0.3), radius: 10, x: 0, y: 4)
+                .frame(width: 80, height: 80)
+                .shadow(color: Color.flexokiAccent.opacity(0.3), radius: 10, x: 0, y: 4)
 
                     Image(systemName: "doc.on.clipboard")
                         .font(.system(size: 36, weight: .medium))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(Color.flexokiPaper)
                 }
 
                 VStack(spacing: 4) {

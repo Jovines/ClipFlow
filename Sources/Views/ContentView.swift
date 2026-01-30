@@ -17,12 +17,13 @@ struct ContentView: View {
                     EmptyStateView()
                 } else {
                     ScrollView {
-                        LazyVStack(spacing: 8) {
+                        LazyVStack(spacing: 0) {
                             ForEach(filteredItems) { item in
                                 ClipboardItemRow(item: item)
+                                    .padding(.vertical, 4)
                             }
                         }
-                        .padding()
+                        .padding(.horizontal)
                     }
                 }
             }
