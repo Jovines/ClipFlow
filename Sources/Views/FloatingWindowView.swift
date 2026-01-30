@@ -12,6 +12,7 @@ final class FloatingWindowManager: ObservableObject {
     private var floatingWindowHostingController: NSHostingController<FloatingWindowView>?
     private let clipboardMonitor: ClipboardMonitor
     private var cancellables = Set<AnyCancellable>()
+    private var clickOutsideMonitor: Any?
 
     private let windowWidth: CGFloat = 360
     private let windowHeight: CGFloat = 420
@@ -48,9 +49,11 @@ final class FloatingWindowManager: ObservableObject {
         floatingWindow?.orderFront(nil)
         floatingWindow?.makeKeyAndOrderFront(nil)
         isWindowVisible = true
+        startClickOutsideMonitoring()
     }
 
     func hideWindow() {
+        stopClickOutsideMonitoring()
         floatingWindow?.orderOut(nil)
         isWindowVisible = false
     }
@@ -151,9 +154,32 @@ final class FloatingWindowManager: ObservableObject {
 
     func cleanup() {
         hideWindow()
+        stopClickOutsideMonitoring()
         floatingWindowHostingController = nil
         floatingWindow = nil
         isWindowLoaded = false
+    }
+
+    private func startClickOutsideMonitoring() {
+        stopClickOutsideMonitoring()
+
+        clickOutsideMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
+            guard let self = self, self.isWindowVisible, let window = self.floatingWindow else { return }
+
+            let mouseLocation = NSEvent.mouseLocation
+            if !NSMouseInRect(mouseLocation, window.frame, false) {
+                DispatchQueue.main.async {
+                    self.hideWindow()
+                }
+            }
+        }
+    }
+
+    private func stopClickOutsideMonitoring() {
+        if let monitor = clickOutsideMonitor {
+            NSEvent.removeMonitor(monitor)
+            clickOutsideMonitor = nil
+        }
     }
 }
 
