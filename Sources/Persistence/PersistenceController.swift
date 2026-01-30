@@ -66,8 +66,6 @@ final class PersistenceController {
     func createClipboardItem(
         content: String,
         contentType: String,
-        imageData: Data? = nil,
-        thumbnailData: Data? = nil,
         imagePath: String? = nil,
         thumbnailPath: String? = nil,
         contentHash: Int = 0,
@@ -81,8 +79,6 @@ final class PersistenceController {
         item.setValue(UUID(), forKey: "id")
         item.setValue(content, forKey: "content")
         item.setValue(contentType, forKey: "contentType")
-        item.setValue(imageData, forKey: "imageData")
-        item.setValue(thumbnailData, forKey: "thumbnailData")
         item.setValue(imagePath, forKey: "imagePath")
         item.setValue(thumbnailPath, forKey: "thumbnailPath")
         item.setValue(Date(), forKey: "createdAt")
@@ -278,6 +274,18 @@ final class PersistenceController {
 
     func updateTagName(_ tag: NSManagedObject, name: String) {
         tag.setValue(name, forKey: "name")
+        saveContext()
+    }
+
+    func updateItemTags(_ item: NSManagedObject, tags: [Tag]) {
+        var tagEntities: [NSManagedObject] = []
+        for tag in tags {
+            if let entity = fetchTag(byId: tag.id) {
+                tagEntities.append(entity)
+            }
+        }
+        item.setValue(NSSet(array: tagEntities), forKey: "tags")
+        item.setValue(Date(), forKey: "updatedAt")
         saveContext()
     }
 }

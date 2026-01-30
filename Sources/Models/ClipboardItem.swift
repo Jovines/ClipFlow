@@ -6,8 +6,6 @@ struct ClipboardItem: Identifiable, Hashable {
     var contentType: ContentType
     var imagePath: String?
     var thumbnailPath: String?
-    var imageData: Data?
-    var thumbnailData: Data?
     var createdAt: Date
     var tags: [Tag]
     var contentHash: Int
@@ -23,8 +21,6 @@ struct ClipboardItem: Identifiable, Hashable {
         contentType: ContentType,
         imagePath: String? = nil,
         thumbnailPath: String? = nil,
-        imageData: Data? = nil,
-        thumbnailData: Data? = nil,
         createdAt: Date = Date(),
         tags: [Tag] = [],
         contentHash: Int = 0
@@ -34,24 +30,13 @@ struct ClipboardItem: Identifiable, Hashable {
         self.contentType = contentType
         self.imagePath = imagePath
         self.thumbnailPath = thumbnailPath
-        self.imageData = imageData
-        self.thumbnailData = thumbnailData
         self.createdAt = createdAt
         self.tags = tags
         self.contentHash = contentHash
     }
 
     var hasImage: Bool {
-        imagePath != nil || imageData != nil
-    }
-    
-    var contentHashValue: Int {
-        switch contentType {
-        case .text:
-            return content.hashValue
-        case .image:
-            return imageData?.hashValue ?? 0
-        }
+        imagePath != nil
     }
     
     static func == (lhs: ClipboardItem, rhs: ClipboardItem) -> Bool {
