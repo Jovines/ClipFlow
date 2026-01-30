@@ -169,15 +169,15 @@ struct GeneralSettingsView: View {
     }
 
     private func applyShortcut() {
-        var modifiers: UInt32 = 0
-        if useCommandKey { modifiers |= UInt32(1 << 16) }
-        if useShiftKey { modifiers |= UInt32(1 << 17) }
+        var modifiers: NSEvent.ModifierFlags = []
+        if useCommandKey { modifiers.insert(.command) }
+        if useShiftKey { modifiers.insert(.shift) }
 
-        let keyCode: UInt32 = UInt32(shortcutKey.utf16.first ?? 0)
+        let keyCode: UInt16 = shortcutKey.utf16.first ?? 0
 
         let shortcut = Shortcut(keyCode: keyCode, modifiers: modifiers)
 
-        if shortcut.isValid && shortcut.modifiers != 0 {
+        if shortcut.isValid && !shortcut.modifiers.isEmpty {
             if HotKeyManager.shared.register(shortcut) {
             } else {
                 conflictMessage = "Unable to register this shortcut. It may be in use by another application."
@@ -191,11 +191,7 @@ struct GeneralSettingsView: View {
 }
 
 struct TagsManagementView: View {
-    @State private var tags: [Tag] = [
-        Tag(name: "Work", color: "blue"),
-        Tag(name: "Personal", color: "green"),
-        Tag(name: "Important", color: "red")
-    ]
+    @State private var tags: [Tag] = []
     @State private var newTagName = ""
     @State private var editingTag: Tag?
     @State private var showEditSheet = false
@@ -248,19 +244,45 @@ struct TagsManagementView: View {
                 }
             }
         }
+        .onAppear {
+            loadTags()
+        }
+    }
+
+    private func loadTags() {
+        let tagEntities = PersistenceController.shared.fetchAllTags()
+        tags = tagEntities.compactMap { entity -> Tag? in
+            guard let name = entity.value(forKey: "name") as? String,
+                  let color = entity.value(forKey: "color") as? String,
+                  let id = entity.value(forKey: "id") as? UUID else {
+                return nil
+            }
+            return Tag(id: id, name: name, color: color)
+        }
     }
 
     private func addTag() {
-        let tag = Tag(name: newTagName, color: "blue")
-        tags.append(tag)
+        let entity = PersistenceController.shared.createTag(name: newTagName, color: "blue")
+        if let tag = mapTagEntity(entity) {
+            tags.append(tag)
+        }
         newTagName = ""
     }
 
     private func removeTag(_ tag: Tag) {
+        if let entity = PersistenceController.shared.fetchTag(byId: tag.id) {
+            PersistenceController.shared.deleteTag(entity)
+        }
         tags.removeAll { $0.id == tag.id }
     }
 
     private func deleteTags(at offsets: IndexSet) {
+        for index in offsets {
+            let tag = tags[index]
+            if let entity = PersistenceController.shared.fetchTag(byId: tag.id) {
+                PersistenceController.shared.deleteTag(entity)
+            }
+        }
         tags.remove(atOffsets: offsets)
     }
 
@@ -270,20 +292,26 @@ struct TagsManagementView: View {
     }
 
     private func updateTag(_ oldTag: Tag, with newTag: Tag) {
+        if let entity = PersistenceController.shared.fetchTag(byId: oldTag.id) {
+            PersistenceController.shared.updateTagName(entity, name: newTag.name)
+            PersistenceController.shared.updateTagColor(entity, color: newTag.color)
+        }
         if let index = tags.firstIndex(where: { $0.id == oldTag.id }) {
             tags[index] = newTag
         }
     }
 
-    private func colorForName(_ name: String) -> Color {
-        switch name {
-        case "blue": return .blue
-        case "green": return .green
-        case "red": return .red
-        case "orange": return .orange
-        case "purple": return .purple
-        default: return .gray
+    private func mapTagEntity(_ entity: NSManagedObject) -> Tag? {
+        guard let name = entity.value(forKey: "name") as? String,
+              let color = entity.value(forKey: "color") as? String,
+              let id = entity.value(forKey: "id") as? UUID else {
+            return nil
         }
+        return Tag(id: id, name: name, color: color)
+    }
+
+    private func colorForName(_ name: String) -> Color {
+        Color.fromHex(Tag.colorForName(name))
     }
 }
 

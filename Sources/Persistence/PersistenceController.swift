@@ -25,6 +25,10 @@ final class PersistenceController {
 
         container.viewContext.automaticallyMergesChangesFromParent = true
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+
+        // Configure for heavy operations
+        container.viewContext.undoManager = nil
+        container.viewContext.shouldDeleteInaccessibleFaults = true
     }
 
     func saveContext() {
@@ -37,6 +41,23 @@ final class PersistenceController {
                 print("Error saving context: \(nsError), \(nsError.userInfo)")
             }
         }
+    }
+
+    // MARK: - Background Operations
+
+    /// Perform a background Core Data operation
+    /// - Parameter block: The operation to perform on a background context
+    func performBackgroundTask(_ block: @escaping (NSManagedObjectContext) -> Void) {
+        container.performBackgroundTask(block)
+    }
+
+    /// Create a new background context for manual use
+    /// - Returns: A new background context configured for saving
+    func newBackgroundContext() -> NSManagedObjectContext {
+        let context = container.newBackgroundContext()
+        context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        context.undoManager = nil
+        return context
     }
 
     // MARK: - Clipboard Items

@@ -108,26 +108,44 @@ final class FloatingWindowManager: ObservableObject {
         guard let window = floatingWindow else { return }
 
         let mouseLocation = NSEvent.mouseLocation
-        let screen = NSScreen.screens.first { screen in
+
+        // Find the screen containing the mouse, or use the main screen
+        let targetScreen = NSScreen.screens.first { screen in
             NSMouseInRect(mouseLocation, screen.frame, false)
-        } ?? NSScreen.screens.first
+        } ?? NSScreen.main ?? NSScreen.screens.first
 
-        guard let targetScreen = screen else { return }
+        guard let screen = targetScreen else { return }
 
-        let screenFrame = targetScreen.visibleFrame
+        let screenFrame = screen.visibleFrame
+        let menuBarHeight = screen.frame.height - screenFrame.height
+
+        // Calculate preferred position (above mouse, accounting for menu bar)
         var windowOrigin = NSPoint(
             x: mouseLocation.x - windowWidth / 2,
             y: mouseLocation.y - windowHeight - 20
         )
 
+        // Ensure window stays within screen bounds
+        // Horizontal bounds
         if windowOrigin.x < screenFrame.minX {
             windowOrigin.x = screenFrame.minX + 10
         }
         if windowOrigin.x + windowWidth > screenFrame.maxX {
             windowOrigin.x = screenFrame.maxX - windowWidth - 10
         }
-        if windowOrigin.y < screenFrame.minY {
+
+        // Vertical bounds - prefer above mouse, but don't overlap menu bar
+        if windowOrigin.y + windowHeight > screenFrame.maxY - menuBarHeight {
+            // Position below mouse instead
             windowOrigin.y = mouseLocation.y + 20
+        }
+        if windowOrigin.y < screenFrame.minY {
+            windowOrigin.y = screenFrame.minY + 10
+        }
+
+        // Final safety check
+        if windowOrigin.y + windowHeight > screenFrame.maxY {
+            windowOrigin.y = screenFrame.maxY - windowHeight - 10
         }
 
         window.setFrameOrigin(windowOrigin)
