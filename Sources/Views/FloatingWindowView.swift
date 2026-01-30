@@ -270,6 +270,7 @@ struct FloatingWindowView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.15), radius: 15, x: 0, y: 5)
         .frame(width: 360, height: 420)
+        .focusable(true)
         .onAppear {
             clipboardMonitor.refresh()
             resetSearch()

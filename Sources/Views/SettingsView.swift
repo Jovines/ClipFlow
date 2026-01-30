@@ -5,6 +5,7 @@ import ServiceManagement
 
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
+    case openai = "OpenAI"
     case tags = "Tags"
     case cache = "Cache"
     case about = "About"
@@ -14,6 +15,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .general: return "gear"
+        case .openai: return "brain"
         case .tags: return "tag"
         case .cache: return "internaldrive"
         case .about: return "info.circle"
@@ -23,6 +25,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     var localizedName: String {
         switch self {
         case .general: return NSLocalizedString("General", comment: "")
+        case .openai: return NSLocalizedString("OpenAI", comment: "")
         case .tags: return NSLocalizedString("Tags", comment: "")
         case .cache: return NSLocalizedString("Cache", comment: "")
         case .about: return NSLocalizedString("About", comment: "")
@@ -142,6 +145,8 @@ struct SettingsView: View {
                     switch selectedTab {
                     case .general:
                         generalSettingsContent
+                    case .openai:
+                        OpenAISettingsView()
                     case .tags:
                         TagsManagementView()
                     case .cache:
@@ -345,6 +350,191 @@ struct SettingsView: View {
         } else {
             conflictMessage = "Please include at least one modifier key (Command, Shift, Control, or Option)."
             showConflictAlert = true
+        }
+    }
+}
+
+// MARK: - OpenAI Settings View
+
+struct OpenAISettingsView: View {
+    @State private var apiKeyInput = ""
+    @State private var showAPIKeyField = false
+    @State private var saveStatus: String?
+    @State private var isSaving = false
+    @State private var testMessage = ""
+    @State private var testResponse = ""
+    @State private var isTesting = false
+
+    private var hasAPIKey: Bool {
+        OpenAIService.shared.hasAPIKey
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            // Header
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "brain")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("OpenAI API")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                Text("Configure your OpenAI API key to enable AI-powered features")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            // API Key Section
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "key")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("API Key")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    if hasAPIKey && !showAPIKeyField {
+                        HStack {
+                            Label("API Key 已配置", systemImage: "checkmark.circle.fill")
+                                .font(.system(size: 13))
+                                .foregroundStyle(.green)
+
+                            Spacer()
+
+                            Button("重新设置") {
+                                showAPIKeyField = true
+                            }
+                            .buttonStyle(.link)
+                            .font(.system(size: 13))
+                        }
+                    } else {
+                        SecureField("sk-...", text: $apiKeyInput)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.system(size: 13))
+
+                        HStack {
+                            Button("保存") {
+                                saveAPIKey()
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .controlSize(.small)
+                            .disabled(apiKeyInput.isEmpty || isSaving)
+
+                            if hasAPIKey {
+                                Button("取消") {
+                                    showAPIKeyField = false
+                                    apiKeyInput = ""
+                                }
+                                .buttonStyle(.borderless)
+                                .controlSize(.small)
+                            }
+                        }
+
+                        if let status = saveStatus {
+                            Text(status)
+                                .font(.caption)
+                                .foregroundStyle(status.contains("成功") ? .green : .red)
+                        }
+                    }
+                }
+                .padding(12)
+                .background(Color(NSColor.controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Divider()
+
+            // Test Section
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "testtube.2")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Test Connection")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    TextField("Test message...", text: $testMessage)
+                        .textFieldStyle(.roundedBorder)
+                        .font(.system(size: 13))
+
+                    Button("Send Test Request") {
+                        testConnection()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .disabled(!hasAPIKey || testMessage.isEmpty || isTesting)
+
+                    if !testResponse.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Response:")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+
+                            Text(testResponse)
+                                .font(.system(size: 12))
+                                .padding(8)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color(NSColor.textBackgroundColor))
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
+                    }
+                }
+                .padding(12)
+                .background(Color(NSColor.controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Spacer()
+        }
+        .onAppear {
+            if hasAPIKey {
+                showAPIKeyField = false
+                apiKeyInput = ""
+            } else {
+                showAPIKeyField = true
+            }
+        }
+    }
+
+    private func saveAPIKey() {
+        isSaving = true
+        saveStatus = nil
+
+        do {
+            try OpenAIService.shared.setAPIKey(apiKeyInput)
+            saveStatus = "保存成功"
+            showAPIKeyField = false
+            apiKeyInput = ""
+        } catch {
+            saveStatus = "保存失败: \(error.localizedDescription)"
+        }
+
+        isSaving = false
+    }
+
+    private func testConnection() {
+        isTesting = true
+        testResponse = ""
+
+        Task {
+            do {
+                let response = try await OpenAIService.shared.chat(message: testMessage)
+                await MainActor.run {
+                    testResponse = response
+                    isTesting = false
+                }
+            } catch {
+                await MainActor.run {
+                    testResponse = "Error: \(error.localizedDescription)"
+                    isTesting = false
+                }
+            }
         }
     }
 }
