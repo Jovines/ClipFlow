@@ -1,6 +1,7 @@
 import Foundation
+import GRDB
 
-struct ClipboardItem: Identifiable, Hashable {
+struct ClipboardItem: Identifiable, Hashable, Codable {
     let id: UUID
     var content: String
     var contentType: ContentType
@@ -9,6 +10,28 @@ struct ClipboardItem: Identifiable, Hashable {
     var createdAt: Date
     var tags: [Tag]
     var contentHash: Int
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case content
+        case contentType
+        case imagePath
+        case thumbnailPath
+        case createdAt
+        case contentHash
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        content = try container.decode(String.self, forKey: .content)
+        contentType = try container.decode(ContentType.self, forKey: .contentType)
+        imagePath = try container.decodeIfPresent(String.self, forKey: .imagePath)
+        thumbnailPath = try container.decodeIfPresent(String.self, forKey: .thumbnailPath)
+        createdAt = try container.decode(Date.self, forKey: .createdAt)
+        contentHash = try container.decode(Int.self, forKey: .contentHash)
+        tags = []
+    }
 
     enum ContentType: String, Codable {
         case text
@@ -38,29 +61,80 @@ struct ClipboardItem: Identifiable, Hashable {
     var hasImage: Bool {
         imagePath != nil
     }
-    
+
     static func == (lhs: ClipboardItem, rhs: ClipboardItem) -> Bool {
         lhs.id == rhs.id
     }
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
 }
 
-struct Tag: Identifiable, Hashable {
-    let id: UUID
-    var name: String
-    var color: String
-    
-    init(id: UUID = UUID(), name: String, color: String = "blue") {
-        self.id = id
-        self.name = name
-        self.color = color
+extension ClipboardItem.ContentType: DatabaseValueConvertible {
+    public var databaseValue: DatabaseValue {
+        rawValue.databaseValue
+    }
+
+    public static func fromDatabaseValue(_ dbValue: DatabaseValue) -> ClipboardItem.ContentType? {
+        guard let string = String.fromDatabaseValue(dbValue) else { return nil }
+        return ClipboardItem.ContentType(rawValue: string)
     }
 }
 
-extension Tag {
+extension ClipboardItem: FetchableRecord, PersistableRecord {
+    static let databaseTableName = "clipboard_items"
+
+    enum Columns {
+        static let id = Column(CodingKeys.id)
+        static let content = Column(CodingKeys.content)
+        static let contentType = Column(CodingKeys.contentType)
+        static let imagePath = Column(CodingKeys.imagePath)
+        static let thumbnailPath = Column(CodingKeys.thumbnailPath)
+        static let createdAt = Column(CodingKeys.createdAt)
+        static let contentHash = Column(CodingKeys.contentHash)
+    }
+
+    func encode(to container: inout PersistenceContainer) throws {
+        container[Columns.id] = id
+        container[Columns.content] = content
+        container[Columns.contentType] = contentType
+        container[Columns.imagePath] = imagePath
+        container[Columns.thumbnailPath] = thumbnailPath
+        container[Columns.createdAt] = createdAt
+        container[Columns.contentHash] = contentHash
+    }
+}
+
+struct Tag: Identifiable, Hashable, Codable {
+    let id: UUID
+    var name: String
+    var color: String
+    var createdAt: Date
+
+    init(
+        id: UUID = UUID(),
+        name: String,
+        color: String = "blue",
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.name = name
+        self.color = color
+        self.createdAt = createdAt
+    }
+}
+
+extension Tag: FetchableRecord, PersistableRecord {
+    static let databaseTableName = "tags"
+
+    enum Columns {
+        static let id = Column(CodingKeys.id)
+        static let name = Column(CodingKeys.name)
+        static let color = Column(CodingKeys.color)
+        static let createdAt = Column(CodingKeys.createdAt)
+    }
+
     static let availableColors: [(name: String, hex: String)] = [
         ("blue", "#007AFF"),
         ("green", "#34C759"),
@@ -71,11 +145,11 @@ extension Tag {
         ("yellow", "#FFCC00"),
         ("gray", "#8E8E93")
     ]
-    
+
     static func colorForName(_ name: String) -> String {
         availableColors.first { $0.name == name }?.hex ?? "#007AFF"
     }
-    
+
     static func nameForColor(_ hex: String) -> String {
         availableColors.first { $0.hex == hex }?.name ?? "blue"
     }

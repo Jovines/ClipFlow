@@ -169,22 +169,20 @@ struct TagSelectionSheet: View {
     }
 
     private func loadAvailableTags() {
-        let tagEntities = PersistenceController.shared.fetchAllTags()
-        availableTags = tagEntities.compactMap { entity -> Tag? in
-            guard let name = entity.value(forKey: "name") as? String,
-                  let color = entity.value(forKey: "color") as? String,
-                  let id = entity.value(forKey: "id") as? UUID else {
-                return nil
-            }
-            return Tag(id: id, name: name, color: color)
+        do {
+            availableTags = try DatabaseManager.shared.fetchAllTags()
+        } catch {
+            availableTags = []
         }
     }
 
     private func addNewTag() {
-        let entity = PersistenceController.shared.createTag(name: newTagName, color: "blue")
-        if let tag = mapTagEntity(entity) {
+        do {
+            let tag = try DatabaseManager.shared.createTag(name: newTagName, color: "blue")
             availableTags.append(tag)
             newTagName = ""
+        } catch {
+            print("Failed to add tag: \(error)")
         }
     }
 
@@ -198,18 +196,12 @@ struct TagSelectionSheet: View {
     }
 
     private func updateItemTags() {
-        if let entity = PersistenceController.shared.fetchClipboardItem(by: item.id) {
-            PersistenceController.shared.updateItemTags(entity, tags: currentTags)
+        do {
+            let tagIds = currentTags.map { $0.id }
+            try DatabaseManager.shared.updateItemTags(itemId: item.id, tagIds: tagIds)
+        } catch {
+            print("Failed to update item tags: \(error)")
         }
-    }
-
-    private func mapTagEntity(_ entity: NSManagedObject) -> Tag? {
-        guard let name = entity.value(forKey: "name") as? String,
-              let color = entity.value(forKey: "color") as? String,
-              let id = entity.value(forKey: "id") as? UUID else {
-            return nil
-        }
-        return Tag(id: id, name: name, color: color)
     }
 }
 

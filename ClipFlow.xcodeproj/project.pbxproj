@@ -19,9 +19,10 @@
 		78E577E9D83EE664EFC33918 /* ClipboardItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65CFDF0F19C599B64730880 /* ClipboardItemRow.swift */; };
 		9692EEC7F0FBB8CEC61AD003 /* ClipFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4AC65C65E8D9EF183514721 /* ClipFlowApp.swift */; };
 		9743788D4E2160656F7BBE32 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = E614E0B350221DC20564FFE6 /* Color+Hex.swift */; };
+		979907B6767D38B84F61B428 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49493FC09DDDFB3A81EF6D61 /* DatabaseManager.swift */; };
 		BA97ED45F0BC7A5BBFF54B7D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9BD6759A4218875050954FC /* ContentView.swift */; };
 		C950E8741D6C858B817F87B6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E6F611F5CEAB8D5193F057 /* SettingsView.swift */; };
-		DA93DA65699236B265A42B51 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E1635D01D3FA9F5BC8E5FFC /* PersistenceController.swift */; };
+		D02B3F67AB115455AE2F6B8C /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = FB5748915AE3BA482B05925F /* GRDB */; };
 		E359ED8EB6ABFE521170F244 /* ClipboardItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */; };
 		FD1B12E809937CB54BD80062 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */; };
 /* End PBXBuildFile section */
@@ -29,7 +30,7 @@
 /* Begin PBXFileReference section */
 		1EAB4DFF745C159D542E8DB9 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyManager.swift; sourceTree = "<group>"; };
-		2E1635D01D3FA9F5BC8E5FFC /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		49493FC09DDDFB3A81EF6D61 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
 		756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorderView.swift; sourceTree = "<group>"; };
 		77B153DF2BA49164525C42A0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -46,6 +47,17 @@
 		F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardItem.swift; sourceTree = "<group>"; };
 		F7E5096EBCB66391809C214D /* TagFilterBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagFilterBar.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		DF153E66409AA8A4071F571C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D02B3F67AB115455AE2F6B8C /* GRDB in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		1FAB670DC211F6FB013D11DA /* Services */ = {
@@ -93,7 +105,7 @@
 		7BC0A0C9BC6DDFC3E1E61095 /* Persistence */ = {
 			isa = PBXGroup;
 			children = (
-				2E1635D01D3FA9F5BC8E5FFC /* PersistenceController.swift */,
+				49493FC09DDDFB3A81EF6D61 /* DatabaseManager.swift */,
 			);
 			path = Persistence;
 			sourceTree = "<group>";
@@ -152,6 +164,7 @@
 			buildConfigurationList = 1D4D2D6FB33981C2E721858F /* Build configuration list for PBXNativeTarget "ClipFlow" */;
 			buildPhases = (
 				89D59757354E9A91D9EF169A /* Sources */,
+				DF153E66409AA8A4071F571C /* Frameworks */,
 				435557344391500666A5FF0B /* SwiftLint */,
 			);
 			buildRules = (
@@ -160,6 +173,7 @@
 			);
 			name = ClipFlow;
 			packageProductDependencies = (
+				FB5748915AE3BA482B05925F /* GRDB */,
 			);
 			productName = ClipFlow;
 			productReference = D5EB1FAFD466C4B3D85F8658 /* ClipFlow.app */;
@@ -190,6 +204,9 @@
 			);
 			mainGroup = 9D713B1513BAC646044B94A4;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2825F39A5EFB2B8B34509246 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
@@ -233,10 +250,10 @@
 				FD1B12E809937CB54BD80062 /* ClipboardMonitor.swift in Sources */,
 				9743788D4E2160656F7BBE32 /* Color+Hex.swift in Sources */,
 				BA97ED45F0BC7A5BBFF54B7D /* ContentView.swift in Sources */,
+				979907B6767D38B84F61B428 /* DatabaseManager.swift in Sources */,
 				747258764F890F953960B89B /* EmptyStateView.swift in Sources */,
 				5FC7B2B68756A340589CF3E3 /* FloatingWindowView.swift in Sources */,
 				3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */,
-				DA93DA65699236B265A42B51 /* PersistenceController.swift in Sources */,
 				0C8AE76378B0FCCF8957B3A0 /* SearchBar.swift in Sources */,
 				C950E8741D6C858B817F87B6 /* SettingsView.swift in Sources */,
 				2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */,
@@ -426,6 +443,25 @@
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2825F39A5EFB2B8B34509246 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.29.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FB5748915AE3BA482B05925F /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2825F39A5EFB2B8B34509246 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B0DC5489CC3F0A171BCBEE6D /* Project object */;
 }

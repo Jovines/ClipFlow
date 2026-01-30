@@ -74,4 +74,20 @@
 "error.shortcut.conflict" = "快捷键冲突";
 "error.shortcut.conflict.message" = "此快捷键已被使用或无效。";
 "error.accessibility.required" = "需要辅助功能权限";
-"error.accessibility.message" = "请在系统设置 > 隐私与安全性 > 辅助功能中启用 ClipFlow";
+"error.accessibility.message" = "ClipFlow 需要辅助功能权限才能使用全局快捷键。请在系统设置 > 隐私与安全性 > 辅助功能中启用 ClipFlow。";
+
+// Buttons
+"button.open.settings" = "打开系统设置";
+"button.later" = "稍后再说";
+"button.ok" = "确定";
+
+// Hints
+"hint.add.app.title" = "如何添加 ClipFlow";
+"hint.add.app.message" = "1. 点击左下角的锁图标解锁\n2. 点击 + 按钮\n3. 找到 ClipFlow 并勾选\n4. 重启 ClipFlow";
+
+// Notifications
+"notification.permission.granted.title" = "权限已开启";
+"notification.permission.granted.message" = "快捷键功能现已可用";
+
+// Settings - Shortcut (补充)
+"settings.shortcut.clickToRecord" = "点击录制新快捷键";

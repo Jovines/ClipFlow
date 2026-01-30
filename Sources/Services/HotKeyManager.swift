@@ -86,7 +86,7 @@ final class HotKeyManager {
     var onHotKeyPressed: (() -> Void)?
 
     private let userDefaultsKey = "hotkey_shortcut"
-    private var currentShortcut: Shortcut?
+    var currentShortcut: Shortcut?
 
     private let reservedKeyCodes: Set<UInt16> = [
         kVK_F1, kVK_F2, kVK_F3, kVK_F4, kVK_F5, kVK_F6, kVK_F7, kVK_F8,

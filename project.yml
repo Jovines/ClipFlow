@@ -6,6 +6,11 @@ options:
   xcodeVersion: "15.0"
   generateEmptyDirectories: true
 
+packages:
+  GRDB:
+    url: https://github.com/groue/GRDB.swift
+    from: 6.29.3
+
 settings:
   base:
     MARKETING_VERSION: "1.0.0"
@@ -21,12 +26,10 @@ targets:
     sources:
       - path: Sources
         type: group
+    dependencies:
+      - package: GRDB
     resources:
       - path: Resources/Assets.xcassets
-      - path: Resources/Assets.xcassets/AppIcon
-      - path: Resources/ClipFlow.xcdatamodeld
-      - path: Resources/Info.plist
-      - path: Resources/ClipFlow.entitlements
       - path: Resources/en.lproj
         type: folder
       - path: Resources/zh-Hans.lproj
@@ -42,10 +45,6 @@ targets:
         CODE_SIGN_ENTITLEMENTS: Resources/ClipFlow.entitlements
     entitlements:
       path: Resources/ClipFlow.entitlements
-      properties:
-        com.apple.security.app-sandbox: true
-        com.apple.security.files.user-selected.read-only: true
-        com.apple.security.network.client: true
     postBuildScripts:
       - name: SwiftLint
         script: |

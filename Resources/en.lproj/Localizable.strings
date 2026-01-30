@@ -73,5 +73,21 @@
 // Errors
 "error.shortcut.conflict" = "Shortcut Conflict";
 "error.shortcut.conflict.message" = "This shortcut is already in use or invalid.";
-"error.accessibility.required" = "Accessibility permissions required";
-"error.accessibility.message" = "Please enable ClipFlow in System Settings > Privacy & Security > Accessibility";
+"error.accessibility.required" = "Accessibility Permissions Required";
+"error.accessibility.message" = "ClipFlow needs accessibility permissions to use global shortcuts. Please enable ClipFlow in System Settings > Privacy & Security > Accessibility.";
+
+// Buttons
+"button.open.settings" = "Open System Settings";
+"button.later" = "Later";
+"button.ok" = "OK";
+
+// Hints
+"hint.add.app.title" = "How to Add ClipFlow";
+"hint.add.app.message" = "1. Click the lock icon at the bottom left to unlock\n2. Click the + button\n3. Find ClipFlow and check it\n4. Restart ClipFlow";
+
+// Notifications
+"notification.permission.granted.title" = "Permission Granted";
+"notification.permission.granted.message" = "Shortcut feature is now available";
+
+// Settings - Shortcut (补充)
+"settings.shortcut.clickToRecord" = "Click to record a new shortcut";

@@ -8,11 +8,13 @@ final class FloatingWindowManager: ObservableObject {
     @Published private(set) var isWindowVisible = false
     @Published private(set) var isWindowLoaded = false
 
-    private var floatingWindow: NSWindow?
+    private(set) var floatingWindow: NSWindow?
     private var floatingWindowHostingController: NSHostingController<FloatingWindowView>?
     private let clipboardMonitor: ClipboardMonitor
     private var cancellables = Set<AnyCancellable>()
     private var clickOutsideMonitor: Any?
+    private var previousActiveApp: NSRunningApplication?
+    private var isPasting = false
 
     private let windowWidth: CGFloat = 360
     private let windowHeight: CGFloat = 420
@@ -41,6 +43,10 @@ final class FloatingWindowManager: ObservableObject {
             return
         }
 
+        NotificationCenter.default.post(name: NSNotification.Name("FloatingWindowWillShow"), object: nil)
+
+        previousActiveApp = NSWorkspace.shared.frontmostApplication
+
         if floatingWindow == nil {
             createWindow()
         }
@@ -56,6 +62,19 @@ final class FloatingWindowManager: ObservableObject {
         stopClickOutsideMonitoring()
         floatingWindow?.orderOut(nil)
         isWindowVisible = false
+        NotificationCenter.default.post(name: NSNotification.Name("FloatingWindowDidHide"), object: nil)
+    }
+
+    func hideWindowForPaste() {
+        stopClickOutsideMonitoring()
+        floatingWindow?.orderOut(nil)
+        isWindowVisible = false
+
+        if let previousApp = previousActiveApp {
+            previousApp.activate(options: .activateIgnoringOtherApps)
+        }
+
+        NotificationCenter.default.post(name: NSNotification.Name("FloatingWindowDidHide"), object: nil)
     }
 
     func toggleWindow() {
@@ -69,6 +88,21 @@ final class FloatingWindowManager: ObservableObject {
     func bringWindowToFront() {
         floatingWindow?.orderFrontRegardless()
     }
+    
+    func simulatePaste() {
+        let source = CGEventSource(stateID: .combinedSessionState)
+
+        let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: true)
+        keyDown?.flags = .maskCommand
+
+        let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: false)
+        keyUp?.flags = .maskCommand
+
+        keyDown?.post(tap: .cghidEventTap)
+        keyUp?.post(tap: .cghidEventTap)
+
+        ClipFlowLogger.info("Paste command simulated (Cmd+V)")
+    }
 
     private func createWindow() {
         let floatingView = FloatingWindowView(
@@ -76,8 +110,15 @@ final class FloatingWindowManager: ObservableObject {
                 self?.hideWindow()
             },
             onItemSelected: { [weak self] item in
+                self?.isPasting = true
                 self?.clipboardMonitor.copyToClipboard(item)
-                self?.hideWindow()
+                self?.hideWindowForPaste()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self?.simulatePaste()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        self?.isPasting = false
+                    }
+                }
             },
             maxVisibleItems: maxVisibleItems,
             clipboardMonitor: clipboardMonitor
@@ -187,8 +228,15 @@ struct FloatingWindowView: View {
     let onClose: () -> Void
     let onItemSelected: (ClipboardItem) -> Void
     let maxVisibleItems: Int
-    let clipboardMonitor: ClipboardMonitor
+    @StateObject private var clipboardMonitor: ClipboardMonitor
     @State private var searchText = ""
+
+    init(onClose: @escaping () -> Void, onItemSelected: @escaping (ClipboardItem) -> Void, maxVisibleItems: Int, clipboardMonitor: ClipboardMonitor = .shared) {
+        self.onClose = onClose
+        self.onItemSelected = onItemSelected
+        self.maxVisibleItems = maxVisibleItems
+        _clipboardMonitor = StateObject(wrappedValue: clipboardMonitor)
+    }
     @State private var isSelectionMode = false
     @State private var selectedItem: ClipboardItem?
     @State private var selectedIndex: Int = 0
@@ -410,14 +458,11 @@ struct FloatingWindowView: View {
     }
 
     private func loadAllTags() {
-        let entities = PersistenceController.shared.fetchAllTags()
-        allTags = entities.compactMap { entity -> Tag? in
-            guard let name = entity.value(forKey: "name") as? String,
-                  let color = entity.value(forKey: "color") as? String,
-                  let id = entity.value(forKey: "id") as? UUID else {
-                return nil
-            }
-            return Tag(id: id, name: name, color: color)
+        do {
+            allTags = try DatabaseManager.shared.fetchAllTags()
+        } catch {
+            ClipFlowLogger.error("Failed to load tags: \(error)")
+            allTags = []
         }
     }
 
