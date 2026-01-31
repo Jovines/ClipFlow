@@ -43,7 +43,7 @@ struct GroupView: View {
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(Color.flexokiTextSecondary)
 
-            Text("▼ \(groupInfo.startIndex)-\(groupInfo.endIndex) (\(items.count)条)")
+            Text("\(groupInfo.startIndex)-\(groupInfo.endIndex)")
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Color.flexokiTextSecondary)
 
