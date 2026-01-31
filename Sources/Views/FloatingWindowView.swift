@@ -2,13 +2,47 @@ import AppKit
 import Combine
 import SwiftUI
 
+class FloatingWindow: NSWindow {
+    override var canBecomeKey: Bool {
+        return true
+    }
+
+    override var canBecomeMain: Bool {
+        return true
+    }
+
+    override func makeFirstResponder(_ responder: NSResponder?) -> Bool {
+        return true
+    }
+}
+
+class FocusRinglessView: NSView {
+    override var acceptsFirstResponder: Bool {
+        return false
+    }
+
+    override func drawFocusRingMask() {
+        // Don't draw focus ring
+    }
+
+    override var focusRingMaskBounds: NSRect {
+        return NSRect.zero
+    }
+}
+
+class FocusRinglessHostingController<Content: View>: NSHostingController<Content> {
+    override func loadView() {
+        view = FocusRinglessView()
+    }
+}
+
 final class FloatingWindowManager: ObservableObject {
     static let shared = FloatingWindowManager()
 
     @Published private(set) var isWindowVisible = false
     @Published private(set) var isWindowLoaded = false
 
-    private(set) var floatingWindow: NSWindow?
+    private(set) var floatingWindow: FloatingWindow?
     private var floatingWindowHostingController: NSHostingController<FloatingWindowView>?
     private let clipboardMonitor: ClipboardMonitor
     private var cancellables = Set<AnyCancellable>()
@@ -17,8 +51,9 @@ final class FloatingWindowManager: ObservableObject {
     private var isPasting = false
 
     private let windowWidth: CGFloat = 360
-    private let windowHeight: CGFloat = 420
+    private let windowHeight: CGFloat = 480
     private let maxVisibleItems = 10
+    private let itemsPerGroup = 10
 
     private init(clipboardMonitor: ClipboardMonitor = .shared) {
         self.clipboardMonitor = clipboardMonitor
@@ -130,9 +165,9 @@ final class FloatingWindowManager: ObservableObject {
             clipboardMonitor: clipboardMonitor
         )
 
-        floatingWindowHostingController = NSHostingController(rootView: floatingView)
+        floatingWindowHostingController = FocusRinglessHostingController(rootView: floatingView)
 
-        let window = NSWindow(
+        let window = FloatingWindow(
             contentRect: NSRect(x: 0, y: 0, width: windowWidth, height: windowHeight),
             styleMask: [.borderless, .utilityWindow],
             backing: .buffered,
@@ -183,17 +218,12 @@ final class FloatingWindowManager: ObservableObject {
         }
 
         // Vertical bounds - prefer above mouse, but don't overlap menu bar
-        if windowOrigin.y + windowHeight > screenFrame.maxY - menuBarHeight {
+        if windowOrigin.y + windowHeight > screenFrame.maxY {
             // Position below mouse instead
             windowOrigin.y = mouseLocation.y + 20
         }
         if windowOrigin.y < screenFrame.minY {
             windowOrigin.y = screenFrame.minY + 10
-        }
-
-        // Final safety check
-        if windowOrigin.y + windowHeight > screenFrame.maxY {
-            windowOrigin.y = screenFrame.maxY - windowHeight - 10
         }
 
         window.setFrameOrigin(windowOrigin)
@@ -255,10 +285,40 @@ struct FloatingWindowView: View {
     @State private var originalContent: String = ""
     @State private var editorPosition: EditorPosition = .right
     @State private var editorWidth: CGFloat = 280
+    @State private var expandedGroups: Set<Int> = []
+    @State private var detailItem: ClipboardItem?
+    @State private var showDetailPanel = false
+
+    private let groupPanelWidth: CGFloat = 300
 
     enum EditorPosition {
         case left
         case right
+    }
+
+    private var groupedItems: [(groupInfo: GroupInfo, items: [ClipboardItem])] {
+        let visibleItems = Array(filteredItems.prefix(maxVisibleItems))
+        let remainingItems = Array(filteredItems.dropFirst(maxVisibleItems))
+
+        var groups: [(groupInfo: GroupInfo, items: [ClipboardItem])] = []
+
+        if !visibleItems.isEmpty {
+            groups.append((GroupInfo(startIndex: 1, endIndex: visibleItems.count, totalCount: filteredItems.count), visibleItems))
+        }
+
+        for (index, chunk) in remainingItems.chunked(into: 10).enumerated() {
+            let startIndex = maxVisibleItems + index * 10 + 1
+            let endIndex = min(startIndex + chunk.count - 1, filteredItems.count)
+            groups.append((GroupInfo(startIndex: startIndex, endIndex: endIndex, totalCount: filteredItems.count), Array(chunk)))
+        }
+
+        return groups
+    }
+
+    struct GroupInfo {
+        let startIndex: Int
+        let endIndex: Int
+        let totalCount: Int
     }
 
     private var isEditing: Bool {
@@ -272,6 +332,8 @@ struct FloatingWindowView: View {
     private var maxCharacterCount: Int {
         10000
     }
+
+    @StateObject private var groupPanelCoordinator = GroupPanelCoordinator()
 
     var body: some View {
         HStack(spacing: 0) {
@@ -288,6 +350,10 @@ struct FloatingWindowView: View {
                 Divider()
                 modeIndicatorView
                 Divider()
+                if isSelectionMode {
+                    selectionModeHint
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
                 contentView
             }
             .frame(width: 360, height: 420)
@@ -295,6 +361,11 @@ struct FloatingWindowView: View {
             if isEditing {
                 editorPanel
                     .frame(width: editorWidth, height: 420)
+            }
+
+            if groupPanelCoordinator.isShowingPanel {
+                groupPanel
+                    .frame(width: groupPanelWidth, height: 420)
             }
         }
         .background(Color.flexokiSurface.opacity(0.95))
@@ -305,6 +376,10 @@ struct FloatingWindowView: View {
             clipboardMonitor.refresh()
             resetSearch()
             loadAllTags()
+            groupPanelCoordinator.startTracking()
+        }
+        .onDisappear {
+            groupPanelCoordinator.stopTracking()
         }
         .onChange(of: filteredItems.count) { newCount in
             if selectedIndex >= newCount && selectedIndex >= 0 {
@@ -329,8 +404,13 @@ struct FloatingWindowView: View {
         .onKeyPress(.return) {
             if isEditing {
                 saveEdit()
-            } else if let item = getSelectedItem() {
-                handleItemSelection(item)
+            } else if isSelectionMode {
+                if selectedIndex >= 0, let item = getSelectedItem() {
+                    handleItemSelection(item)
+                }
+            } else {
+                isSelectionMode = true
+                selectedIndex = -1
             }
             return .handled
         }
@@ -386,12 +466,13 @@ struct FloatingWindowView: View {
     }
 
     private func navigateSelection(direction: NavigationDirection) {
-        let maxIndex = min(filteredItems.count - 1, maxVisibleItems - 1)
+        let visibleItems = getVisibleItems()
+        let maxIndex = visibleItems.count - 1
 
         switch direction {
         case .down:
             if selectedIndex < 0 {
-                selectedIndex = -1
+                selectedIndex = 0
             } else if selectedIndex < maxIndex {
                 withAnimation(.easeOut(duration: 0.1)) {
                     selectedIndex += 1
@@ -406,6 +487,18 @@ struct FloatingWindowView: View {
                 }
             }
         }
+    }
+
+    private func getVisibleItems() -> [ClipboardItem] {
+        var visible: [ClipboardItem] = []
+        for (groupIndex, group) in groupedItems.enumerated() {
+            if groupIndex == 0 {
+                visible.append(contentsOf: group.items)
+            } else if expandedGroups.contains(groupIndex) {
+                visible.append(contentsOf: group.items)
+            }
+        }
+        return visible
     }
 
     private func getSelectedItem() -> ClipboardItem? {
@@ -425,14 +518,82 @@ struct FloatingWindowView: View {
                 }
                 ScrollView {
                     LazyVStack(spacing: 4) {
-                        ForEach(Array(filteredItems.prefix(maxVisibleItems).enumerated()), id: \.element.id) { index, item in
-                            itemRow(for: item, index: index)
+                        ForEach(Array(groupedItems.enumerated()), id: \.offset) { groupIndex, group in
+                            if groupIndex == 0 {
+                                LazyVStack(spacing: 4) {
+                                    ForEach(Array(group.items.enumerated()), id: \.element.id) { itemIndex, item in
+                                        CompactItemRow(
+                                            item: item,
+                                            index: itemIndex,
+                                            isSelected: selectedIndex == itemIndex,
+                                            clipboardMonitor: clipboardMonitor,
+                                            onSelect: { handleItemSelection(item) },
+                                            onEdit: { startEdit(item) },
+                                            onDelete: { clipboardMonitor.deleteItem(item) }
+                                        )
+                                    }
+                                }
+                            } else {
+                                GroupView(
+                                    groupInfo: group.groupInfo,
+                                    items: group.items,
+                                    groupIndex: groupIndex,
+                                    onToggleExpand: { toggleGroup(groupIndex) },
+                                    selectedIndex: $selectedIndex,
+                                    clipboardMonitor: clipboardMonitor,
+                                    onItemSelected: { item in
+                                        handleItemSelection(item)
+                                    },
+                                    onItemEdit: { item in
+                                        startEdit(item)
+                                    },
+                                    onItemDelete: { item in
+                                        clipboardMonitor.deleteItem(item)
+                                    }
+                                )
+                            }
                         }
                     }
                     .padding(8)
+                    .onAppear {
+                        groupPanelCoordinator.updateGroupedItems(groupedItems)
+                    }
+
+                    Divider()
+                        .padding(.horizontal, 8)
+
+                    viewAllButton
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 8)
                 }
             }
         }
+    }
+
+    private var viewAllButton: some View {
+        Button(action: {
+            FloatingWindowManager.shared.hideWindow()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                NotificationCenter.default.post(name: NSNotification.Name("ShowMainWindow"), object: nil)
+            }
+        }) {
+            HStack(spacing: 6) {
+                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                    .font(.system(size: 12))
+                Text("查看全部")
+                    .font(.system(size: 12, weight: .medium))
+                Spacer()
+                Text("\(filteredItems.count) 条")
+                    .font(.caption)
+                    .foregroundStyle(Color.flexokiTextSecondary)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.flexokiAccent.opacity(0.1))
+            .foregroundStyle(Color.flexokiAccent)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder
@@ -466,6 +627,16 @@ struct FloatingWindowView: View {
             },
             clipboardMonitor: clipboardMonitor
         )
+    }
+
+    private func toggleGroup(_ groupIndex: Int) {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            if expandedGroups.contains(groupIndex) {
+                expandedGroups.remove(groupIndex)
+            } else {
+                expandedGroups.insert(groupIndex)
+            }
+        }
     }
 
     private func handleItemSelection(_ item: ClipboardItem) {
@@ -503,6 +674,82 @@ struct FloatingWindowView: View {
             editorFooter
         }
         .background(Color.flexokiSurface.opacity(0.95))
+    }
+
+    private var groupPanel: some View {
+        VStack(spacing: 0) {
+            groupPanelHeader
+            Divider()
+            groupPanelContent
+            Divider()
+            groupPanelFooter
+        }
+        .background(Color.flexokiSurface.opacity(0.95))
+    }
+
+    private var groupPanelHeader: some View {
+        HStack {
+            if let info = groupPanelCoordinator.panelInfo {
+                Text("记录 \(info.startIndex)-\(info.endIndex)")
+                    .font(.system(size: 13, weight: .medium))
+            }
+            Spacer()
+            Text("\(groupPanelCoordinator.panelItems.count) 条")
+                .font(.caption)
+                .foregroundStyle(Color.flexokiTextSecondary)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+    }
+
+    private var groupPanelContent: some View {
+        ScrollView {
+            LazyVStack(spacing: 4) {
+                ForEach(Array(groupPanelCoordinator.panelItems.enumerated()), id: \.element.id) { index, item in
+                    GroupPanelItemRow(
+                        item: item,
+                        index: index,
+                        clipboardMonitor: clipboardMonitor,
+                        onSelect: {
+                            onItemSelected(item)
+                            groupPanelCoordinator.hidePanel()
+                        },
+                        onEdit: { startEdit(item) },
+                        onDelete: { clipboardMonitor.deleteItem(item) }
+                    )
+                }
+            }
+            .padding(8)
+        }
+    }
+
+    private var groupPanelFooter: some View {
+        HStack(spacing: 8) {
+            Button(action: {
+                FloatingWindowManager.shared.hideWindow()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    NotificationCenter.default.post(name: NSNotification.Name("ShowMainWindow"), object: nil)
+                }
+            }) {
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.up.left.and.arrow.down.right")
+                        .font(.system(size: 11))
+                    Text("查看全部")
+                        .font(.system(size: 11))
+                }
+            }
+            .buttonStyle(.bordered)
+
+            Spacer()
+
+            Button(action: { groupPanelCoordinator.hidePanel() }) {
+                Text("关闭")
+                    .font(.system(size: 11))
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
     }
 
     private var editorHeader: some View {
@@ -763,6 +1010,31 @@ struct FloatingWindowView: View {
         .background(Color.flexokiSurface.opacity(0.8))
     }
 
+    private var selectionModeHint: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "number")
+                .font(.system(size: 10))
+                .foregroundStyle(Color.flexokiAccent)
+
+            Text("按数字 1-9 快速选择")
+                .font(.system(size: 10))
+                .foregroundStyle(Color.flexokiAccent)
+
+            Spacer()
+
+            Text("Enter 确认")
+                .font(.system(size: 9))
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.flexokiSurface)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(Color.flexokiAccent.opacity(0.08))
+    }
+
     private func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         let key = press.characters
         
@@ -777,6 +1049,7 @@ struct FloatingWindowView: View {
         if key >= "1" && key <= "9" {
             let index = Int(key)! - 1
             if index < filteredItems.count {
+                selectedIndex = index
                 handleItemSelection(filteredItems[index])
             }
             return .handled
@@ -828,6 +1101,152 @@ struct FloatingWindowView: View {
     }
 }
 
+// MARK: - Group Panel Coordinator
+
+class GroupPanelCoordinator: ObservableObject {
+    @Published var isShowingPanel = false
+    @Published var panelItems: [ClipboardItem] = []
+    @Published var panelInfo: FloatingWindowView.GroupInfo?
+    @Published var panelPosition: FloatingWindowView.EditorPosition = .right
+
+    private var mouseMoveMonitor: Any?
+    private var hoverTask: Task<Void, Never>?
+    private let hoverDelay: UInt64 = 100_000_000
+    private let panelWidth: CGFloat = 300
+    private var currentGroupIndex: Int?
+    private var groupedItems: [(groupInfo: FloatingWindowView.GroupInfo, items: [ClipboardItem])] = []
+
+    func updateGroupedItems(_ items: [(groupInfo: FloatingWindowView.GroupInfo, items: [ClipboardItem])]) {
+        groupedItems = items
+    }
+
+    func startTracking() {
+        stopTracking()
+        mouseMoveMonitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
+            guard let self = self else { return }
+            DispatchQueue.main.async {
+                self.handleMouseMoved()
+            }
+        }
+    }
+
+    func stopTracking() {
+        if let monitor = mouseMoveMonitor {
+            NSEvent.removeMonitor(monitor)
+            mouseMoveMonitor = nil
+        }
+        hoverTask?.cancel()
+        hoverTask = nil
+    }
+
+    private func handleMouseMoved() {
+        guard let window = FloatingWindowManager.shared.floatingWindow else {
+            hidePanel()
+            return
+        }
+
+        let mouseLocation = NSEvent.mouseLocation
+        let windowFrame = window.frame
+
+        if NSMouseInRect(mouseLocation, windowFrame, false) {
+            let groupHeaderBounds = detectGroupHeaderAtMouse(mouseLocation, windowFrame: windowFrame)
+            if let (groupIndex, groupInfo, items) = groupHeaderBounds {
+                if currentGroupIndex != groupIndex {
+                    startHoverDelay(groupIndex: groupIndex, groupInfo: groupInfo, items: items)
+                }
+            } else {
+                cancelHoverDelay()
+                if isShowingPanel {
+                    hidePanel()
+                }
+            }
+        } else {
+            cancelHoverDelay()
+            if isShowingPanel {
+                hidePanel()
+            }
+        }
+    }
+
+    private func detectGroupHeaderAtMouse(_ mouseLocation: NSPoint, windowFrame: NSRect) -> (Int, FloatingWindowView.GroupInfo, [ClipboardItem])? {
+        let localY = windowFrame.maxY - mouseLocation.y
+        let baseY = CGFloat(420) - 76
+
+        if localY > baseY - 20 {
+            return nil
+        }
+
+        let groupIndex = groupedItems.count - 1
+        if groupIndex > 0 {
+            let group = groupedItems[groupIndex]
+            return (groupIndex, group.groupInfo, group.items)
+        }
+        return nil
+    }
+
+    private func startHoverDelay(groupIndex: Int, groupInfo: FloatingWindowView.GroupInfo, items: [ClipboardItem]) {
+        cancelHoverDelay()
+        currentGroupIndex = groupIndex
+        panelInfo = groupInfo
+        panelItems = items
+
+        hoverTask = Task {
+            try? await Task.sleep(nanoseconds: hoverDelay)
+            if !Task.isCancelled {
+                await MainActor.run {
+                    showPanel()
+                }
+            }
+        }
+    }
+
+    private func cancelHoverDelay() {
+        hoverTask?.cancel()
+        hoverTask = nil
+    }
+
+    private func showPanel() {
+        determinePanelPosition()
+        withAnimation(.easeInOut(duration: 0.15)) {
+            isShowingPanel = true
+        }
+    }
+
+    func hidePanel() {
+        withAnimation(.easeInOut(duration: 0.1)) {
+            isShowingPanel = false
+        }
+        currentGroupIndex = nil
+        panelItems = []
+        panelInfo = nil
+        cancelHoverDelay()
+    }
+
+    private func determinePanelPosition() {
+        guard let window = FloatingWindowManager.shared.floatingWindow else {
+            panelPosition = .right
+            return
+        }
+
+        let mouseLocation = NSEvent.mouseLocation
+        let screenFrame = NSScreen.screens.first { screen in
+            NSMouseInRect(mouseLocation, screen.frame, false)
+        }?.visibleFrame ?? NSScreen.main?.visibleFrame ?? CGRect.zero
+
+        let windowFrame = window.frame
+        let rightSpace = screenFrame.maxX - windowFrame.maxX
+        let leftSpace = windowFrame.minX - screenFrame.minX
+
+        if rightSpace >= panelWidth + 20 {
+            panelPosition = .right
+        } else if leftSpace >= panelWidth + 20 {
+            panelPosition = .left
+        } else {
+            panelPosition = .right
+        }
+    }
+}
+
 // MARK: - Floating Item Row
 
 struct FloatingItemRow: View {
@@ -843,8 +1262,8 @@ struct FloatingItemRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            if index < 9 {
-                Text("\(index + 1)")
+            if index < 10 {
+                Text("\(index)")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundStyle(isSelected || isEditing ? Color.flexokiAccent : .secondary)
                     .frame(width: 16, height: 16)
@@ -874,13 +1293,14 @@ struct FloatingItemRow: View {
             }
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.vertical, 4)
         .background(backgroundColor)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
                 .stroke(isEditing ? Color.flexokiAccent : Color.clear, lineWidth: 2)
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .contentShape(Rectangle())
         .onHover { hovering in
             isHovered = hovering
         }
@@ -1081,5 +1501,212 @@ struct ImagePreviewView: View {
             }
         }
         .frame(minWidth: 600, minHeight: 500)
+    }
+}
+
+// MARK: - Group View
+
+struct GroupView: View {
+    let groupInfo: FloatingWindowView.GroupInfo
+    let items: [ClipboardItem]
+    let groupIndex: Int
+    let onToggleExpand: () -> Void
+    @Binding var selectedIndex: Int
+    let clipboardMonitor: ClipboardMonitor
+    let onItemSelected: (ClipboardItem) -> Void
+    let onItemEdit: (ClipboardItem) -> Void
+    let onItemDelete: (ClipboardItem) -> Void
+    @State private var isHovered = false
+
+    private let itemsPerGroup = 10
+
+    private var displayIndex: Int {
+        if groupIndex == 0 {
+            return -1
+        }
+        let offset = 10 + (groupIndex - 1) * itemsPerGroup
+        return offset
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            groupHeader
+        }
+    }
+
+    private var groupHeader: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "chevron.right")
+                .font(.system(size: 10, weight: .medium))
+                .foregroundStyle(Color.flexokiTextSecondary)
+
+            Text("▼ \(groupInfo.startIndex)-\(groupInfo.endIndex) (\(items.count)条)")
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(Color.flexokiTextSecondary)
+
+            Spacer()
+
+            if isHovered {
+                Text("悬停查看")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(isHovered ? Color.flexokiSurface.opacity(0.5) : Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            isHovered = hovering
+        }
+    }
+}
+
+struct CompactItemRow: View {
+    let item: ClipboardItem
+    let index: Int
+    let isSelected: Bool
+    let clipboardMonitor: ClipboardMonitor
+    let onSelect: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    @State private var isHovered = false
+
+    var body: some View {
+        HStack(spacing: 8) {
+            if index < 10 {
+                Text("\(index)")
+                    .font(.system(size: 9, weight: .bold))
+                    .foregroundStyle(isSelected ? Color.flexokiAccent : .secondary)
+                    .frame(width: 14, height: 14)
+                    .background(isSelected ? Color.flexokiAccent.opacity(0.2) : Color.flexokiSurface.opacity(0.3))
+                    .clipShape(RoundedRectangle(cornerRadius: 3))
+            }
+
+            contentPreview
+
+            Spacer()
+
+            if isHovered && index < 9 {
+                Button(action: onEdit) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 10))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.flexokiAccent)
+
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 10))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.red)
+                .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(isSelected ? Color.flexokiAccent.opacity(0.2) : (isHovered ? Color.flexokiBase200.opacity(0.3) : .clear))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        .onTapGesture(perform: onSelect)
+    }
+
+    private var contentPreview: some View {
+        HStack(spacing: 6) {
+            Group {
+                switch item.contentType {
+                case .text:
+                    Image(systemName: "doc.text")
+                case .image:
+                    Image(systemName: "photo")
+                }
+            }
+            .foregroundStyle(Color.flexokiTextSecondary)
+            .font(.system(size: 11))
+
+            Text(item.content)
+                .font(.system(size: 11))
+                .lineLimit(1)
+                .foregroundStyle(Color.flexokiText)
+        }
+    }
+}
+
+// MARK: - Group Panel Item Row
+
+struct GroupPanelItemRow: View {
+    let item: ClipboardItem
+    let index: Int
+    let clipboardMonitor: ClipboardMonitor
+    let onSelect: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+    @State private var isHovered = false
+
+    var body: some View {
+        HStack(spacing: 8) {
+            contentPreview
+
+            Spacer()
+
+            if isHovered {
+                Button(action: onEdit) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 10))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.flexokiAccent)
+
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 10))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.red)
+                .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(isHovered ? Color.flexokiBase200.opacity(0.5) : .clear)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        .onTapGesture(perform: onSelect)
+    }
+
+    private var contentPreview: some View {
+        HStack(spacing: 6) {
+            Group {
+                switch item.contentType {
+                case .text:
+                    Image(systemName: "doc.text")
+                case .image:
+                    Image(systemName: "photo")
+                }
+            }
+            .foregroundStyle(Color.flexokiTextSecondary)
+            .font(.system(size: 11))
+
+            Text(item.content)
+                .font(.system(size: 11))
+                .lineLimit(1)
+                .foregroundStyle(Color.flexokiText)
+        }
+    }
+}
+
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        stride(from: 0, to: count, by: size).map {
+            Array(self[$0..<Swift.min($0 + size, count)])
+        }
     }
 }

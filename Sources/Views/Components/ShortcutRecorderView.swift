@@ -19,7 +19,7 @@ struct ShortcutRecorderView: View {
             }
         }
         .padding(10)
-        .background(Color(NSColor.textBackgroundColor))
+        .background(Color.flexokiSurfaceElevated)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .onTapGesture {
             startRecording()
@@ -55,7 +55,7 @@ struct ShortcutRecorderView: View {
                 .font(.system(size: 14, weight: .medium))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(Color(NSColor.controlBackgroundColor))
+                .background(Color.flexokiSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 4))
             
             Spacer()

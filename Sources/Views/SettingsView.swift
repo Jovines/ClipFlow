@@ -1,11 +1,26 @@
 import SwiftUI
 import ServiceManagement
+import AppKit
 
-// MARK: - Settings Tab Enum
+struct TitleBarConfigurator: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        DispatchQueue.main.async {
+            if let window = nsView.window {
+                window.titlebarAppearsTransparent = true
+                window.backgroundColor = NSColor(Color.flexokiSurface)
+            }
+        }
+    }
+}
 
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
-    case openai = "OpenAI"
+    case aiService = "AIService"
     case tags = "Tags"
     case cache = "Cache"
     case about = "About"
@@ -15,7 +30,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .general: return "gear"
-        case .openai: return "brain"
+        case .aiService: return "brain"
         case .tags: return "tag"
         case .cache: return "internaldrive"
         case .about: return "info.circle"
@@ -25,7 +40,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     var localizedName: String {
         switch self {
         case .general: return NSLocalizedString("General", comment: "")
-        case .openai: return NSLocalizedString("OpenAI", comment: "")
+        case .aiService: return NSLocalizedString("AI 服务", comment: "")
         case .tags: return NSLocalizedString("Tags", comment: "")
         case .cache: return NSLocalizedString("Cache", comment: "")
         case .about: return NSLocalizedString("About", comment: "")
@@ -33,11 +48,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - Main Settings View
-
 struct SettingsView: View {
-    let onClose: (() -> Void)?
-
     @AppStorage("maxHistoryItems") private var maxHistoryItems = 100
     @AppStorage("saveImages") private var saveImages = true
     @AppStorage("autoStart") private var autoStart = false
@@ -55,22 +66,17 @@ struct SettingsView: View {
         case error(String)
     }
 
-    init(onClose: (() -> Void)? = nil) {
-        self.onClose = onClose
-    }
-
     var body: some View {
         HStack(spacing: 0) {
-            // Sidebar
             sidebar
                 .frame(width: 140)
                 .background(Color.flexokiSurface)
 
-            // Content
             contentView
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: 560, height: 440)
+        .background(Color.flexokiPaper)
         .alert("Shortcut Conflict", isPresented: $showConflictAlert) {
             Button("OK") {}
         } message: {
@@ -82,27 +88,13 @@ struct SettingsView: View {
         .onChange(of: autoStart) { _, newValue in
             setAutoStart(newValue)
         }
+        .background(
+            TitleBarConfigurator()
+        )
     }
-
-    // MARK: - Sidebar
 
     private var sidebar: some View {
         VStack(spacing: 0) {
-            // Title area
-            HStack {
-                Text("Settings")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                Spacer()
-            }
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
-            .padding(.bottom, 12)
-
-            Divider()
-                .padding(.horizontal, 12)
-
-            // Tab buttons
             VStack(spacing: 2) {
                 ForEach(SettingsTab.allCases) { tab in
                     SidebarTabButton(
@@ -113,60 +105,38 @@ struct SettingsView: View {
                 }
             }
             .padding(.horizontal, 12)
-            .padding(.top, 8)
+            .padding(.top, 12)
 
             Spacer()
         }
     }
 
-    // MARK: - Content View
-
     @ViewBuilder
     private var contentView: some View {
-        VStack(spacing: 0) {
-            // Header with close button
-            HStack {
-                Spacer()
-                Button(action: { onClose?() }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 18))
-                        .foregroundStyle(.secondary)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                switch selectedTab {
+                case .general:
+                    generalSettingsContent
+                case .aiService:
+                    AIProviderSettingsView()
+                case .tags:
+                    TagsManagementView()
+                case .cache:
+                    CacheManagementView()
+                case .about:
+                    AboutView()
                 }
-                .buttonStyle(.plain)
-                .keyboardShortcut(.escape, modifiers: [])
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 20)
             .padding(.top, 12)
-            .padding(.bottom, 8)
-
-            // Tab content
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    switch selectedTab {
-                    case .general:
-                        generalSettingsContent
-                    case .openai:
-                        OpenAISettingsView()
-                    case .tags:
-                        TagsManagementView()
-                    case .cache:
-                        CacheManagementView()
-                    case .about:
-                        AboutView()
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 20)
-            }
+            .padding(.bottom, 20)
         }
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(Color.flexokiPaper)
     }
-
-    // MARK: - General Settings Content
 
     private var generalSettingsContent: some View {
         VStack(alignment: .leading, spacing: 24) {
-            // Shortcut Section
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
                     Image(systemName: "keyboard")
@@ -196,7 +166,6 @@ struct SettingsView: View {
 
             Divider()
 
-            // History Section
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
                     Image(systemName: "clock.arrow.circlepath")
@@ -241,7 +210,6 @@ struct SettingsView: View {
 
             Divider()
 
-            // Launch Section
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
                     Image(systemName: "power")
@@ -354,193 +322,6 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - OpenAI Settings View
-
-struct OpenAISettingsView: View {
-    @State private var apiKeyInput = ""
-    @State private var showAPIKeyField = false
-    @State private var saveStatus: String?
-    @State private var isSaving = false
-    @State private var testMessage = ""
-    @State private var testResponse = ""
-    @State private var isTesting = false
-
-    private var hasAPIKey: Bool {
-        OpenAIService.shared.hasAPIKey
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            // Header
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "brain")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("OpenAI API")
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
-                Text("Configure your OpenAI API key to enable AI-powered features")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            // API Key Section
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "key")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("API Key")
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
-                VStack(spacing: 12) {
-                    if hasAPIKey && !showAPIKeyField {
-                        HStack {
-                            Label("API Key 已配置", systemImage: "checkmark.circle.fill")
-                                .font(.system(size: 13))
-                                .foregroundStyle(.green)
-
-                            Spacer()
-
-                            Button("重新设置") {
-                                showAPIKeyField = true
-                            }
-                            .buttonStyle(.link)
-                            .font(.system(size: 13))
-                        }
-                    } else {
-                        SecureField("sk-...", text: $apiKeyInput)
-                            .textFieldStyle(.roundedBorder)
-                            .font(.system(size: 13))
-
-                        HStack {
-                            Button("保存") {
-                                saveAPIKey()
-                            }
-                            .buttonStyle(.borderedProminent)
-                            .controlSize(.small)
-                            .disabled(apiKeyInput.isEmpty || isSaving)
-
-                            if hasAPIKey {
-                                Button("取消") {
-                                    showAPIKeyField = false
-                                    apiKeyInput = ""
-                                }
-                                .buttonStyle(.borderless)
-                                .controlSize(.small)
-                            }
-                        }
-
-                        if let status = saveStatus {
-                            Text(status)
-                                .font(.caption)
-                                .foregroundStyle(status.contains("成功") ? .green : .red)
-                        }
-                    }
-                }
-                .padding(12)
-                .background(Color(NSColor.controlBackgroundColor))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-
-            Divider()
-
-            // Test Section
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "testtube.2")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("Test Connection")
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
-                VStack(spacing: 12) {
-                    TextField("Test message...", text: $testMessage)
-                        .textFieldStyle(.roundedBorder)
-                        .font(.system(size: 13))
-
-                    Button("Send Test Request") {
-                        testConnection()
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .disabled(!hasAPIKey || testMessage.isEmpty || isTesting)
-
-                    if !testResponse.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Response:")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-
-                            Text(testResponse)
-                                .font(.system(size: 12))
-                                .padding(8)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color(NSColor.textBackgroundColor))
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                        }
-                    }
-                }
-                .padding(12)
-                .background(Color(NSColor.controlBackgroundColor))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-
-            Spacer()
-        }
-        .onAppear {
-            if hasAPIKey {
-                showAPIKeyField = false
-                apiKeyInput = ""
-            } else {
-                showAPIKeyField = true
-            }
-        }
-    }
-
-    private func saveAPIKey() {
-        isSaving = true
-        saveStatus = nil
-
-        do {
-            try OpenAIService.shared.setAPIKey(apiKeyInput)
-            saveStatus = "保存成功"
-            showAPIKeyField = false
-            apiKeyInput = ""
-        } catch {
-            saveStatus = "保存失败: \(error.localizedDescription)"
-        }
-
-        isSaving = false
-    }
-
-    private func testConnection() {
-        isTesting = true
-        testResponse = ""
-
-        Task {
-            do {
-                let response = try await OpenAIService.shared.chat(message: testMessage)
-                await MainActor.run {
-                    testResponse = response
-                    isTesting = false
-                }
-            } catch {
-                await MainActor.run {
-                    testResponse = "Error: \(error.localizedDescription)"
-                    isTesting = false
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Sidebar Tab Button
-
 struct SidebarTabButton: View {
     let tab: SettingsTab
     let isSelected: Bool
@@ -558,20 +339,495 @@ struct SidebarTabButton: View {
 
                 Spacer()
             }
-                    .foregroundStyle(isSelected ? Color.flexokiPaper : Color.flexokiText)
+            .foregroundStyle(isSelected ? Color.flexokiPaper : Color.flexokiText)
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(isSelected ? Color.flexokiAccent : Color.clear)
-                    )
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isSelected ? Color.flexokiAccent : Color.clear)
+            )
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
 }
 
-// MARK: - Tags Management View
+struct AIProviderSettingsView: View {
+    @StateObject private var service = OpenAIService.shared
+    @State private var showPresetSheet = false
+    @State private var showAddSheet = false
+    @State private var editingProvider: AIProviderConfig?
+    @State private var newProviderFromPreset: AIProviderConfig?
+    @State private var testMessage = ""
+    @State private var testResponse = ""
+    @State private var isTesting = false
+
+    private var providers: [AIProviderConfig] {
+        service.availableProviders
+    }
+
+    private var currentSelection: AIProviderSelection? {
+        service.currentProvider
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "brain")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("AI 服务商")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                Text("配置和管理多个 AI 服务商，支持 OpenAI、Minimax、DeepSeek 等")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: "server.rack")
+                            .foregroundStyle(.secondary)
+                            .font(.system(size: 14))
+                        Text("服务商列表")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+
+                    Spacer()
+
+                    Button {
+                        showPresetSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 12))
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.small)
+                }
+
+                if providers.isEmpty {
+                    VStack(spacing: 8) {
+                        Image(systemName: "server.rack")
+                            .font(.system(size: 32))
+                            .foregroundStyle(.tertiary)
+                        Text("暂无服务商")
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 100)
+                    .background(Color.flexokiSurface)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    VStack(spacing: 0) {
+                        ForEach(providers) { provider in
+                            ProviderRow(
+                                provider: provider,
+                                isSelected: currentSelection?.providerId == provider.id,
+                                onSelect: { selectProvider(provider) },
+                                onEdit: { editingProvider = provider },
+                                onDelete: { deleteProvider(provider) }
+                            )
+
+                            if provider.id != providers.last?.id {
+                                Divider()
+                                    .padding(.leading, 40)
+                            }
+                        }
+                    }
+                    .background(Color.flexokiSurface)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            }
+
+            Divider()
+
+            if let selection = currentSelection,
+               let provider = providers.first(where: { $0.id == selection.providerId }) {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "cpu")
+                            .foregroundStyle(.secondary)
+                            .font(.system(size: 14))
+                        Text("模型选择")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+
+                    Picker("模型", selection: Binding(
+                        get: { selection.model },
+                        set: { updateCurrentModel($0) }
+                    )) {
+                        ForEach(provider.models, id: \.self) { model in
+                            Text(model).tag(model)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .controlSize(.small)
+                    .padding(12)
+                    .background(Color.flexokiSurface)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "testtube.2")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("测试连接")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    TextField("输入测试消息...", text: $testMessage)
+                        .textFieldStyle(.plain)
+                        .font(.system(size: 13))
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.flexokiSurfaceElevated)
+                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.flexokiBorder, lineWidth: 1)
+                        )
+
+                    Button("发送测试请求") {
+                        testConnection()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .disabled(currentSelection == nil || testMessage.isEmpty || isTesting)
+
+                    if !testResponse.isEmpty {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("响应:")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+
+                            Text(testResponse)
+                                .font(.system(size: 12))
+                                .padding(8)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color.flexokiSurfaceElevated)
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
+                    }
+                }
+                .padding(12)
+                .background(Color.flexokiSurface)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Spacer()
+        }
+        .sheet(isPresented: $showPresetSheet) {
+            ProviderPresetSheet { preset in
+                showPresetSheet = false
+                newProviderFromPreset = AIProviderConfig.fromPreset(preset)
+                showAddSheet = true
+            }
+        }
+        .sheet(isPresented: $showAddSheet) {
+            if let presetProvider = newProviderFromPreset {
+                ProviderEditSheet(provider: presetProvider, isNew: true) { newProvider in
+                    addProvider(newProvider)
+                    newProviderFromPreset = nil
+                }
+            }
+        }
+        .sheet(item: $editingProvider) { provider in
+            ProviderEditSheet(provider: provider, isNew: false) { updated in
+                updateProvider(updated)
+            }
+        }
+    }
+
+    private func selectProvider(_ provider: AIProviderConfig) {
+        let selection = AIProviderSelection(
+            providerId: provider.id,
+            model: provider.defaultModel
+        )
+        service.currentProvider = selection
+    }
+
+    private func updateCurrentModel(_ model: String) {
+        guard let selection = currentSelection else { return }
+        let updated = AIProviderSelection(providerId: selection.providerId, model: model)
+        service.currentProvider = updated
+    }
+
+    private func addProvider(_ provider: AIProviderConfig) {
+        do {
+            try service.updateProvider(provider)
+        } catch {
+            print("Failed to add provider: \(error)")
+        }
+    }
+
+    private func updateProvider(_ provider: AIProviderConfig) {
+        do {
+            try service.updateProvider(provider)
+        } catch {
+            print("Failed to update provider: \(error)")
+        }
+    }
+
+    private func deleteProvider(_ provider: AIProviderConfig) {
+        do {
+            try service.deleteProvider(id: provider.id)
+        } catch {
+            print("Failed to delete provider: \(error)")
+        }
+    }
+
+    private func testConnection() {
+        isTesting = true
+        testResponse = ""
+
+        Task {
+            do {
+                let response = try await service.chat(message: testMessage)
+                await MainActor.run {
+                    testResponse = response
+                    isTesting = false
+                }
+            } catch {
+                await MainActor.run {
+                    testResponse = "错误: \(error.localizedDescription)"
+                    isTesting = false
+                }
+            }
+        }
+    }
+}
+
+struct ProviderRow: View {
+    let provider: AIProviderConfig
+    let isSelected: Bool
+    let onSelect: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                .foregroundStyle(isSelected ? .green : .secondary)
+                .font(.system(size: 14))
+                .onTapGesture { onSelect() }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(provider.name)
+                    .font(.system(size: 13))
+
+                Text(provider.baseURL)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
+            Spacer()
+
+            HStack(spacing: 6) {
+                if !provider.apiKey.isEmpty {
+                    Image(systemName: "checkmark.shield")
+                        .foregroundStyle(.green)
+                        .font(.system(size: 11))
+                }
+
+                Button(action: onEdit) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 11))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .font(.system(size: 11))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.red)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .background(isSelected ? Color.flexokiAccent.opacity(0.1) : Color.clear)
+    }
+}
+
+struct ProviderPresetSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    var onSelect: (ProviderPreset) -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("选择服务商")
+                    .font(.headline)
+
+                Spacer()
+
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+
+            Divider()
+                .padding(.horizontal, 20)
+
+            ScrollView {
+                VStack(spacing: 8) {
+                    ForEach(ProviderPreset.allPresets) { preset in
+                        PresetRow(preset: preset) {
+                            onSelect(preset)
+                            dismiss()
+                        }
+                    }
+                }
+                .padding(20)
+            }
+        }
+        .frame(width: 380, height: 520)
+    }
+}
+
+struct PresetRow: View {
+    let preset: ProviderPreset
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                Image(systemName: preset.icon)
+                    .font(.system(size: 20))
+                    .foregroundStyle(Color.flexokiAccent)
+                    .frame(width: 36, height: 36)
+                    .background(Color.flexokiSurfaceElevated)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(preset.name)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(Color.flexokiText)
+
+                    Text(preset.description)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.tertiary)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(Color.flexokiSurface)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.flexokiBorder.opacity(0.5), lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct ProviderEditSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var provider: AIProviderConfig?
+    var isNew: Bool
+    var onSave: (AIProviderConfig) -> Void
+
+    @State private var name = ""
+    @State private var baseURL = ""
+    @State private var apiKey = ""
+    @State private var models = ""
+    @State private var defaultModel = ""
+
+    init(provider: AIProviderConfig? = nil, isNew: Bool = true, onSave: @escaping (AIProviderConfig) -> Void) {
+        self.provider = provider
+        self.isNew = isNew
+        self.onSave = onSave
+    }
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(isNew ? "添加服务商" : "编辑服务商")
+                .font(.headline)
+
+            VStack(spacing: 12) {
+                TextField("名称 (如: OpenAI)", text: $name)
+                    .textFieldStyle(.roundedBorder)
+
+                TextField("Base URL (如: https://api.openai.com/v1)", text: $baseURL)
+                    .textFieldStyle(.roundedBorder)
+
+                SecureField("API Key", text: $apiKey)
+                    .textFieldStyle(.roundedBorder)
+
+                TextField("模型列表 (用逗号分隔)", text: $models)
+                    .textFieldStyle(.roundedBorder)
+
+                TextField("默认模型", text: $defaultModel)
+                    .textFieldStyle(.roundedBorder)
+            }
+
+            HStack(spacing: 12) {
+                Button("取消") {
+                    dismiss()
+                }
+                .keyboardShortcut(.escape, modifiers: [])
+
+                Button("保存") {
+                    saveProvider()
+                }
+                .keyboardShortcut(.return, modifiers: [])
+                .disabled(name.isEmpty || baseURL.isEmpty)
+            }
+        }
+        .padding(24)
+        .frame(width: 400, height: 300)
+        .onAppear {
+            if let p = provider {
+                name = p.name
+                baseURL = p.baseURL
+                apiKey = p.apiKey
+                models = p.models.joined(separator: ", ")
+                defaultModel = p.defaultModel
+            }
+        }
+    }
+
+    private func saveProvider() {
+        let modelList = models.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+        let provider = AIProviderConfig(
+            id: provider?.id ?? UUID(),
+            name: name,
+            baseURL: baseURL,
+            apiKey: apiKey,
+            models: modelList.isEmpty ? [defaultModel] : modelList,
+            defaultModel: defaultModel
+        )
+        onSave(provider)
+        dismiss()
+    }
+}
 
 struct TagsManagementView: View {
     @State private var tags: [Tag] = []
@@ -589,11 +845,18 @@ struct TagsManagementView: View {
                     .font(.system(size: 14, weight: .semibold))
             }
 
-            // Add new tag
             HStack(spacing: 8) {
                 TextField("New tag name...", text: $newTagName)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
                     .font(.system(size: 13))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.flexokiSurfaceElevated)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.flexokiBorder, lineWidth: 1)
+                    )
 
                 Button("Add") {
                     addTag()
@@ -602,10 +865,9 @@ struct TagsManagementView: View {
                 .controlSize(.small)
             }
             .padding(12)
-            .background(Color(NSColor.controlBackgroundColor))
+            .background(Color.flexokiSurface)
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
-            // Tags list
             if tags.isEmpty {
                 VStack(spacing: 8) {
                     Image(systemName: "tag.slash")
@@ -701,8 +963,6 @@ struct TagsManagementView: View {
     }
 }
 
-// MARK: - Tag Row
-
 struct TagRow: View {
     let tag: Tag
     let onEdit: () -> Void
@@ -741,8 +1001,6 @@ struct TagRow: View {
     }
 }
 
-// MARK: - Edit Tag Sheet
-
 struct EditTagSheet: View {
     let tag: Tag
     let onSave: (Tag) -> Void
@@ -764,7 +1022,15 @@ struct EditTagSheet: View {
                 .font(.headline)
 
             TextField("Tag Name", text: $name)
-                .textFieldStyle(.roundedBorder)
+                .textFieldStyle(.plain)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.flexokiSurfaceElevated)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(Color.flexokiBorder, lineWidth: 1)
+                )
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("Color")
@@ -807,8 +1073,6 @@ struct EditTagSheet: View {
     }
 }
 
-// MARK: - Cache Management View
-
 struct CacheManagementView: View {
     @State private var cacheSize: Int64 = 0
     @State private var itemCount: Int = 0
@@ -825,7 +1089,6 @@ struct CacheManagementView: View {
             }
 
             VStack(spacing: 16) {
-                // Stats cards
                 HStack(spacing: 12) {
                     StatCard(
                         icon: "photo.stack",
@@ -842,7 +1105,6 @@ struct CacheManagementView: View {
 
                 Divider()
 
-                // Clear button
                 Button(role: .destructive) {
                     clearCache()
                 } label: {
@@ -855,7 +1117,7 @@ struct CacheManagementView: View {
                 .controlSize(.regular)
             }
             .padding(12)
-            .background(Color(NSColor.controlBackgroundColor))
+            .background(Color.flexokiSurface)
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Spacer()
@@ -894,8 +1156,6 @@ struct CacheManagementView: View {
     }
 }
 
-// MARK: - Stat Card
-
 struct StatCard: View {
     let icon: String
     let title: String
@@ -918,19 +1178,15 @@ struct StatCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(Color.flexokiSurfaceElevated)
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 }
 
-// MARK: - About View
-
 struct AboutView: View {
     var body: some View {
         VStack(spacing: 0) {
-            // App icon area
             VStack(spacing: 16) {
-                // App icon placeholder
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
@@ -940,8 +1196,8 @@ struct AboutView: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                .frame(width: 80, height: 80)
-                .shadow(color: Color.flexokiAccent.opacity(0.3), radius: 10, x: 0, y: 4)
+                        .frame(width: 80, height: 80)
+                        .shadow(color: Color.flexokiAccent.opacity(0.3), radius: 10, x: 0, y: 4)
 
                     Image(systemName: "doc.on.clipboard")
                         .font(.system(size: 36, weight: .medium))
@@ -960,12 +1216,11 @@ struct AboutView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 30)
 
-            // Links
             VStack(spacing: 0) {
                 LinkRow(
                     icon: "globe",
                     title: "GitHub Repository",
-                    url: URL(string: "https://github.com/clipflow/clipflow") ?? URL(string: "https://github.com")!
+                    url: URL(string: "https://github.com/Jovines/ClipFlow") ?? URL(string: "https://github.com")!
                 )
 
                 Divider()
@@ -974,10 +1229,10 @@ struct AboutView: View {
                 LinkRow(
                     icon: "exclamationmark.bubble",
                     title: "Report Issue",
-                    url: URL(string: "https://github.com/clipflow/clipflow/issues") ?? URL(string: "https://github.com")!
+                    url: URL(string: "https://github.com/Jovines/ClipFlow/issues") ?? URL(string: "https://github.com")!
                 )
             }
-            .background(Color(NSColor.controlBackgroundColor))
+            .background(Color.flexokiSurface)
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Spacer()
@@ -989,8 +1244,6 @@ struct AboutView: View {
         }
     }
 }
-
-// MARK: - Link Row
 
 struct LinkRow: View {
     let icon: String
@@ -1024,5 +1277,5 @@ struct LinkRow: View {
 }
 
 #Preview {
-    SettingsView(onClose: {})
+    SettingsView()
 }

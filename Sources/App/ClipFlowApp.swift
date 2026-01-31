@@ -15,6 +15,7 @@ struct ClipFlowApp: App {
         Window("设置", id: "settings") {
             SettingsView()
         }
+        .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
         .defaultPosition(.center)
     }
