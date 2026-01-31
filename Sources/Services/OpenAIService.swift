@@ -29,6 +29,7 @@ final class OpenAIService: ObservableObject {
 
     private init() {
         loadFromKeychain()
+        _currentProvider = EncryptedStorage.currentSelection
         refreshAllClients()
     }
     
