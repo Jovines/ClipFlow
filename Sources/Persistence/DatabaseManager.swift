@@ -311,6 +311,12 @@ final class DatabaseManager {
             }
         }
     }
+    
+    func fetchTagsForItem(itemId: UUID) throws -> [Tag] {
+        try dbPool.read { db in
+            try fetchTagsForItem(id: itemId, in: db)
+        }
+    }
 
     private func getOrCreateTag(name: String, in db: Database) throws -> Tag {
         if let existing = try Tag.fetchOne(db, sql: "SELECT * FROM tags WHERE name = ?", arguments: [name]) {
