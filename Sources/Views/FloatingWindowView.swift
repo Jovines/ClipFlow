@@ -81,7 +81,12 @@ struct FloatingWindowView: View {
         HStack(spacing: 0) {
             VStack(spacing: 0) {
                 if !searchText.isEmpty {
-                    searchIndicatorView
+                    SearchIndicatorView(
+                        searchText: searchText,
+                        isSelectionMode: isSelectionMode,
+                        filteredCount: filteredItems.count,
+                        onReset: resetSearch
+                    )
                     Divider()
                 }
                 TagFilterBar(
@@ -90,10 +95,10 @@ struct FloatingWindowView: View {
                     onTagSelected: handleTagSelected
                 )
                 Divider()
-                modeIndicatorView
+                ModeIndicatorView(isSelectionMode: isSelectionMode, searchText: searchText)
                 Divider()
                 if isSelectionMode {
-                    selectionModeHint
+                    SelectionModeHintView()
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
                 contentView
@@ -101,13 +106,32 @@ struct FloatingWindowView: View {
             .frame(width: 360, height: 420)
 
             if isEditing {
-                editorPanel
-                    .frame(width: editorWidth, height: 420)
+                EditorPanelView(
+                    editContent: $editContent,
+                    editingItem: $editingItem,
+                    originalContent: originalContent,
+                    onSave: saveEdit,
+                    onCancel: cancelEdit,
+                    onReset: resetEdit
+                )
+                .frame(width: editorWidth, height: 420)
             }
 
             if groupPanelCoordinator.isShowingPanel {
-                groupPanel
-                    .frame(width: groupPanelWidth, height: 420)
+                GroupPanelView(
+                    panelInfo: groupPanelCoordinator.panelInfo.map { info in
+                        GroupPanelView.PanelInfo(startIndex: info.startIndex, endIndex: info.endIndex)
+                    },
+                    panelItems: groupPanelCoordinator.panelItems,
+                    clipboardMonitor: clipboardMonitor,
+                    onItemSelected: { item in
+                        onItemSelected(item)
+                    },
+                    onItemEdit: startEdit,
+                    onItemDelete: { clipboardMonitor.deleteItem($0) },
+                    onHide: { groupPanelCoordinator.hidePanel() }
+                )
+                .frame(width: groupPanelWidth, height: 420)
             }
         }
         .background(Color.flexokiSurface.opacity(0.95))
@@ -384,151 +408,13 @@ struct FloatingWindowView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
-    private var editorPanel: some View {
-        VStack(spacing: 0) {
-            editorHeader
-            Divider()
-            editorContent
-            Divider()
-            editorFooter
-        }
-        .background(Color.flexokiSurface.opacity(0.95))
-    }
-
-    private var groupPanel: some View {
-        VStack(spacing: 0) {
-            groupPanelHeader
-            Divider()
-            groupPanelContent
-            Divider()
-            groupPanelFooter
-        }
-        .background(Color.flexokiSurface.opacity(0.95))
-    }
-
-    private var groupPanelHeader: some View {
-        HStack {
-            if let info = groupPanelCoordinator.panelInfo {
-                Text("记录 \(info.startIndex)-\(info.endIndex)")
-                    .font(.system(size: 13, weight: .medium))
-            }
-            Spacer()
-            Text("\(groupPanelCoordinator.panelItems.count) 条")
-                .font(.caption)
-                .foregroundStyle(Color.flexokiTextSecondary)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-    }
-
-    private var groupPanelContent: some View {
-        ScrollView {
-            LazyVStack(spacing: 4) {
-                ForEach(Array(groupPanelCoordinator.panelItems.enumerated()), id: \.element.id) { index, item in
-                    GroupPanelItemRow(
-                        item: item,
-                        index: index,
-                        clipboardMonitor: clipboardMonitor,
-                        onSelect: {
-                            onItemSelected(item)
-                            groupPanelCoordinator.hidePanel()
-                        },
-                        onEdit: { startEdit(item) },
-                        onDelete: { clipboardMonitor.deleteItem(item) }
-                    )
-                }
-            }
-            .padding(8)
-        }
-        .onHover { hovering in
-            // 面板隐藏由 handleMouseMoved 统一处理
-        }
-    }
-
-    private var groupPanelFooter: some View {
-        HStack {
-            Spacer()
-
-            Button(action: { groupPanelCoordinator.hidePanel() }) {
-                Text("关闭")
-                    .font(.system(size: 11))
-            }
-            .buttonStyle(.bordered)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-    }
-
-    private var editorHeader: some View {
-        HStack {
-            Text("编辑记录")
-                .font(.system(size: 13, weight: .medium))
-            Spacer()
-            Button(action: { cancelEdit() }) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.flexokiTextSecondary)
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-    }
-
-    private var editorContent: some View {
-        VStack(spacing: 0) {
-            TextEditor(text: $editContent)
-                .font(.system(size: 13))
-                .padding(8)
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
-
-            HStack {
-                Text("\(characterCount)/\(maxCharacterCount)")
-                    .font(.caption)
-                    .foregroundStyle(Color.flexokiTextSecondary)
-                Spacer()
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 4)
-        }
-    }
-
-    private var editorFooter: some View {
-        HStack(spacing: 8) {
-            Button(action: { resetEdit() }) {
-                Text("重置")
-                    .font(.system(size: 12))
-            }
-            .buttonStyle(.bordered)
-            .disabled(editContent == originalContent)
-
-            Spacer()
-
-            Button(action: { cancelEdit() }) {
-                Text("取消")
-                    .font(.system(size: 12))
-            }
-            .buttonStyle(.bordered)
-
-            Button(action: { saveEdit() }) {
-                Text("保存")
-                    .font(.system(size: 12, weight: .medium))
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(editContent.isEmpty || editContent == originalContent)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-    }
-
     private func startEdit(_ item: ClipboardItem) {
         guard item.contentType == .text else { return }
         editingItem = item
         editContent = item.content
         originalContent = item.content
         determineEditorPosition()
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             guard let window = FloatingWindowManager.shared.floatingWindow else { return }
             window.makeKey()
@@ -625,129 +511,6 @@ struct FloatingWindowView: View {
         if let tag = tag {
             TagUsageManager.shared.recordUsage(for: tag.id)
         }
-    }
-
-    private var searchIndicatorView: some View {
-        HStack(spacing: 8) {
-            Image(systemName: isSelectionMode ? "number" : "magnifyingglass")
-                .foregroundStyle(isSelectionMode ? Color.flexokiAccent : .secondary)
-                .font(.system(size: 13))
-            
-            if isSelectionMode {
-                Text("选择模式")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color.flexokiAccent)
-            } else {
-                Text(searchText)
-                    .font(.system(size: 13))
-                    .lineLimit(1)
-            }
-            
-            Spacer()
-            
-            Text("\(filteredItems.count)")
-                .font(.caption)
-                .foregroundStyle(Color.flexokiTextSecondary)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(Color.flexokiSurface)
-                .clipShape(Capsule())
-            
-            Button(action: resetSearch) {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(Color.flexokiTextSecondary)
-                    .font(.system(size: 14))
-            }
-            .buttonStyle(.plain)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
-    }
-
-    private var modeIndicatorView: some View {
-        HStack(spacing: 8) {
-            HStack(spacing: 4) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 11))
-                    .foregroundStyle(isSelectionMode ? .secondary : Color.flexokiAccent)
-                
-                Text("搜索")
-                    .font(.system(size: 11))
-                    .foregroundStyle(isSelectionMode ? .secondary : Color.flexokiAccent)
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(isSelectionMode ? Color.clear : Color.flexokiAccent.opacity(0.15))
-            .clipShape(Capsule())
-            
-            HStack(spacing: 4) {
-                Image(systemName: "number")
-                    .font(.system(size: 11))
-                    .foregroundStyle(isSelectionMode ? Color.flexokiAccent : .secondary)
-                
-                Text("选择")
-                    .font(.system(size: 11))
-                    .foregroundStyle(isSelectionMode ? Color.flexokiAccent : .secondary)
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(isSelectionMode ? Color.flexokiAccent.opacity(0.15) : Color.clear)
-            .clipShape(Capsule())
-            
-            Spacer()
-            
-            HStack(spacing: 4) {
-                if !searchText.isEmpty && !isSelectionMode {
-                    Text(searchText)
-                        .font(.system(size: 11))
-                        .foregroundStyle(Color.flexokiTextSecondary)
-                        .lineLimit(1)
-                        .padding(.trailing, 4)
-                }
-                
-                HStack(spacing: 2) {
-                    Text("Tab")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundStyle(.tertiary)
-                    Image(systemName: "arrow.left.arrow.right")
-                        .font(.system(size: 8))
-                        .foregroundStyle(.tertiary)
-                }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 2)
-                .background(Color.flexokiSurface)
-                .clipShape(RoundedRectangle(cornerRadius: 3))
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(Color.flexokiSurface.opacity(0.8))
-    }
-
-    private var selectionModeHint: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "number")
-                .font(.system(size: 10))
-                .foregroundStyle(Color.flexokiAccent)
-
-            Text("按数字 1-9 快速选择")
-                .font(.system(size: 10))
-                .foregroundStyle(Color.flexokiAccent)
-
-            Spacer()
-
-            Text("Enter 确认")
-                .font(.system(size: 9))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(Color.flexokiSurface)
-                .clipShape(RoundedRectangle(cornerRadius: 4))
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(Color.flexokiAccent.opacity(0.08))
     }
 
     private func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {

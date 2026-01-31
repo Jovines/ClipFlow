@@ -3,222 +3,6 @@ import Combine
 import Foundation
 import GRDB
 
-// MARK: - NSImage Extension
-
-extension NSImage {
-    func resized(to newSize: CGSize) -> NSImage {
-        let image = NSImage(size: newSize)
-        image.lockFocus()
-        NSGraphicsContext.current?.imageInterpolation = .high
-        draw(in: CGRect(origin: .zero, size: newSize), from: .zero, operation: .copy, fraction: 1.0)
-        image.unlockFocus()
-        return image
-    }
-}
-
-// MARK: - Image Cache Manager
-
-final class ImageCacheManager {
-    static let shared = ImageCacheManager()
-
-    private let cacheDirectory: URL
-    private var maxCacheSize: Int
-    private var maxItemCount: Int
-    private let fileManager = FileManager.default
-
-    private init() {
-        let cachePath = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        cacheDirectory = cachePath.appendingPathComponent("com.clipflow.images", isDirectory: true)
-
-        let configuredCacheSize = UserDefaults.standard.integer(forKey: "maxImageCacheSize")
-        maxCacheSize = configuredCacheSize > 0 ? configuredCacheSize : 500 * 1024 * 1024
-
-        let configuredItemCount = UserDefaults.standard.integer(forKey: "maxImageCacheCount")
-        maxItemCount = configuredItemCount > 0 ? configuredItemCount : 500
-
-        createCacheDirectoryIfNeeded()
-    }
-
-    private func createCacheDirectoryIfNeeded() {
-        if !fileManager.fileExists(atPath: cacheDirectory.path) {
-            try? fileManager.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
-        }
-    }
-
-    func saveImage(_ data: Data, forKey key: String) -> URL? {
-        createCacheDirectoryIfNeeded()
-        let fileURL = cacheDirectory.appendingPathComponent(key)
-
-        do {
-            try data.write(to: fileURL)
-            updateAccessTime(for: key)
-            enforceCacheLimits()
-            return fileURL
-        } catch {
-            ClipFlowLogger.error("Failed to save image to cache: \(error.localizedDescription)")
-            return nil
-        }
-    }
-
-    func loadImage(forKey key: String) -> Data? {
-        let fileURL = cacheDirectory.appendingPathComponent(key)
-        guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
-        updateAccessTime(for: key)
-        return try? Data(contentsOf: fileURL)
-    }
-
-    func deleteImage(forKey key: String) {
-        let fileURL = cacheDirectory.appendingPathComponent(key)
-        try? fileManager.removeItem(at: fileURL)
-    }
-
-    func clearCache() {
-        try? fileManager.removeItem(at: cacheDirectory)
-        createCacheDirectoryIfNeeded()
-    }
-
-    func cacheSize() -> Int64 {
-        guard let contents = try? fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: [.fileSizeKey]) else {
-            return 0
-        }
-        return contents.reduce(0) { total, url in
-            let size = (try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize) ?? 0
-            return total + Int64(size)
-        }
-    }
-
-    func itemCount() -> Int {
-        guard let contents = try? fileManager.contentsOfDirectory(at: cacheDirectory, includingPropertiesForKeys: nil) else {
-            return 0
-        }
-        return contents.count
-    }
-
-    private func accessTimesFileURL() -> URL {
-        cacheDirectory.appendingPathComponent("access_times.plist")
-    }
-
-    private func accessTimes() -> [String: Date] {
-        guard let data = try? Data(contentsOf: accessTimesFileURL()),
-              let times = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Date] else {
-            return [:]
-        }
-        return times
-    }
-
-    private func saveAccessTimes(_ times: [String: Date]) {
-        guard let data = try? PropertyListSerialization.data(fromPropertyList: times, format: .binary, options: 0) else { return }
-        try? data.write(to: accessTimesFileURL())
-    }
-
-    private func updateAccessTime(for key: String) {
-        var times = accessTimes()
-        times[key] = Date()
-        saveAccessTimes(times)
-    }
-
-    private func enforceCacheLimits() {
-        var currentSize = cacheSize()
-        guard currentSize > maxCacheSize || itemCount() > maxItemCount else { return }
-
-        var accessTimes = accessTimes()
-        let sortedKeys = accessTimes.sorted { $0.value < $1.value }.map { $0.key }
-
-        for key in sortedKeys {
-            deleteImage(forKey: key)
-            accessTimes.removeValue(forKey: key)
-            currentSize -= Int64((try? Data(contentsOf: cacheDirectory.appendingPathComponent(key)).count) ?? 0)
-            if currentSize <= maxCacheSize && itemCount() <= maxItemCount { break }
-        }
-        saveAccessTimes(accessTimes)
-    }
-}
-
-// MARK: - Image Optimizer
-
-enum ImageOptimizer {
-    static let thumbnailSize = CGSize(width: 120, height: 120)
-    static let maxImageDimension: CGFloat = 2048
-    static let thumbnailCompressionQuality: CGFloat = 0.7
-    static let fullCompressionQuality: CGFloat = 0.85
-
-    static func compressImage(_ nsImage: NSImage, quality: CGFloat = fullCompressionQuality) -> Data? {
-        let resizedImage = resizeIfNeeded(nsImage)
-        guard let resizedTiff = resizedImage.tiffRepresentation,
-              let bitmapRep = NSBitmapImageRep(data: resizedTiff) else { return nil }
-        return bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: quality])
-    }
-
-    static func generateThumbnail(from nsImage: NSImage) -> Data? {
-        let thumbnail = nsImage.resized(to: thumbnailSize)
-        guard let tiff = thumbnail.tiffRepresentation,
-              let bitmapRep = NSBitmapImageRep(data: tiff) else { return nil }
-        return bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: thumbnailCompressionQuality])
-    }
-
-    private static func resizeIfNeeded(_ image: NSImage) -> NSImage {
-        let size = image.size
-        guard size.width > maxImageDimension || size.height > maxImageDimension else { return image }
-        let scale = min(maxImageDimension / size.width, maxImageDimension / size.height)
-        return image.resized(to: CGSize(width: size.width * scale, height: size.height * scale))
-    }
-}
-
-// MARK: - Clipboard Content Detector
-
-enum ClipboardContentDetector {
-    static func hasReadableContent(from pasteboard: NSPasteboard) -> Bool {
-        let types = pasteboard.types ?? []
-
-        if types.contains(.tiff) || types.contains(.png) {
-            return true
-        }
-
-        if types.contains(.string) {
-            if let string = pasteboard.string(forType: .string), !string.isEmpty {
-                return true
-            }
-        }
-
-        return false
-    }
-
-    static func containsSensitiveData(_ content: String) -> Bool {
-        let patterns = [
-            "\\b(?:\\d{4}[-\\s]?){3}\\d{4}\\b",
-            "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
-            "(?i)(?:password|passwd|pwd|secret|token|key|api[_-]?key|auth)[\\s:]*\\S+",
-            "(?:AKIA|ABIA|ACCA|ASIA)[A-Z0-9]{16}",
-            "-----BEGIN\\s+(?:RSA\\s+)?PRIVATE KEY-----",
-            "eyJ[A-Za-z0-9_-]*\\.eyJ[A-Za-z0-9_-]*\\.[A-Za-z0-9_-]*",
-            "\\b\\d{3}[-\\s]?\\d{2}[-\\s]?\\d{4}\\b"
-        ]
-
-        for pattern in patterns {
-            if content.range(of: pattern, options: .regularExpression) != nil {
-                return true
-            }
-        }
-
-        return false
-    }
-
-    static func contentRiskLevel(_ content: String) -> RiskLevel {
-        if containsSensitiveData(content) {
-            return .high
-        }
-        return .low
-    }
-
-    enum RiskLevel {
-        case low
-        case medium
-        case high
-    }
-}
-
-// MARK: - Clipboard Monitor
-
 final class ClipboardMonitor: ObservableObject {
     static let shared = ClipboardMonitor()
 
@@ -287,7 +71,6 @@ final class ClipboardMonitor: ObservableObject {
         monitorQueue.async { [weak self] in
             guard let self = self else { return }
 
-            // Pause monitoring temporarily to avoid recording our own copy operation
             let wasMonitoring = self.isMonitoring
             if wasMonitoring {
                 self.timer?.invalidate()
@@ -307,12 +90,10 @@ final class ClipboardMonitor: ObservableObject {
                     }
                 }
 
-                // Update change count to prevent recording this programmatic change
                 self.changeCountLock.lock()
                 self.changeCount = self.pasteboard.changeCount
                 self.changeCountLock.unlock()
 
-                // Resume monitoring after a short delay to ensure paste operation completes
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     guard let self = self, wasMonitoring else { return }
                     self.setupTimerPolling()
@@ -579,35 +360,5 @@ final class ClipboardMonitor: ObservableObject {
                 ClipFlowLogger.error("Failed to cleanup excess items: \(error)")
             }
         }
-    }
-}
-
-// MARK: - ClipFlow Logger
-
-enum ClipFlowLogger {
-    private static var isDebugMode: Bool {
-        #if DEBUG
-        return true
-        #else
-        return UserDefaults.standard.bool(forKey: "debugMode")
-        #endif
-    }
-
-    static func debug(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
-        guard isDebugMode else { return }
-        let fileName = (file as NSString).lastPathComponent
-        print("[DEBUG] \(fileName):\(line) \(function) - \(message)")
-    }
-
-    static func info(_ message: String) {
-        print("[INFO] \(message)")
-    }
-
-    static func warning(_ message: String) {
-        print("[WARNING] \(message)")
-    }
-
-    static func error(_ message: String) {
-        print("[ERROR] \(message)")
     }
 }
