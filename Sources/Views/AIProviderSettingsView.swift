@@ -3,9 +3,8 @@ import SwiftUI
 struct AIProviderSettingsView: View {
     @StateObject private var service = OpenAIService.shared
     @State private var showPresetSheet = false
-    @State private var showAddSheet = false
+    @State private var pendingPreset: ProviderPreset?
     @State private var editingProvider: AIProviderConfig?
-    @State private var newProviderFromPreset: AIProviderConfig?
     @State private var testMessage = ""
     @State private var testResponse = ""
     @State private var isTesting = false
@@ -35,16 +34,16 @@ struct AIProviderSettingsView: View {
         .sheet(isPresented: $showPresetSheet) {
             ProviderPresetSheet { preset in
                 showPresetSheet = false
-                newProviderFromPreset = AIProviderConfig.fromPreset(preset)
-                showAddSheet = true
+                pendingPreset = preset
             }
         }
-        .sheet(isPresented: $showAddSheet) {
-            if let presetProvider = newProviderFromPreset {
-                ProviderEditSheet(provider: presetProvider, isNew: true) { newProvider in
-                    addProvider(newProvider)
-                    newProviderFromPreset = nil
-                }
+        .sheet(item: $pendingPreset) { preset in
+            ProviderEditSheet(
+                provider: AIProviderConfig.fromPreset(preset),
+                isNew: true
+            ) { newProvider in
+                addProvider(newProvider)
+                pendingPreset = nil
             }
         }
         .sheet(item: $editingProvider) { provider in
