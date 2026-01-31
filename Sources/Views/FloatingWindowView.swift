@@ -1528,12 +1528,12 @@ struct GroupView: View {
         VStack(spacing: 0) {
             groupHeader
         }
+        .frame(height: 36)
+        .contentShape(Rectangle())
         .onHover { hovering in
             isHovered = hovering
             if hovering {
                 panelCoordinator.showPanelForGroup(groupIndex: groupIndex, groupInfo: groupInfo, items: items)
-            } else if panelCoordinator.isCurrentGroup(groupIndex) {
-                panelCoordinator.hidePanel()
             }
         }
     }

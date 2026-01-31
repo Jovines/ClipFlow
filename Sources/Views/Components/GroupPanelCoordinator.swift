@@ -8,7 +8,6 @@ class GroupPanelCoordinator: ObservableObject {
 
     private var mouseMoveMonitor: Any?
     private var hoverTask: Task<Void, Never>?
-    private let hoverDelay: UInt64 = 100_000_000
     private let panelWidth: CGFloat = 300
     private var currentGroupIndex: Int?
     private var groupedItems: [(groupInfo: FloatingWindowView.GroupInfo, items: [ClipboardItem])] = []
@@ -59,7 +58,7 @@ class GroupPanelCoordinator: ObservableObject {
         let lastGroupIndex = groupedItems.count - 1
         guard lastGroupIndex > 0 else { return nil }
 
-        let headerHeight: CGFloat = 30
+        let headerHeight: CGFloat = 36
         let topAreaHeight: CGFloat = 76
 
         let headerTopInWindow = windowFrame.height - topAreaHeight - CGFloat(lastGroupIndex) * headerHeight
@@ -77,19 +76,10 @@ class GroupPanelCoordinator: ObservableObject {
     }
 
     private func startHoverDelay(groupIndex: Int, groupInfo: FloatingWindowView.GroupInfo, items: [ClipboardItem]) {
-        cancelHoverDelay()
         currentGroupIndex = groupIndex
         panelInfo = groupInfo
         panelItems = items
-
-        hoverTask = Task {
-            try? await Task.sleep(nanoseconds: hoverDelay)
-            if !Task.isCancelled {
-                await MainActor.run {
-                    showPanel()
-                }
-            }
-        }
+        showPanel()
     }
 
     private func cancelHoverDelay() {

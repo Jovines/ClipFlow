@@ -113,9 +113,6 @@ struct CompactItemRow: View {
         .contentShape(Rectangle())
         .onHover { hovering in
             isHovered = hovering
-            if !hovering {
-                panelCoordinator.hidePanel()
-            }
         }
         .onTapGesture(perform: onSelect)
     }
