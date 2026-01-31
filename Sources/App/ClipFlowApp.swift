@@ -11,12 +11,5 @@ struct ClipFlowApp: App {
             Image(systemName: "doc.on.clipboard")
         }
         .menuBarExtraStyle(.window)
-
-        Window("设置", id: "settings") {
-            SettingsView()
-        }
-        .windowStyle(.hiddenTitleBar)
-        .windowResizability(.contentSize)
-        .defaultPosition(.center)
     }
 }
