@@ -15,6 +15,7 @@
 		1F658F6458027E7978360C1F /* ImagePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B85F0DF320B3BCDB326EEF /* ImagePreviewView.swift */; };
 		2524E6BB6091BEF55A67FC35 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DA421858CFFE55FE1B1533 /* OpenAIService.swift */; };
 		2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */; };
+		37743BE3D096EDF86BBDD238 /* SettingsWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */; };
 		3AB7E32F2A2782D8EC61E146 /* SearchIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5C68D15CA5FE443AF36F99 /* SearchIndicatorView.swift */; };
 		3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */; };
 		423891FB4C39BA5FDF08B1BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B153DF2BA49164525C42A0 /* AppDelegate.swift */; };
@@ -92,6 +93,7 @@
 		C0E294A724BA19A3F6D69622 /* ProviderEditSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderEditSheet.swift; sourceTree = "<group>"; };
 		C33501453ADC1CC85DF1D657 /* GroupPanelCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupPanelCoordinator.swift; sourceTree = "<group>"; };
 		C9BD6759A4218875050954FC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowManager.swift; sourceTree = "<group>"; };
 		D5EB1FAFD466C4B3D85F8658 /* ClipFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClipFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DB7D34E47BB34B91999777F7 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		DB8ABDF6BA2D425A5A116AE6 /* PresetRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetRow.swift; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 				2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */,
 				DB7D34E47BB34B91999777F7 /* KeychainManager.swift */,
 				79DA421858CFFE55FE1B1533 /* OpenAIService.swift */,
+				D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -387,6 +390,7 @@
 				0C8AE76378B0FCCF8957B3A0 /* SearchBar.swift in Sources */,
 				3AB7E32F2A2782D8EC61E146 /* SearchIndicatorView.swift in Sources */,
 				C950E8741D6C858B817F87B6 /* SettingsView.swift in Sources */,
+				37743BE3D096EDF86BBDD238 /* SettingsWindowManager.swift in Sources */,
 				2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */,
 				55B0264C9A61E6E0088EFE08 /* TagFilterBar.swift in Sources */,
 				5EA1021084E61B983A8C34EB /* TagUsageStats.swift in Sources */,
