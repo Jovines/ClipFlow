@@ -145,7 +145,6 @@ struct GroupPanelItemRow: View {
     let onSelect: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
-    @ObservedObject var panelCoordinator: GroupPanelCoordinator
     @State private var isHovered = false
 
     var body: some View {
@@ -178,9 +177,6 @@ struct GroupPanelItemRow: View {
         .contentShape(Rectangle())
         .onHover { hovering in
             isHovered = hovering
-            if !hovering {
-                panelCoordinator.hidePanel()
-            }
         }
         .onTapGesture(perform: onSelect)
     }
