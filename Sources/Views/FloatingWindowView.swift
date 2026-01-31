@@ -574,41 +574,9 @@ struct FloatingWindowView: View {
                         groupPanelCoordinator.updateGroupedItems(groupedItems)
                     }
 
-                    Divider()
-                        .padding(.horizontal, 8)
-
-                    viewAllButton
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 8)
                 }
             }
         }
-    }
-
-    private var viewAllButton: some View {
-        Button(action: {
-            FloatingWindowManager.shared.hideWindow()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                NotificationCenter.default.post(name: NSNotification.Name("ShowMainWindow"), object: nil)
-            }
-        }) {
-            HStack(spacing: 6) {
-                Image(systemName: "arrow.up.left.and.arrow.down.right")
-                    .font(.system(size: 12))
-                Text("查看全部")
-                    .font(.system(size: 12, weight: .medium))
-                Spacer()
-                Text("\(filteredItems.count) 条")
-                    .font(.caption)
-                    .foregroundStyle(Color.flexokiTextSecondary)
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
-            .background(Color.flexokiAccent.opacity(0.1))
-            .foregroundStyle(Color.flexokiAccent)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
-        }
-        .buttonStyle(.plain)
     }
 
     @ViewBuilder
@@ -739,22 +707,7 @@ struct FloatingWindowView: View {
     }
 
     private var groupPanelFooter: some View {
-        HStack(spacing: 8) {
-            Button(action: {
-                FloatingWindowManager.shared.hideWindow()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    NotificationCenter.default.post(name: NSNotification.Name("ShowMainWindow"), object: nil)
-                }
-            }) {
-                HStack(spacing: 4) {
-                    Image(systemName: "arrow.up.left.and.arrow.down.right")
-                        .font(.system(size: 11))
-                    Text("查看全部")
-                        .font(.system(size: 11))
-                }
-            }
-            .buttonStyle(.bordered)
-
+        HStack {
             Spacer()
 
             Button(action: { groupPanelCoordinator.hidePanel() }) {

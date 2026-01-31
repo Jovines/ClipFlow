@@ -26,7 +26,8 @@ struct GroupView: View {
 
     var body: some View {
         groupHeader
-            .padding(.vertical, 4)
+            .padding(.vertical, 2)
+            .frame(height: 36)
             .contentShape(Rectangle())
             .onHover { hovering in
                 isHovered = hovering
