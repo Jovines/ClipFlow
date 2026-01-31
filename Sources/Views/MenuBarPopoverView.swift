@@ -12,8 +12,8 @@ struct MenuBarPopoverView: View {
                 action: {
                     print("[INFO] MenuBarPopoverView - 点击设置")
                     FloatingWindowManager.shared.hideWindow()
-                    openWindow(id: "settings")
                     dismiss()
+                    SettingsWindowManager.shared.show()
                 }
             )
 
