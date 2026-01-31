@@ -41,7 +41,9 @@ struct ContentView: View {
             clipboardMonitor.refresh()
         }
         .sheet(isPresented: $showingSettings) {
-            SettingsView(onClose: { showingSettings = false })
+            SettingsView()
+                .frame(minWidth: 560, minHeight: 440)
+                .presentationBackground(Color.flexokiSurface)
         }
     }
 

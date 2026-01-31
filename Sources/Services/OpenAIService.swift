@@ -1,59 +1,133 @@
 import Foundation
 import OpenAI
 
-final class OpenAIService {
+final class OpenAIService: ObservableObject {
     static let shared = OpenAIService()
 
-    private var openAI: OpenAI?
+    private var clients: [UUID: OpenAI] = [:]
+    
+    @Published private var _providers: [AIProviderConfig] = []
+    @Published private var _currentProvider: AIProviderSelection?
+    
+    var currentProvider: AIProviderSelection? {
+        get {
+            _currentProvider
+        }
+        set {
+            _currentProvider = newValue
+            EncryptedStorage.currentSelection = newValue
+        }
+    }
+
+    var availableProviders: [AIProviderConfig] {
+        _providers
+    }
+
+    var hasAnyConfiguredProvider: Bool {
+        _providers.contains { !$0.apiKey.isEmpty }
+    }
 
     private init() {
-        refreshClient()
+        loadFromKeychain()
+        refreshAllClients()
+    }
+    
+    private func loadFromKeychain() {
+        _providers = EncryptedStorage.providerConfigs
     }
 
-    private func refreshClient() {
-        guard let apiKey = KeychainManager.openAIAPIKey, !apiKey.isEmpty else {
-            openAI = nil
-            return
+    func refreshAllClients() {
+        clients.removeAll()
+        for provider in availableProviders where !provider.apiKey.isEmpty {
+            let configuration = OpenAI.Configuration(
+                token: provider.apiKey,
+                host: provider.baseURL.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "/v1", with: ""),
+                scheme: "https"
+            )
+            clients[provider.id] = OpenAI(configuration: configuration)
         }
-        let configuration = OpenAI.Configuration(token: apiKey)
-        openAI = OpenAI(configuration: configuration)
     }
 
-    func setAPIKey(_ key: String) throws {
-        try KeychainManager.save(key, for: .openAIAPIKey)
-        refreshClient()
+    func updateProvider(_ provider: AIProviderConfig) throws {
+        var configs = _providers
+        if let index = configs.firstIndex(where: { $0.id == provider.id }) {
+            configs[index] = provider
+        } else {
+            configs.append(provider)
+        }
+        EncryptedStorage.providerConfigs = configs
+        _providers = configs
+        refreshAllClients()
     }
 
-    func clearAPIKey() throws {
-        try KeychainManager.remove(for: .openAIAPIKey)
-        openAI = nil
+    func deleteProvider(id: UUID) throws {
+        var configs = _providers
+        configs.removeAll { $0.id == id }
+        EncryptedStorage.providerConfigs = configs
+        _providers = configs
+        clients.removeValue(forKey: id)
+
+        if currentProvider?.providerId == id {
+            currentProvider = nil
+        }
+    }
+    
+    func refreshProviders() {
+        loadFromKeychain()
+        refreshAllClients()
     }
 
-    var hasAPIKey: Bool {
-        KeychainManager.openAIAPIKey != nil
+    func getClient(for providerId: UUID) -> OpenAI? {
+        clients[providerId]
     }
 
-    func chat(message: String, model: Model = .gpt4_o) async throws -> String {
-        guard let client = openAI else {
+    func chat(
+        message: String,
+        providerId: UUID? = nil,
+        model: String? = nil
+    ) async throws -> String {
+        let targetProviderId = providerId ?? currentProvider?.providerId
+        guard let pid = targetProviderId,
+              let client = clients[pid] else {
             throw OpenAIError.notConfigured
         }
 
+        let configs = availableProviders
+        guard let config = configs.first(where: { $0.id == pid }) else {
+            throw OpenAIError.providerNotFound
+        }
+
+        let targetModel = model ?? currentProvider?.model ?? config.defaultModel
+
         let query = ChatQuery(
             messages: [.user(.init(content: .string(message)))],
-            model: model
+            model: targetModel
         )
         let result = try await client.chats(query: query)
         return result.choices.first?.message.content ?? ""
     }
 
-    func chatStream(message: String, model: Model = .gpt4_o) -> AsyncThrowingStream<String, Error> {
-        guard let client = openAI else {
+    func chatStream(
+        message: String,
+        providerId: UUID? = nil,
+        model: String? = nil
+    ) -> AsyncThrowingStream<String, Error> {
+        let targetProviderId = providerId ?? currentProvider?.providerId
+        guard let pid = targetProviderId,
+              let client = clients[pid] else {
             return .init { throw OpenAIError.notConfigured }
         }
 
+        let configs = availableProviders
+        guard let config = configs.first(where: { $0.id == pid }) else {
+            return .init { throw OpenAIError.providerNotFound }
+        }
+
+        let targetModel = model ?? currentProvider?.model ?? config.defaultModel
+
         let query = ChatQuery(
             messages: [.user(.init(content: .string(message)))],
-            model: model
+            model: targetModel
         )
 
         return AsyncThrowingStream { continuation in
@@ -75,14 +149,17 @@ final class OpenAIService {
 
 enum OpenAIError: LocalizedError {
     case notConfigured
+    case providerNotFound
     case streamFailed(Error)
 
     var errorDescription: String? {
         switch self {
         case .notConfigured:
-            return NSLocalizedString("Please configure OpenAI API Key in Settings first", comment: "OpenAI not configured error")
+            return NSLocalizedString("请先在设置中配置 AI 服务商", comment: "AI not configured error")
+        case .providerNotFound:
+            return NSLocalizedString("找不到指定的服务商配置", comment: "Provider not found error")
         case .streamFailed(let error):
-            return NSLocalizedString("Stream request failed: \(error.localizedDescription)", comment: "Stream failed error")
+            return NSLocalizedString("流式请求失败: \(error.localizedDescription)", comment: "Stream failed error")
         }
     }
 }

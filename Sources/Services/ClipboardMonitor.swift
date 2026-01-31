@@ -286,6 +286,14 @@ final class ClipboardMonitor: ObservableObject {
     func copyToClipboard(_ item: ClipboardItem) {
         monitorQueue.async { [weak self] in
             guard let self = self else { return }
+
+            // Pause monitoring temporarily to avoid recording our own copy operation
+            let wasMonitoring = self.isMonitoring
+            if wasMonitoring {
+                self.timer?.invalidate()
+                self.timer = nil
+            }
+
             DispatchQueue.main.async {
                 self.pasteboard.clearContents()
                 switch item.contentType {
@@ -297,6 +305,20 @@ final class ClipboardMonitor: ObservableObject {
                        let image = NSImage(data: imageData) {
                         self.pasteboard.writeObjects([image])
                     }
+                }
+
+                // Update change count to prevent recording this programmatic change
+                self.changeCountLock.lock()
+                self.changeCount = self.pasteboard.changeCount
+                self.changeCountLock.unlock()
+
+                // Resume monitoring after a short delay to ensure paste operation completes
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                    guard let self = self, wasMonitoring else { return }
+                    self.setupTimerPolling()
+                    self.changeCountLock.lock()
+                    self.changeCount = self.pasteboard.changeCount
+                    self.changeCountLock.unlock()
                 }
             }
         }
