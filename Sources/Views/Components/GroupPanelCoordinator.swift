@@ -9,6 +9,7 @@ class GroupPanelCoordinator: ObservableObject {
     private var mouseMoveMonitor: Any?
     private var hoverTask: Task<Void, Never>?
     private let panelWidth: CGFloat = 300
+    private let minMovementThreshold: CGFloat = 100.0
     private var currentGroupIndex: Int?
     private var groupedItems: [(groupInfo: FloatingWindowView.GroupInfo, items: [ClipboardItem])] = []
 
@@ -88,7 +89,10 @@ class GroupPanelCoordinator: ObservableObject {
     }
 
     private func showPanel() {
-        adjustWindowPositionForExpansion(panelWidth: panelWidth)
+        // 只在面板首次显示时调整窗口位置，分组切换时不重复调整
+        if !isShowingPanel {
+            adjustWindowPositionForExpansion(panelWidth: panelWidth)
+        }
         determinePanelPosition()
         withAnimation(.easeInOut(duration: 0.15)) {
             isShowingPanel = true
@@ -161,16 +165,24 @@ class GroupPanelCoordinator: ObservableObject {
         var windowFrame = window.frame
         let totalWidth = windowFrame.width + panelWidth
 
+        ClipFlowLogger.debug("[adjustWindowPositionForExpansion] window.minX=\(windowFrame.minX), window.maxX=\(windowFrame.maxX), totalWidth=\(totalWidth), screen.maxX=\(screenFrame.maxX)")
+
         if windowFrame.minX + totalWidth > screenFrame.maxX {
             windowFrame.origin.x = screenFrame.maxX - totalWidth
+            ClipFlowLogger.debug("Adjusting window to left: newX=\(windowFrame.origin.x)")
         }
 
         if windowFrame.minX < screenFrame.minX {
             windowFrame.origin.x = screenFrame.minX
+            ClipFlowLogger.debug("Adjusting window to right: newX=\(windowFrame.origin.x)")
         }
 
-        if windowFrame != window.frame {
+        let xDelta = abs(windowFrame.origin.x - window.frame.origin.x)
+        if xDelta >= minMovementThreshold {
+            ClipFlowLogger.debug("Moving window: delta=\(xDelta) >= threshold=\(minMovementThreshold)")
             window.setFrame(windowFrame, display: true, animate: true)
+        } else {
+            ClipFlowLogger.debug("Skipping move: delta=\(xDelta) < threshold=\(minMovementThreshold)")
         }
     }
 }
