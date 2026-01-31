@@ -10,19 +10,29 @@ class FloatingWindow: NSWindow {
     override var canBecomeMain: Bool {
         return true
     }
+}
 
-    override func makeFirstResponder(_ responder: NSResponder?) -> Bool {
-        return true
+extension NSTextView {
+    open override var focusRingType: NSFocusRingType {
+        get { .none }
+        set { }
     }
 }
 
 class FocusRinglessView: NSView {
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+
     override var acceptsFirstResponder: Bool {
-        return false
+        return true
     }
 
     override func drawFocusRingMask() {
-        // Don't draw focus ring
     }
 
     override var focusRingMaskBounds: NSRect {
@@ -43,7 +53,7 @@ final class FloatingWindowManager: ObservableObject {
     @Published private(set) var isWindowLoaded = false
 
     private(set) var floatingWindow: FloatingWindow?
-    private var floatingWindowHostingController: NSHostingController<FloatingWindowView>?
+    var floatingWindowHostingController: NSHostingController<FloatingWindowView>?
     private let clipboardMonitor: ClipboardMonitor
     private var cancellables = Set<AnyCancellable>()
     private var clickOutsideMonitor: Any?
@@ -93,6 +103,7 @@ final class FloatingWindowManager: ObservableObject {
         DispatchQueue.main.async {
             NSApp.activate(ignoringOtherApps: true)
             self.floatingWindow?.makeKey()
+            self.floatingWindow?.makeFirstResponder(self.floatingWindowHostingController?.view)
         }
 
         isWindowVisible = true
@@ -169,7 +180,7 @@ final class FloatingWindowManager: ObservableObject {
 
         let window = FloatingWindow(
             contentRect: NSRect(x: 0, y: 0, width: windowWidth, height: windowHeight),
-            styleMask: [.borderless, .utilityWindow],
+            styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
@@ -180,7 +191,7 @@ final class FloatingWindowManager: ObservableObject {
         window.backgroundColor = .clear
         window.hasShadow = true
         window.ignoresMouseEvents = false
-        window.collectionBehavior = [.canJoinAllSpaces, .transient]
+        window.collectionBehavior = [.canJoinAllSpaces, .managed]
         window.setIsVisible(false)
 
         floatingWindow = window
@@ -549,13 +560,17 @@ struct FloatingWindowView: View {
                                     },
                                     onItemDelete: { item in
                                         clipboardMonitor.deleteItem(item)
-                                    }
+                                    },
+                                    panelCoordinator: groupPanelCoordinator
                                 )
                             }
                         }
                     }
                     .padding(8)
                     .onAppear {
+                        groupPanelCoordinator.updateGroupedItems(groupedItems)
+                    }
+                    .onChange(of: filteredItems.count) { _, _ in
                         groupPanelCoordinator.updateGroupedItems(groupedItems)
                     }
 
@@ -821,6 +836,14 @@ struct FloatingWindowView: View {
         editContent = item.content
         originalContent = item.content
         determineEditorPosition()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            guard let window = FloatingWindowManager.shared.floatingWindow else { return }
+            window.makeKey()
+            if let hostingView = FloatingWindowManager.shared.floatingWindowHostingController?.view {
+                window.makeFirstResponder(hostingView)
+            }
+        }
     }
 
     private func saveEdit() {
@@ -1146,10 +1169,9 @@ class GroupPanelCoordinator: ObservableObject {
         }
 
         let mouseLocation = NSEvent.mouseLocation
-        let windowFrame = window.frame
 
-        if NSMouseInRect(mouseLocation, windowFrame, false) {
-            let groupHeaderBounds = detectGroupHeaderAtMouse(mouseLocation, windowFrame: windowFrame)
+        if NSMouseInRect(mouseLocation, window.frame, false) {
+            let groupHeaderBounds = detectGroupHeaderAtMouse(mouseLocation, windowFrame: window.frame)
             if let (groupIndex, groupInfo, items) = groupHeaderBounds {
                 if currentGroupIndex != groupIndex {
                     startHoverDelay(groupIndex: groupIndex, groupInfo: groupInfo, items: items)
@@ -1169,17 +1191,24 @@ class GroupPanelCoordinator: ObservableObject {
     }
 
     private func detectGroupHeaderAtMouse(_ mouseLocation: NSPoint, windowFrame: NSRect) -> (Int, FloatingWindowView.GroupInfo, [ClipboardItem])? {
-        let localY = windowFrame.maxY - mouseLocation.y
-        let baseY = CGFloat(420) - 76
+        guard !groupedItems.isEmpty else { return nil }
 
-        if localY > baseY - 20 {
-            return nil
-        }
+        let lastGroupIndex = groupedItems.count - 1
+        guard lastGroupIndex > 0 else { return nil }
 
-        let groupIndex = groupedItems.count - 1
-        if groupIndex > 0 {
-            let group = groupedItems[groupIndex]
-            return (groupIndex, group.groupInfo, group.items)
+        let headerHeight: CGFloat = 30
+        let topAreaHeight: CGFloat = 76
+
+        let headerTopInWindow = windowFrame.height - topAreaHeight - CGFloat(lastGroupIndex) * headerHeight
+        let headerBottomInWindow = headerTopInWindow - headerHeight
+
+        let mouseYInWindow = windowFrame.maxY - mouseLocation.y
+        let mouseXInWindow = mouseLocation.x - windowFrame.minX
+
+        if mouseXInWindow >= 0 && mouseXInWindow <= windowFrame.width &&
+           mouseYInWindow >= headerBottomInWindow && mouseYInWindow <= headerTopInWindow {
+            let group = groupedItems[lastGroupIndex]
+            return (lastGroupIndex, group.groupInfo, group.items)
         }
         return nil
     }
@@ -1210,6 +1239,18 @@ class GroupPanelCoordinator: ObservableObject {
         withAnimation(.easeInOut(duration: 0.15)) {
             isShowingPanel = true
         }
+    }
+
+    func showPanelForGroup(groupIndex: Int, groupInfo: FloatingWindowView.GroupInfo, items: [ClipboardItem]) {
+        cancelHoverDelay()
+        currentGroupIndex = groupIndex
+        panelInfo = groupInfo
+        panelItems = items
+        showPanel()
+    }
+
+    func isCurrentGroup(_ groupIndex: Int) -> Bool {
+        currentGroupIndex == groupIndex
     }
 
     func hidePanel() {
@@ -1516,6 +1557,8 @@ struct GroupView: View {
     let onItemSelected: (ClipboardItem) -> Void
     let onItemEdit: (ClipboardItem) -> Void
     let onItemDelete: (ClipboardItem) -> Void
+    @ObservedObject var panelCoordinator: GroupPanelCoordinator
+
     @State private var isHovered = false
 
     private let itemsPerGroup = 10
@@ -1531,6 +1574,14 @@ struct GroupView: View {
     var body: some View {
         VStack(spacing: 0) {
             groupHeader
+        }
+        .onHover { hovering in
+            isHovered = hovering
+            if hovering {
+                panelCoordinator.showPanelForGroup(groupIndex: groupIndex, groupInfo: groupInfo, items: items)
+            } else if panelCoordinator.isCurrentGroup(groupIndex) {
+                panelCoordinator.hidePanel()
+            }
         }
     }
 
@@ -1557,9 +1608,6 @@ struct GroupView: View {
         .background(isHovered ? Color.flexokiSurface.opacity(0.5) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())
-        .onHover { hovering in
-            isHovered = hovering
-        }
     }
 }
 
