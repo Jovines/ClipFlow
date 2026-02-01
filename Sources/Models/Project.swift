@@ -12,7 +12,7 @@ struct Project: Identifiable, Hashable, Codable {
     var createdAt: Date
     var updatedAt: Date
     var currentCognitionId: UUID?
-    var customPrompt: String?
+    var selectedPromptTemplateId: UUID?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -23,7 +23,7 @@ struct Project: Identifiable, Hashable, Codable {
         case createdAt
         case updatedAt
         case currentCognitionId
-        case customPrompt
+        case selectedPromptTemplateId
     }
 
     init(
@@ -35,7 +35,7 @@ struct Project: Identifiable, Hashable, Codable {
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
         currentCognitionId: UUID? = nil,
-        customPrompt: String? = nil
+        selectedPromptTemplateId: UUID? = nil
     ) {
         self.id = id
         self.name = name
@@ -45,7 +45,7 @@ struct Project: Identifiable, Hashable, Codable {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.currentCognitionId = currentCognitionId
-        self.customPrompt = customPrompt
+        self.selectedPromptTemplateId = selectedPromptTemplateId
     }
 }
 
@@ -179,7 +179,7 @@ extension Project: FetchableRecord, PersistableRecord {
         static let createdAt = Column(CodingKeys.createdAt)
         static let updatedAt = Column(CodingKeys.updatedAt)
         static let currentCognitionId = Column(CodingKeys.currentCognitionId)
-        static let customPrompt = Column(CodingKeys.customPrompt)
+        static let selectedPromptTemplateId = Column(CodingKeys.selectedPromptTemplateId)
     }
     
     func encode(to container: inout PersistenceContainer) throws {
@@ -191,7 +191,7 @@ extension Project: FetchableRecord, PersistableRecord {
         container[Columns.createdAt] = createdAt
         container[Columns.updatedAt] = updatedAt
         container[Columns.currentCognitionId] = currentCognitionId
-        container[Columns.customPrompt] = customPrompt
+        container[Columns.selectedPromptTemplateId] = selectedPromptTemplateId
     }
 }
 

@@ -2,19 +2,371 @@ import SwiftUI
 
 struct ProjectPromptSettingsView: View {
     @ObservedObject var projectService = ProjectService.shared
+    @ObservedObject var templateService = PromptTemplateService.shared
     @Binding var project: Project
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selectedTemplate: String = "默认模板"
-    @State private var customPromptText: String = ""
-    @State private var isEditing: Bool = false
-    @State private var showResetConfirmation: Bool = false
+    @State private var selectedTemplateId: UUID?
+    @State private var templates: [PromptTemplate] = []
+    @State private var showCreateTemplate = false
+    @State private var editingTemplate: PromptTemplate?
+    @State private var showDeleteConfirmation = false
+    @State private var templateToDelete: PromptTemplate?
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header
             HStack {
-                Text("AI Prompt 设置")
+                Text("AI Prompt 模板设置")
+                    .font(.headline)
+                Spacer()
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding()
+
+            Divider()
+
+            HStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("选择模板")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+                        .padding(.bottom, 8)
+
+                    Divider()
+
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 4) {
+                            ForEach(templates) { template in
+                                TemplateRow(
+                                    template: template,
+                                    isSelected: selectedTemplateId == template.id,
+                                    isSystem: template.isSystem
+                                ) {
+                                    selectTemplate(template.id)
+                                }
+                                .contextMenu {
+                                    if !template.isSystem {
+                                        Button("编辑") {
+                                            editingTemplate = template
+                                        }
+                                        Button("复制模板") {
+                                            duplicateTemplate(template)
+                                        }
+                                        Divider()
+                                        Button("删除", role: .destructive) {
+                                            templateToDelete = template
+                                            showDeleteConfirmation = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.vertical, 8)
+                    }
+                }
+                .frame(width: 200)
+                .background(Color.flexokiSurface)
+
+                Rectangle()
+                    .fill(Color.flexokiBorder)
+                    .frame(width: 1)
+
+                VStack(alignment: .leading, spacing: 12) {
+                    if let template = getSelectedTemplate() {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text(template.name)
+                                    .font(.headline)
+
+                                if template.isSystem {
+                                    Text("预设")
+                                        .font(.caption)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.accentColor.opacity(0.1))
+                                        .foregroundStyle(Color.accentColor)
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                } else {
+                                    Text("自定义")
+                                        .font(.caption)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Color.green.opacity(0.1))
+                                        .foregroundStyle(.green)
+                                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                                }
+
+                                Spacer()
+
+                                if !template.isSystem {
+                                    Button("编辑") {
+                                        editingTemplate = template
+                                    }
+                                    .buttonStyle(.borderless)
+                                    .controlSize(.small)
+                                }
+                            }
+
+                            if !template.description.isEmpty {
+                                Text(template.description)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding()
+
+                        Divider()
+
+                        ScrollView {
+                            VStack(alignment: .leading, spacing: 16) {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("初始生成 Prompt")
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                        .foregroundStyle(.secondary)
+
+                                    TextEditor(text: .constant(template.initialPrompt))
+                                        .font(.system(size: 11, design: .monospaced))
+                                        .frame(height: 150)
+                                        .scrollContentBackground(.hidden)
+                                        .background(Color.flexokiSurfaceElevated)
+                                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .stroke(Color.flexokiBorder, lineWidth: 1)
+                                        )
+                                        .disabled(true)
+                                }
+                                .padding(.horizontal)
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("更新认知 Prompt")
+                                        .font(.caption)
+                                        .fontWeight(.medium)
+                                        .foregroundStyle(.secondary)
+
+                                    TextEditor(text: .constant(template.updatePrompt))
+                                        .font(.system(size: 11, design: .monospaced))
+                                        .frame(height: 150)
+                                        .scrollContentBackground(.hidden)
+                                        .background(Color.flexokiSurfaceElevated)
+                                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .stroke(Color.flexokiBorder, lineWidth: 1)
+                                        )
+                                        .disabled(true)
+                                }
+                                .padding(.horizontal)
+
+                                HStack {
+                                    Text("可用变量: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}")
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
+                                }
+                                .padding(.horizontal)
+                            }
+                            .padding(.vertical)
+                        }
+                    } else {
+                        VStack(spacing: 12) {
+                            Image(systemName: "doc.text")
+                                .font(.system(size: 40))
+                                .foregroundStyle(.tertiary)
+
+                            Text("选择一个模板")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                }
+                .background(Color.flexokiBackground)
+            }
+
+            Divider()
+
+            HStack {
+                Button("创建新模板") {
+                    showCreateTemplate = true
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+
+                Spacer()
+
+                Button("取消") {
+                    dismiss()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+
+                Button("应用此模板") {
+                    applyTemplate()
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .disabled(selectedTemplateId == nil)
+            }
+            .padding()
+        }
+        .frame(width: 750, height: 550)
+        .onAppear {
+            loadTemplates()
+            selectedTemplateId = project.selectedPromptTemplateId ?? SystemPromptTemplates.default.id
+        }
+        .sheet(isPresented: $showCreateTemplate) {
+            TemplateEditSheet(template: nil) { newTemplate in
+                try? templateService.createTemplate(
+                    name: newTemplate.name,
+                    description: newTemplate.description,
+                    initialPrompt: newTemplate.initialPrompt,
+                    updatePrompt: newTemplate.updatePrompt
+                )
+                loadTemplates()
+            }
+        }
+        .sheet(item: $editingTemplate) { template in
+            TemplateEditSheet(template: template) { updatedTemplate in
+                try? templateService.updateTemplate(updatedTemplate)
+                loadTemplates()
+            }
+        }
+        .alert("删除模板", isPresented: $showDeleteConfirmation) {
+            Button("取消", role: .cancel) { }
+            Button("删除", role: .destructive) {
+                if let template = templateToDelete {
+                    try? templateService.deleteTemplate(id: template.id)
+                    if selectedTemplateId == template.id {
+                        selectedTemplateId = SystemPromptTemplates.default.id
+                    }
+                    loadTemplates()
+                }
+            }
+        } message: {
+            if let template = templateToDelete {
+                Text("确定要删除模板「\(template.name)」吗？此操作不可撤销，使用该模板的项目将恢复使用默认模板。")
+            }
+        }
+    }
+
+    private func loadTemplates() {
+        do {
+            var allTemplates = try templateService.fetchAllTemplates()
+            let systemIds = Set(SystemPromptTemplates.all.map { $0.id })
+            let customTemplates = allTemplates.filter { !systemIds.contains($0.id) }
+            let systemTemplates = SystemPromptTemplates.all
+            templates = systemTemplates + customTemplates
+        } catch {
+            print("[ProjectPromptSettings] Failed to load templates: \(error)")
+            templates = SystemPromptTemplates.all
+        }
+    }
+
+    private func getSelectedTemplate() -> PromptTemplate? {
+        guard let id = selectedTemplateId else { return nil }
+        if let systemTemplate = SystemPromptTemplates.template(for: id) {
+            return systemTemplate
+        }
+        return templates.first { $0.id == id }
+    }
+
+    private func selectTemplate(_ id: UUID) {
+        selectedTemplateId = id
+    }
+
+    private func applyTemplate() {
+        guard let templateId = selectedTemplateId else { return }
+        var updatedProject = project
+        updatedProject.selectedPromptTemplateId = templateId
+        do {
+            try projectService.updateProject(updatedProject)
+            project = updatedProject
+        } catch {
+            print("[ProjectPromptSettings] Failed to apply template: \(error)")
+        }
+    }
+
+    private func duplicateTemplate(_ template: PromptTemplate) {
+        do {
+            let newTemplate = try templateService.duplicateTemplate(template)
+            loadTemplates()
+            selectedTemplateId = newTemplate.id
+        } catch {
+            print("[ProjectPromptSettings] Failed to duplicate template: \(error)")
+        }
+    }
+}
+
+struct TemplateRow: View {
+    let template: PromptTemplate
+    let isSelected: Bool
+    let isSystem: Bool
+    let onSelect: () -> Void
+
+    var body: some View {
+        Button(action: onSelect) {
+            HStack {
+                Image(systemName: isSystem ? "lock.fill" : "doc.text")
+                    .font(.caption)
+                    .foregroundStyle(isSystem ? .tertiary : .secondary)
+                    .frame(width: 16)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(template.name)
+                        .font(.subheadline)
+                        .fontWeight(isSelected ? .semibold : .regular)
+                        .foregroundStyle(.primary)
+
+                    Text(template.description)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.caption)
+                        .foregroundStyle(Color.accentColor)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+        }
+        .buttonStyle(.plain)
+        .contentShape(Rectangle())
+    }
+}
+
+struct TemplateEditSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let template: PromptTemplate?
+    let onSave: (PromptTemplate) -> Void
+
+    @State private var name: String = ""
+    @State private var description: String = ""
+    @State private var initialPrompt: String = ""
+    @State private var updatePrompt: String = ""
+
+    var isEditing: Bool {
+        template != nil
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text(isEditing ? "编辑模板" : "创建模板")
                     .font(.headline)
                 Spacer()
                 Button(action: { dismiss() }) {
@@ -28,264 +380,114 @@ struct ProjectPromptSettingsView: View {
             Divider()
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Template Selection
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("选择模板")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-
-                        ForEach(ProjectPromptTemplates.allTemplates, id: \.name) { template in
-                            TemplateRow(
-                                template: template,
-                                isSelected: selectedTemplate == template.name,
-                                hasCustomPrompt: project.customPrompt != nil
-                            ) {
-                                selectedTemplate = template.name
-                                if project.customPrompt == nil {
-                                    customPromptText = template.initialPrompt
-                                }
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    Divider()
-                        .padding(.horizontal)
-
-                    // Custom Prompt Editor
-                    VStack(alignment: .leading, spacing: 12) {
-                        HStack {
-                            Text("自定义 Prompt")
-                                .font(.subheadline)
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("模板名称")
+                                .font(.caption)
                                 .foregroundStyle(.secondary)
-
-                            Spacer()
-
-                            if project.customPrompt != nil {
-                                Text("已自定义")
-                                    .font(.caption)
-                                    .foregroundStyle(.green)
-                            }
-
-                            Button(isEditing ? "取消" : "编辑") {
-                                if isEditing && project.customPrompt == nil {
-                                    customPromptText = ProjectPromptTemplates.template(named: selectedTemplate)?.initialPrompt ?? ""
-                                }
-                                isEditing.toggle()
-                            }
-                            .buttonStyle(.borderless)
-                            .controlSize(.small)
-                            .font(.caption)
-                        }
-
-                        if isEditing {
-                            TextEditor(text: $customPromptText)
-                                .font(.system(size: 12, design: .monospaced))
-                                .frame(minHeight: 300)
-                                .scrollContentBackground(.hidden)
-                                .background(Color.flexokiSurfaceElevated)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 6)
-                                        .stroke(Color.flexokiBorder, lineWidth: 1)
-                                )
-
-                            HStack {
-                                Text("可用变量: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}")
-                                    .font(.caption2)
-                                    .foregroundStyle(.tertiary)
-
-                                Spacer()
-
-                                Button("重置为模板") {
-                                    showResetConfirmation = true
-                                }
-                                .buttonStyle(.borderless)
+                            TextField("输入模板名称", text: $name)
+                                .textFieldStyle(.roundedBorder)
                                 .controlSize(.small)
+                        }
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("描述")
                                 .font(.caption)
-                                .foregroundStyle(.orange)
-                            }
-                        } else if let customPrompt = project.customPrompt, !customPrompt.isEmpty {
-                            Text(customPrompt)
-                                .font(.system(size: 12, design: .monospaced))
-                                .lineLimit(5)
                                 .foregroundStyle(.secondary)
-                                .padding(8)
-                                .background(Color.flexokiSurfaceElevated)
-                                .clipShape(RoundedRectangle(cornerRadius: 6))
-                        } else {
-                            Text("使用预设模板，暂无自定义内容")
-                                .font(.caption)
-                                .foregroundStyle(.tertiary)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding()
+                            TextField("简短描述用途", text: $description)
+                                .textFieldStyle(.roundedBorder)
+                                .controlSize(.small)
                         }
                     }
-                    .padding(.horizontal)
 
-                    Divider()
-                        .padding(.horizontal)
-
-                    // Preview Section
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Prompt 预览")
-                            .font(.subheadline)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("初始生成 Prompt")
+                            .font(.caption)
                             .foregroundStyle(.secondary)
 
-                        Text(getCurrentPrompt())
-                            .font(.system(size: 11, design: .monospaced))
-                            .lineLimit(10)
-                            .foregroundStyle(.tertiary)
-                            .padding(8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        TextEditor(text: $initialPrompt)
+                            .font(.system(size: 12, design: .monospaced))
+                            .frame(height: 200)
+                            .scrollContentBackground(.hidden)
                             .background(Color.flexokiSurfaceElevated)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.flexokiBorder, lineWidth: 1)
+                            )
                     }
-                    .padding(.horizontal)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("更新认知 Prompt")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        TextEditor(text: $updatePrompt)
+                            .font(.system(size: 12, design: .monospaced))
+                            .frame(height: 200)
+                            .scrollContentBackground(.hidden)
+                            .background(Color.flexokiSurfaceElevated)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 6)
+                                    .stroke(Color.flexokiBorder, lineWidth: 1)
+                            )
+                    }
+
+                    Text("可用变量: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
                 }
-                .padding(.vertical)
+                .padding()
             }
 
             Divider()
 
-            // Actions
             HStack {
+                Spacer()
                 Button("取消") {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
 
-                Spacer()
-
-                if isEditing || project.customPrompt != nil {
-                    Button("清除自定义") {
-                        clearCustomPrompt()
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.small)
-                    .foregroundStyle(.orange)
-                }
-
                 Button("保存") {
-                    saveCustomPrompt()
+                    save()
                 }
                 .buttonStyle(.borderedProminent)
                 .controlSize(.small)
-                .disabled(!isEditing)
+                .disabled(name.isEmpty || initialPrompt.isEmpty || updatePrompt.isEmpty)
             }
             .padding()
         }
-        .frame(width: 550, height: 650)
+        .frame(width: 600, height: 650)
         .onAppear {
-            loadCurrentState()
-        }
-        .alert("重置为模板", isPresented: $showResetConfirmation) {
-            Button("取消", role: .cancel) { }
-            Button("重置", role: .destructive) {
-                resetToTemplate()
+            if let template = template {
+                name = template.name
+                description = template.description
+                initialPrompt = template.initialPrompt
+                updatePrompt = template.updatePrompt
+            } else {
+                initialPrompt = SystemPromptTemplates.default.initialPrompt
+                updatePrompt = SystemPromptTemplates.default.updatePrompt
             }
-        } message: {
-            Text("确定要将自定义 Prompt 重置为所选模板吗？此操作不可撤销。")
         }
     }
 
-    private func loadCurrentState() {
-        if let customPrompt = project.customPrompt, !customPrompt.isEmpty {
-            customPromptText = customPrompt
-            isEditing = false
-            selectedTemplate = "自定义"
-        } else {
-            selectedTemplate = "默认模板"
-            customPromptText = ProjectPromptTemplates.defaultTemplate.initialPrompt
-        }
-    }
-
-    private func getCurrentPrompt() -> String {
-        if let customPrompt = project.customPrompt, !customPrompt.isEmpty, !isEditing {
-            return customPrompt
-        }
-        if isEditing {
-            return customPromptText
-        }
-        return ProjectPromptTemplates.template(named: selectedTemplate)?.initialPrompt ?? ""
-    }
-
-    private func saveCustomPrompt() {
-        var updatedProject = project
-        updatedProject.customPrompt = customPromptText.isEmpty ? nil : customPromptText
-        do {
-            try projectService.updateProject(updatedProject)
-            project = updatedProject
-            isEditing = false
-        } catch {
-            print("[ProjectPromptSettings] Failed to save: \(error)")
-        }
-    }
-
-    private func clearCustomPrompt() {
-        var updatedProject = project
-        updatedProject.customPrompt = nil
-        do {
-            try projectService.updateProject(updatedProject)
-            project = updatedProject
-            loadCurrentState()
-        } catch {
-            print("[ProjectPromptSettings] Failed to clear: \(error)")
-        }
-    }
-
-    private func resetToTemplate() {
-        if let template = ProjectPromptTemplates.template(named: selectedTemplate) {
-            customPromptText = template.initialPrompt
-        }
-    }
-}
-
-struct TemplateRow: View {
-    let template: ProjectPromptTemplate
-    let isSelected: Bool
-    let hasCustomPrompt: Bool
-    let onSelect: () -> Void
-
-    var body: some View {
-        Button(action: onSelect) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text(template.name)
-                            .font(.subheadline)
-                            .fontWeight(.medium)
-
-                        if hasCustomPrompt {
-                            Image(systemName: "sparkle")
-                                .font(.caption)
-                                .foregroundStyle(.orange)
-                        }
-                    }
-
-                    Text(template.description)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-
-                Spacer()
-
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Color.accentColor)
-                } else {
-                    Image(systemName: "circle")
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 12)
-            .background(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
-        }
-        .buttonStyle(.plain)
+    private func save() {
+        let savedTemplate = PromptTemplate(
+            id: template?.id ?? UUID(),
+            name: name,
+            description: description,
+            initialPrompt: initialPrompt,
+            updatePrompt: updatePrompt,
+            isSystem: false,
+            createdAt: template?.createdAt ?? Date(),
+            updatedAt: Date()
+        )
+        onSave(savedTemplate)
+        dismiss()
     }
 }
 

@@ -58,10 +58,12 @@
 		D02B3F67AB115455AE2F6B8C /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = FB5748915AE3BA482B05925F /* GRDB */; };
 		D0FD714EEA703D38257AC9A5 /* ProviderPresetSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8706162E93619342AD1D5A08 /* ProviderPresetSheet.swift */; };
 		D3837EE4A5FB8CE4BBF2E01F /* CacheManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F03415EE3AEA5A43EAE60A2 /* CacheManagementView.swift */; };
+		D8BBB83FBB834C110DD1A893 /* PromptTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FBC1064BBFAFBE9D488D21 /* PromptTemplate.swift */; };
 		DC537CD0D58974EE0D197D2A /* PresetRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB8ABDF6BA2D425A5A116AE6 /* PresetRow.swift */; };
 		DE9F42E5AB45EA8F63DDE202 /* ImageOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586557FA753777654C073B06 /* ImageOptimizer.swift */; };
 		E221FBDBB0321F208E7F7ACD /* TagSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49168E577DE43BE5063048CB /* TagSelectorView.swift */; };
 		E359ED8EB6ABFE521170F244 /* ClipboardItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */; };
+		E37ACAB2BCAFB9EFC06ADEB8 /* PromptTemplateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B1A4FBF5647B3D3F8D06AE /* PromptTemplateService.swift */; };
 		F1737443DB483156AD58601F /* MarkdownView in Frameworks */ = {isa = PBXBuildFile; productRef = DC599C3C9FFA7EAAC7EC63E9 /* MarkdownView */; };
 		F419A4DFE952EF99C6D812E3 /* FloatingWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE72248AB11DA260D0367CA /* FloatingWindowManager.swift */; };
 		FD1B12E809937CB54BD80062 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */; };
@@ -77,6 +79,7 @@
 		27B85F0DF320B3BCDB326EEF /* ImagePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePreviewView.swift; sourceTree = "<group>"; };
 		2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotKeyManager.swift; sourceTree = "<group>"; };
 		2F03415EE3AEA5A43EAE60A2 /* CacheManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManagementView.swift; sourceTree = "<group>"; };
+		32FBC1064BBFAFBE9D488D21 /* PromptTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplate.swift; sourceTree = "<group>"; };
 		38EAB7727A0888888E89FCDF /* GroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupView.swift; sourceTree = "<group>"; };
 		3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPopoverView.swift; sourceTree = "<group>"; };
 		49168E577DE43BE5063048CB /* TagSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSelectorView.swift; sourceTree = "<group>"; };
@@ -85,6 +88,7 @@
 		53A0D6EA8A4C9FCE56366FE5 /* ProjectModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectModeView.swift; sourceTree = "<group>"; };
 		570F8337E86D4F82253E5F25 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		586557FA753777654C073B06 /* ImageOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOptimizer.swift; sourceTree = "<group>"; };
+		65B1A4FBF5647B3D3F8D06AE /* PromptTemplateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplateService.swift; sourceTree = "<group>"; };
 		756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorderView.swift; sourceTree = "<group>"; };
 		77B153DF2BA49164525C42A0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		77BE29F8D89D216AF58F99DF /* AIProviderConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIProviderConfig.swift; sourceTree = "<group>"; };
@@ -150,6 +154,7 @@
 				79DA421858CFFE55FE1B1533 /* OpenAIService.swift */,
 				CD7C7F3B1ED4D0330A17E0AA /* ProjectCognitionService.swift */,
 				AD2BEBCBDE3F8381B84FCD45 /* ProjectService.swift */,
+				65B1A4FBF5647B3D3F8D06AE /* PromptTemplateService.swift */,
 				D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */,
 			);
 			path = Services;
@@ -168,6 +173,7 @@
 				77BE29F8D89D216AF58F99DF /* AIProviderConfig.swift */,
 				F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */,
 				570F8337E86D4F82253E5F25 /* Project.swift */,
+				32FBC1064BBFAFBE9D488D21 /* PromptTemplate.swift */,
 				AC5E6DFAC5ED865697543356 /* TagUsageStats.swift */,
 			);
 			path = Models;
@@ -439,6 +445,8 @@
 				8A99DB85B55EB0833BF50E00 /* ProjectPromptSettingsView.swift in Sources */,
 				59AB3A450255EAC2496E9B35 /* ProjectSelectorView.swift in Sources */,
 				19797FB7419BE216FD72B12C /* ProjectService.swift in Sources */,
+				D8BBB83FBB834C110DD1A893 /* PromptTemplate.swift in Sources */,
+				E37ACAB2BCAFB9EFC06ADEB8 /* PromptTemplateService.swift in Sources */,
 				C48C49737F662257A78682E6 /* ProviderEditSheet.swift in Sources */,
 				D0FD714EEA703D38257AC9A5 /* ProviderPresetSheet.swift in Sources */,
 				724E3F5CE384436B3C2BD020 /* ProviderRow.swift in Sources */,

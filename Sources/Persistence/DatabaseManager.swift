@@ -136,17 +136,63 @@ final class DatabaseManager {
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_raw_inputs_project ON project_raw_inputs(projectId)")
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_cognitions_project ON project_cognitions(projectId)")
 
-        try migrateCustomPrompt(db: db)
+        try migratePromptTemplates(db: db)
     }
 
-    private static func migrateCustomPrompt(db: Database) throws {
-        let columnCount = try Int.fetchOne(db, sql: """
+    private static func migratePromptTemplates(db: Database) throws {
+        let templateTableExists = try Int.fetchOne(db, sql: """
+            SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='prompt_templates'
+            """) ?? 0
+
+        if templateTableExists == 0 {
+            try db.create(table: "prompt_templates", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("name", .text).notNull()
+                t.column("description", .text)
+                t.column("initialPrompt", .text).notNull()
+                t.column("updatePrompt", .text).notNull()
+                t.column("isSystem", .boolean).notNull().defaults(to: false)
+                t.column("createdAt", .datetime).notNull()
+                t.column("updatedAt", .datetime).notNull()
+            }
+
+            try db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_templates_system ON prompt_templates(isSystem)")
+
+        try SystemPromptTemplates.all.forEach { template in
+                try db.execute(sql: """
+                    INSERT OR IGNORE INTO prompt_templates (id, name, description, initialPrompt, updatePrompt, isSystem, createdAt, updatedAt)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, arguments: [
+                        template.id.uuidString,
+                        template.name,
+                        template.description,
+                        template.initialPrompt,
+                        template.updatePrompt,
+                        template.isSystem ? 1 : 0,
+                        template.createdAt,
+                        template.updatedAt
+                    ])
+            }
+
+            print("[Database] Migration: Created prompt_templates table with system templates")
+        }
+
+        let projectColumnExists = try Int.fetchOne(db, sql: """
+            SELECT COUNT(*) FROM pragma_table_info('projects') WHERE name = 'selectedPromptTemplateId'
+            """) ?? 0
+
+        if projectColumnExists == 0 {
+            try db.execute(sql: "ALTER TABLE projects ADD COLUMN selectedPromptTemplateId TEXT")
+            print("[Database] Migration: Added selectedPromptTemplateId column to projects table")
+        }
+
+        let customPromptColumnExists = try Int.fetchOne(db, sql: """
             SELECT COUNT(*) FROM pragma_table_info('projects') WHERE name = 'customPrompt'
             """) ?? 0
 
-        if columnCount == 0 {
-            try db.execute(sql: "ALTER TABLE projects ADD COLUMN customPrompt TEXT")
-            print("[Database] Migration: Added customPrompt column to projects table")
+        if customPromptColumnExists > 0 {
+            try db.execute(sql: "ALTER TABLE projects DROP COLUMN customPrompt")
+            print("[Database] Migration: Removed deprecated customPrompt column from projects table")
         }
     }
 
