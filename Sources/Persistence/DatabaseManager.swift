@@ -84,11 +84,63 @@ final class DatabaseManager {
             t.primaryKey(["item_id", "tag_id"])
         }
 
+        // Projects
+        try db.create(table: "projects", ifNotExists: true) { t in
+            t.column("id", .text).primaryKey()
+            t.column("name", .text).notNull()
+            t.column("description", .text)
+            t.column("isActive", .boolean).notNull().defaults(to: false)
+            t.column("isArchived", .boolean).notNull().defaults(to: false)
+            t.column("createdAt", .datetime).notNull()
+            t.column("updatedAt", .datetime).notNull()
+            t.column("currentCognitionId", .text)
+        }
+
+        // Project Raw Inputs
+        try db.create(table: "project_raw_inputs", ifNotExists: true) { t in
+            t.column("id", .text).primaryKey()
+            t.column("projectId", .text).notNull().references("projects", onDelete: .cascade)
+            t.column("clipboardItemId", .text).notNull().references("clipboard_items", onDelete: .cascade)
+            t.column("sourceContext", .text)
+            t.column("isAnalyzed", .boolean).notNull().defaults(to: false)
+            t.column("createdAt", .datetime).notNull()
+        }
+
+        // Project Cognitions
+        try db.create(table: "project_cognitions", ifNotExists: true) { t in
+            t.column("id", .text).primaryKey()
+            t.column("projectId", .text).notNull().references("projects", onDelete: .cascade)
+            t.column("content", .text).notNull()
+            t.column("summary", .text).notNull().defaults(to: "")
+            t.column("background", .text)
+            t.column("currentUnderstanding", .text)
+            t.column("pendingItems", .text)
+            t.column("keyConclusions", .text)
+            t.column("rawInputsSnapshot", .text)
+            t.column("version", .integer).notNull().defaults(to: 1)
+            t.column("createdAt", .datetime).notNull()
+        }
+
+        // Project Cognition Changes
+        try db.create(table: "project_cognition_changes", ifNotExists: true) { t in
+            t.column("id", .text).primaryKey()
+            t.column("projectId", .text).notNull().references("projects", onDelete: .cascade)
+            t.column("fromCognitionId", .text).notNull().references("project_cognitions")
+            t.column("toCognitionId", .text).notNull().references("project_cognitions")
+            t.column("changeDescription", .text).notNull()
+            t.column("addedInputsJSON", .text).notNull().defaults(to: "[]")
+            t.column("createdAt", .datetime).notNull()
+        }
+
         // 使用 IF NOT EXISTS 防止索引已存在的错误
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_items_created_at ON clipboard_items(createdAt)")
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_items_content_hash ON clipboard_items(contentHash)")
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_item_tags_item ON item_tags(item_id)")
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_item_tags_tag ON item_tags(tag_id)")
+        _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_projects_active ON projects(isActive)")
+        _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_projects_archived ON projects(isArchived)")
+        _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_raw_inputs_project ON project_raw_inputs(projectId)")
+        _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_cognitions_project ON project_cognitions(projectId)")
     }
 
     func createClipboardItem(
