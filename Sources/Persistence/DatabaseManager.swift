@@ -111,12 +111,6 @@ final class DatabaseManager {
             t.column("id", .text).primaryKey()
             t.column("projectId", .text).notNull().references("projects", onDelete: .cascade)
             t.column("content", .text).notNull()
-            t.column("summary", .text).notNull().defaults(to: "")
-            t.column("background", .text)
-            t.column("currentUnderstanding", .text)
-            t.column("pendingItems", .text)
-            t.column("keyConclusions", .text)
-            t.column("rawInputsSnapshot", .text)
             t.column("version", .integer).notNull().defaults(to: 1)
             t.column("createdAt", .datetime).notNull()
         }
@@ -141,6 +135,19 @@ final class DatabaseManager {
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_projects_archived ON projects(isArchived)")
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_raw_inputs_project ON project_raw_inputs(projectId)")
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_cognitions_project ON project_cognitions(projectId)")
+
+        try migrateCustomPrompt(db: db)
+    }
+
+    private static func migrateCustomPrompt(db: Database) throws {
+        let columnCount = try Int.fetchOne(db, sql: """
+            SELECT COUNT(*) FROM pragma_table_info('projects') WHERE name = 'customPrompt'
+            """) ?? 0
+
+        if columnCount == 0 {
+            try db.execute(sql: "ALTER TABLE projects ADD COLUMN customPrompt TEXT")
+            print("[Database] Migration: Added customPrompt column to projects table")
+        }
     }
 
     func createClipboardItem(

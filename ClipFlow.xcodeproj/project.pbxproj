@@ -40,6 +40,7 @@
 		7D14FB63ABC308A8499DCC12 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = F09E4ED7C74796759763D9FC /* KeychainAccess */; };
 		7E484A64DFF670B5A2CE23AC /* GroupPanelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C33501453ADC1CC85DF1D657 /* GroupPanelCoordinator.swift */; };
 		88D21642610FE75C79F1FAA1 /* GroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38EAB7727A0888888E89FCDF /* GroupView.swift */; };
+		8A99DB85B55EB0833BF50E00 /* ProjectPromptSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE9A40E1541CBBEB56F88643 /* ProjectPromptSettingsView.swift */; };
 		8C8134CA31AD4CF9BA9D57CF /* TagsManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19385BDAEAAD74179D5BF096 /* TagsManagementView.swift */; };
 		9172FED3C8DC63000548305C /* ClipFlowLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BBCD69D497DE91AA7703CD /* ClipFlowLogger.swift */; };
 		9692EEC7F0FBB8CEC61AD003 /* ClipFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4AC65C65E8D9EF183514721 /* ClipFlowApp.swift */; };
@@ -113,6 +114,7 @@
 		D5EB1FAFD466C4B3D85F8658 /* ClipFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClipFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DB7D34E47BB34B91999777F7 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		DB8ABDF6BA2D425A5A116AE6 /* PresetRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetRow.swift; sourceTree = "<group>"; };
+		DE9A40E1541CBBEB56F88643 /* ProjectPromptSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectPromptSettingsView.swift; sourceTree = "<group>"; };
 		E614E0B350221DC20564FFE6 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
 		E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowView.swift; sourceTree = "<group>"; };
 		EC3A193662A798F38A905321 /* ProjectModeBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectModeBar.swift; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 				EC3A193662A798F38A905321 /* ProjectModeBar.swift */,
 				BDF9EE54435FAA70FA993FA3 /* ProjectModeContainerView.swift */,
 				53A0D6EA8A4C9FCE56366FE5 /* ProjectModeView.swift */,
+				DE9A40E1541CBBEB56F88643 /* ProjectPromptSettingsView.swift */,
 				2174DC89E3CFBACFE2B21C70 /* ProjectSelectorView.swift */,
 			);
 			path = Project;
@@ -433,6 +436,7 @@
 				C360348A1BA8CFCAC3BCD0C1 /* ProjectModeBar.swift in Sources */,
 				3E3307C5175AD0F1D57F5FCC /* ProjectModeContainerView.swift in Sources */,
 				1E27C63FBF4428172AF9D547 /* ProjectModeView.swift in Sources */,
+				8A99DB85B55EB0833BF50E00 /* ProjectPromptSettingsView.swift in Sources */,
 				59AB3A450255EAC2496E9B35 /* ProjectSelectorView.swift in Sources */,
 				19797FB7419BE216FD72B12C /* ProjectService.swift in Sources */,
 				C48C49737F662257A78682E6 /* ProviderEditSheet.swift in Sources */,

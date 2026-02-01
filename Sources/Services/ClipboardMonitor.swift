@@ -355,56 +355,40 @@ final class ClipboardMonitor: ObservableObject {
             }
             
             ClipFlowLogger.info("📝 Prepared \(newInputs.count) inputs for AI analysis")
-            
-            let cognitionResult: CognitionResult
+
+            let content: String
             let changeDescription: String
-            
+
             if let existingCognition = currentCognition {
-                // Update existing cognition
                 ClipFlowLogger.info("🔄 Updating existing cognition...")
                 let (updatedContent, changeDesc) = try await cognitionService.updateCognition(
                     currentCognition: existingCognition.content,
                     projectName: project.name,
                     newInputs: newInputs
                 )
-                
-                cognitionResult = CognitionResult(
-                    summary: existingCognition.summary,
-                    fullContent: updatedContent,
-                    background: existingCognition.background,
-                    currentUnderstanding: existingCognition.currentUnderstanding,
-                    pendingItems: existingCognition.pendingItems,
-                    keyConclusions: existingCognition.keyConclusions
-                )
+                content = updatedContent
                 changeDescription = changeDesc
             } else {
-                // Generate initial cognition
                 ClipFlowLogger.info("🆕 Generating initial cognition...")
-                cognitionResult = try await cognitionService.generateInitialCognition(
+                content = try await cognitionService.generateInitialCognition(
                     projectName: project.name,
                     projectDescription: project.description,
                     initialInputs: newInputs
                 )
                 changeDescription = "初始认知文档生成"
             }
-            
+
             ClipFlowLogger.info("💾 Saving cognition to database...")
-            // Save new cognition
             let addedInputIds = unanalyzed.map { $0.input.id }
             _ = try projectService.saveCognition(
                 projectId: projectId,
-                content: cognitionResult.fullContent,
-                summary: cognitionResult.summary,
-                background: cognitionResult.background,
-                currentUnderstanding: cognitionResult.currentUnderstanding,
-                pendingItems: cognitionResult.pendingItems,
-                keyConclusions: cognitionResult.keyConclusions,
+                content: content,
                 addedInputIds: addedInputIds,
                 changeDescription: changeDescription
             )
-            
+
             ClipFlowLogger.info("✅ Successfully updated cognition for project \(projectId)")
-            
+
         } catch {
             ClipFlowLogger.error("❌ Failed to analyze project cognition: \(error)")
         }

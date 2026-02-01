@@ -237,17 +237,10 @@ final class ProjectService: ObservableObject {
     func saveCognition(
         projectId: UUID,
         content: String,
-        summary: String,
-        background: String? = nil,
-        currentUnderstanding: String? = nil,
-        pendingItems: String? = nil,
-        keyConclusions: String? = nil,
-        rawInputsSnapshot: String? = nil,
         addedInputIds: [UUID] = [],
         changeDescription: String = ""
     ) throws -> ProjectCognition {
-        
-        // Get current version
+
         let currentVersion = try DatabaseManager.shared.dbPool.read { db -> Int in
             let count = try Int.fetchOne(
                 db,
@@ -256,16 +249,10 @@ final class ProjectService: ObservableObject {
             ) ?? 0
             return count + 1
         }
-        
+
         let cognition = ProjectCognition(
             projectId: projectId,
             content: content,
-            summary: summary,
-            background: background,
-            currentUnderstanding: currentUnderstanding,
-            pendingItems: pendingItems,
-            keyConclusions: keyConclusions,
-            rawInputsSnapshot: rawInputsSnapshot,
             version: currentVersion
         )
         
