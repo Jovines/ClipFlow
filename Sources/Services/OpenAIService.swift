@@ -105,7 +105,8 @@ final class OpenAIService: ObservableObject {
             model: targetModel
         )
         let result = try await client.chats(query: query)
-        return result.choices.first?.message.content ?? ""
+        let rawContent = result.choices.first?.message.content ?? ""
+        return AIResponseFilter.cleanThinkingTags(from: rawContent)
     }
 
     func chatStream(
@@ -134,9 +135,23 @@ final class OpenAIService: ObservableObject {
         return AsyncThrowingStream { continuation in
             Task {
                 do {
+                    var buffer = ""
+                    var yieldedLength = 0
+                    
                     for try await chunk in client.chatsStream(query: query) {
                         if let content = chunk.choices.first?.delta.content {
-                            continuation.yield(content)
+                            buffer += content
+                            
+                            // Clean thinking tags from accumulated buffer
+                            let cleaned = AIResponseFilter.cleanThinkingTags(from: buffer)
+                            
+                            // Yield only new content
+                            if cleaned.count > yieldedLength {
+                                let startIndex = cleaned.index(cleaned.startIndex, offsetBy: yieldedLength)
+                                let newContent = String(cleaned[startIndex...])
+                                continuation.yield(newContent)
+                                yieldedLength = cleaned.count
+                            }
                         }
                     }
                     continuation.finish()
@@ -162,5 +177,55 @@ enum OpenAIError: LocalizedError {
         case .streamFailed(let error):
             return NSLocalizedString("流式请求失败: \(error.localizedDescription)", comment: "Stream failed error")
         }
+    }
+}
+
+// MARK: - AI Response Filter
+
+/// Filters thinking/reasoning content from AI model responses
+/// Supports various formats: MiniMax (<think>...</think>), DeepSeek (<thinking>...</thinking>), etc.
+enum AIResponseFilter {
+    
+    /// Pattern to match thinking tags (supports both <think> and <thinking>)
+    private static let thinkingPattern = #"<think(?:ing)?>\s*[\s\S]*?\s*</think(?:ing)?>"#
+    
+    /// Removes thinking tags and their content from AI responses
+    /// - Parameter content: Raw response content from AI model
+    /// - Returns: Cleaned content with thinking sections removed
+    static func cleanThinkingTags(from content: String) -> String {
+        guard let regex = try? NSRegularExpression(
+            pattern: thinkingPattern,
+            options: [.caseInsensitive]
+        ) else {
+            return content
+        }
+        
+        let range = NSRange(content.startIndex..., in: content)
+        let cleanedContent = regex.stringByReplacingMatches(
+            in: content,
+            options: [],
+            range: range,
+            withTemplate: ""
+        )
+        
+        // Clean up extra whitespace left by removed thinking sections
+        return cleanedContent
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\n\n\n", with: "\n\n")
+    }
+    
+    /// Checks if content contains thinking tags
+    /// - Parameter content: Content to check
+    /// - Returns: True if thinking tags are present
+    static func containsThinkingTags(_ content: String) -> Bool {
+        guard let regex = try? NSRegularExpression(
+            pattern: thinkingPattern,
+            options: [.caseInsensitive]
+        ) else {
+            return false
+        }
+        
+        let range = NSRange(content.startIndex..., in: content)
+        return regex.firstMatch(in: content, options: [], range: range) != nil
     }
 }
