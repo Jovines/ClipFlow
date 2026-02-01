@@ -346,9 +346,9 @@ struct SidebarTabButton: View {
                 RoundedRectangle(cornerRadius: 6)
                     .fill(isSelected ? Color.flexokiAccent : Color.clear)
             )
-            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .contentShape(Rectangle())
     }
 }
 

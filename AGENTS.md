@@ -58,7 +58,12 @@ Do NOT build after every code change—only after completing a task. Fix errors 
 - Use `Columns` enum for type-safe column access
 - Define `databaseTableName`
 
-### Project Structure
+#### SwiftUI Hit Testing
+- When adding `onTapGesture` to container views (`VStack`, `HStack`, `Group`), always add `.contentShape(Rectangle())` before the gesture modifier to ensure the entire view area responds to clicks, not just areas with content
+- Place `.contentShape(Rectangle())` on the outermost view that should respond to taps, not on nested child views
+- This prevents the common issue where tapping empty/padding areas does not trigger the gesture
+
+## Project Structure
 ```
 Sources/
 ├── App/              # App entry point
