@@ -2,6 +2,7 @@ import Cocoa
 import Combine
 import Foundation
 import GRDB
+import OpenAI
 
 final class ClipboardMonitor: ObservableObject {
     static let shared = ClipboardMonitor()
@@ -277,8 +278,15 @@ final class ClipboardMonitor: ObservableObject {
                 ClipFlowLogger.info("Duplicate item skipped")
                 return
             }
-            saveToDatabase(item)
+            
+            let savedItem = saveToDatabase(item)
             addToHashCache(item.contentHash)
+            
+            // Check if in project mode and auto-add to project
+            if let activeProjectId = ProjectService.shared.activeProjectId,
+               let savedItem = savedItem {
+                handleProjectMode(item: savedItem, projectId: activeProjectId)
+            }
 
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -288,6 +296,117 @@ final class ClipboardMonitor: ObservableObject {
             }
         } else {
             ClipFlowLogger.info("Failed to read from pasteboard")
+        }
+    }
+    
+    private func handleProjectMode(item: ClipboardItem, projectId: UUID) {
+        guard item.contentType == .text else {
+            ClipFlowLogger.info("Skipping non-text item for project mode")
+            return
+        }
+        
+        // Add raw input to project
+        let projectService = ProjectService.shared
+        do {
+            _ = try projectService.addRawInput(
+                projectId: projectId,
+                clipboardItemId: item.id
+            )
+            ClipFlowLogger.info("✅ Added item to project \(projectId): \(item.id)")
+            
+            // Note: AI analysis is now manually triggered by user
+            ClipFlowLogger.info("📋 Item added. User can manually trigger AI analysis.")
+        } catch {
+            ClipFlowLogger.error("❌ Failed to add item to project: \(error)")
+        }
+    }
+    
+    private func analyzeProjectCognition(projectId: UUID, newInputId: UUID) async {
+        ClipFlowLogger.info("🤖 Starting AI analysis for project \(projectId)")
+        
+        do {
+            // Get project and current cognition
+            let projectService = ProjectService.shared
+            let cognitionService = ProjectCognitionService.shared
+            
+            guard let project = projectService.projects.first(where: { $0.id == projectId }) else {
+                ClipFlowLogger.error("❌ Project not found: \(projectId)")
+                return
+            }
+            ClipFlowLogger.info("📁 Found project: \(project.name)")
+            
+            let currentCognition = try? projectService.fetchCurrentCognition(for: projectId)
+            ClipFlowLogger.info("📝 Current cognition: \(currentCognition != nil ? "exists" : "none")")
+            
+            // Get unanalyzed raw inputs
+            let rawInputs = try projectService.fetchRawInputsWithItems(for: projectId)
+            let unanalyzed = rawInputs.filter { !$0.input.isAnalyzed }
+            
+            ClipFlowLogger.info("📊 Total inputs: \(rawInputs.count), Unanalyzed: \(unanalyzed.count)")
+            
+            guard !unanalyzed.isEmpty else {
+                ClipFlowLogger.info("⚠️ No unanalyzed inputs found")
+                return
+            }
+            
+            let newInputs: [(source: String?, content: String)] = unanalyzed.compactMap { tuple in
+                guard tuple.item?.contentType == .text else { return nil }
+                return (tuple.input.sourceContext, tuple.item?.content ?? "")
+            }
+            
+            ClipFlowLogger.info("📝 Prepared \(newInputs.count) inputs for AI analysis")
+            
+            let cognitionResult: CognitionResult
+            let changeDescription: String
+            
+            if let existingCognition = currentCognition {
+                // Update existing cognition
+                ClipFlowLogger.info("🔄 Updating existing cognition...")
+                let (updatedContent, changeDesc) = try await cognitionService.updateCognition(
+                    currentCognition: existingCognition.content,
+                    projectName: project.name,
+                    newInputs: newInputs
+                )
+                
+                cognitionResult = CognitionResult(
+                    summary: existingCognition.summary,
+                    fullContent: updatedContent,
+                    background: existingCognition.background,
+                    currentUnderstanding: existingCognition.currentUnderstanding,
+                    pendingItems: existingCognition.pendingItems,
+                    keyConclusions: existingCognition.keyConclusions
+                )
+                changeDescription = changeDesc
+            } else {
+                // Generate initial cognition
+                ClipFlowLogger.info("🆕 Generating initial cognition...")
+                cognitionResult = try await cognitionService.generateInitialCognition(
+                    projectName: project.name,
+                    projectDescription: project.description,
+                    initialInputs: newInputs
+                )
+                changeDescription = "初始认知文档生成"
+            }
+            
+            ClipFlowLogger.info("💾 Saving cognition to database...")
+            // Save new cognition
+            let addedInputIds = unanalyzed.map { $0.input.id }
+            _ = try projectService.saveCognition(
+                projectId: projectId,
+                content: cognitionResult.fullContent,
+                summary: cognitionResult.summary,
+                background: cognitionResult.background,
+                currentUnderstanding: cognitionResult.currentUnderstanding,
+                pendingItems: cognitionResult.pendingItems,
+                keyConclusions: cognitionResult.keyConclusions,
+                addedInputIds: addedInputIds,
+                changeDescription: changeDescription
+            )
+            
+            ClipFlowLogger.info("✅ Successfully updated cognition for project \(projectId)")
+            
+        } catch {
+            ClipFlowLogger.error("❌ Failed to analyze project cognition: \(error)")
         }
     }
 
@@ -329,9 +448,9 @@ final class ClipboardMonitor: ObservableObject {
         return nil
     }
 
-    private func saveToDatabase(_ item: ClipboardItem) {
+    private func saveToDatabase(_ item: ClipboardItem) -> ClipboardItem? {
         do {
-            _ = try database.createClipboardItem(
+            let savedItem = try database.createClipboardItem(
                 content: item.content,
                 contentType: item.contentType,
                 imagePath: item.imagePath,
@@ -339,8 +458,10 @@ final class ClipboardMonitor: ObservableObject {
                 contentHash: item.contentHash,
                 tagNames: item.tags.map { $0.name }
             )
+            return savedItem
         } catch {
             ClipFlowLogger.error("Failed to save to database: \(error)")
+            return nil
         }
     }
 

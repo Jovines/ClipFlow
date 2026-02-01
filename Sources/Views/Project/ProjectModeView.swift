@@ -1,0 +1,882 @@
+import SwiftUI
+import AppKit
+
+struct ProjectModeView: View {
+    let project: Project
+    let onExit: () -> Void
+    
+    @ObservedObject private var projectService = ProjectService.shared
+    @ObservedObject private var aiService = OpenAIService.shared
+    @State private var cognition: ProjectCognition?
+    @State private var rawInputs: [(input: ProjectRawInput, item: ClipboardItem?)] = []
+    @State private var isAnalyzing = false
+    @State private var analysisError: String? = nil
+    @State private var showExportSheet = false
+    @State private var refreshTimer: Timer? = nil
+    @State private var leftPanelWidth: CGFloat = 420
+    
+    // Computed property to check if there are unanalyzed inputs
+    private var unanalyzedCount: Int {
+        rawInputs.filter { !$0.input.isAnalyzed }.count
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            ProjectModeHeader(
+                project: project,
+                cognitionSummary: cognition?.summary,
+                rawInputCount: rawInputs.count,
+                unanalyzedCount: unanalyzedCount,
+                isAnalyzing: isAnalyzing,
+                errorMessage: analysisError,
+                isAIConfigured: aiService.hasAnyConfiguredProvider,
+                onExit: onExit,
+                onExport: { showExportSheet = true },
+                onAnalyze: performAnalysis
+            )
+            .background(Color.flexokiSurface)
+            
+            Divider()
+                .background(Color.flexokiBorder)
+            
+            if let cognition = cognition {
+                // Main Content - Custom Split View with hidden divider
+                GeometryReader { geometry in
+                    HStack(spacing: 0) {
+                        // Left: Cognition Document
+                        CognitionDocumentView(cognition: cognition)
+                            .frame(width: leftPanelWidth)
+                            .background(Color.flexokiBackground)
+                        
+                        // Hidden Draggable Divider
+                        Rectangle()
+                            .fill(Color.clear)
+                            .frame(width: 4)
+                            .contentShape(Rectangle())
+                            .gesture(
+                                DragGesture()
+                                    .onChanged { value in
+                                        let newWidth = leftPanelWidth + value.translation.width
+                                        leftPanelWidth = min(max(newWidth, 300), geometry.size.width - 200)
+                                    }
+                            )
+                            .onHover { isHovered in
+                                if isHovered {
+                                    NSCursor.resizeLeftRight.set()
+                                } else {
+                                    NSCursor.arrow.set()
+                                }
+                            }
+                        
+                        // Right: Raw Inputs List
+                        VStack(spacing: 0) {
+                            // Header
+                            HStack {
+                                Text("原始素材 (\(rawInputs.count))")
+                                    .font(.caption)
+                                    .foregroundStyle(Color.flexokiTextSecondary)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(Color.flexokiSurfaceElevated)
+                            
+                            Divider()
+                                .background(Color.flexokiBorderSubtle)
+                            
+                            RawInputsList(
+                                inputs: rawInputs,
+                                onDelete: deleteRawInput,
+                                onEdit: updateItemAndSource
+                            )
+                            .background(Color.flexokiSurface)
+                        }
+                        .frame(minWidth: 180, minHeight: 360)
+                        .background(Color.flexokiSurface)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.flexokiBorder, lineWidth: 1)
+                        )
+                        .padding(.vertical, 8)
+                        .padding(.trailing, 8)
+                    }
+                }
+                .background(Color.flexokiBackground)
+            } else {
+                // Empty State
+                EmptyCognitionState(
+                    rawInputCount: rawInputs.count,
+                    unanalyzedCount: unanalyzedCount,
+                    isAIConfigured: aiService.hasAnyConfiguredProvider,
+                    errorMessage: analysisError,
+                    isAnalyzing: isAnalyzing,
+                    onAnalyze: performAnalysis
+                )
+                .background(Color.flexokiBackground)
+            }
+        }
+        .frame(minHeight: 440)
+        .background(Color.flexokiBackground)
+        .onAppear {
+            loadData()
+            startRefreshTimer()
+        }
+        .onDisappear {
+            stopRefreshTimer()
+        }
+        .sheet(isPresented: $showExportSheet) {
+            ExportProjectView(project: project, onDismiss: { showExportSheet = false })
+        }
+    }
+    
+    private func startRefreshTimer() {
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            loadData()
+        }
+    }
+    
+    private func stopRefreshTimer() {
+        refreshTimer?.invalidate()
+        refreshTimer = nil
+    }
+    
+    @MainActor
+    private func loadData() {
+        do {
+            print("[ProjectMode] 🔄 Loading data for project: \(project.id)")
+            let newCognition = try projectService.fetchCurrentCognition(for: project.id)
+            let newRawInputs = try projectService.fetchRawInputsWithItems(for: project.id)
+            
+            print("[ProjectMode] 📊 Loaded cognition: \(newCognition != nil ? "yes" : "no"), inputs: \(newRawInputs.count)")
+            
+            // Only update if data actually changed to avoid unnecessary UI refreshes
+            let cognitionChanged = (self.cognition?.id != newCognition?.id) ||
+                                  (self.cognition?.createdAt != newCognition?.createdAt)
+            let inputsChanged = self.rawInputs.count != newRawInputs.count ||
+                               Set(self.rawInputs.map { $0.input.id }) != Set(newRawInputs.map { $0.input.id })
+            
+            if cognitionChanged || inputsChanged {
+                self.cognition = newCognition
+                self.rawInputs = newRawInputs
+                print("[ProjectMode] ✅ UI updated with new data (changed: cognition=\(cognitionChanged), inputs=\(inputsChanged))")
+            } else {
+                print("[ProjectMode] ⏭️ Data unchanged, skipping UI update")
+            }
+        } catch {
+            print("[ProjectMode] ❌ Failed to load data: \(error)")
+        }
+    }
+    
+    private func deleteRawInput(id: UUID) {
+        do {
+            try projectService.deleteRawInput(id: id)
+            print("[ProjectMode] ✅ Deleted raw input: \(id)")
+            loadData()
+        } catch {
+            print("[ProjectMode] ❌ Failed to delete raw input: \(error)")
+        }
+    }
+    
+    private func updateItemAndSource(itemId: UUID, content: String, sourceContext: String?) {
+        do {
+            // Update item content
+            try DatabaseManager.shared.updateItemContent(id: itemId, content: content)
+            
+            // Find and update the raw input's source context
+            if let tuple = rawInputs.first(where: { $0.item?.id == itemId }) {
+                try projectService.updateRawInputSourceContext(id: tuple.input.id, sourceContext: sourceContext)
+            }
+            
+            print("[ProjectMode] ✅ Updated item and source: \(itemId)")
+            loadData()
+        } catch {
+            print("[ProjectMode] ❌ Failed to update item and source: \(error)")
+        }
+    }
+    
+    private func performAnalysis() {
+        guard !isAnalyzing else { 
+            print("[ProjectMode] Analysis already in progress")
+            return 
+        }
+        guard unanalyzedCount > 0 else { 
+            print("[ProjectMode] No unanalyzed inputs")
+            return 
+        }
+        
+        isAnalyzing = true
+        analysisError = nil
+        print("[ProjectMode] 🚀 Starting manual AI analysis...")
+        
+        Task {
+            do {
+                let cognitionService = ProjectCognitionService.shared
+                
+                // Get unanalyzed inputs
+                let unanalyzedInputs = rawInputs.filter { !$0.input.isAnalyzed }
+                print("[ProjectMode] Found \(unanalyzedInputs.count) unanalyzed inputs")
+                
+                let newInputs: [(source: String?, content: String)] = unanalyzedInputs.compactMap { tuple in
+                    guard let item = tuple.item else { 
+                        print("[ProjectMode] ⚠️ Skipping input \(tuple.input.id) - no associated item")
+                        return nil 
+                    }
+                    print("[ProjectMode] 📄 Input content length: \(item.content.count)")
+                    return (tuple.input.sourceContext, item.content)
+                }
+                
+                print("[ProjectMode] Prepared \(newInputs.count) inputs for analysis")
+                
+                guard !newInputs.isEmpty else {
+                    print("[ProjectMode] ❌ No valid inputs to analyze")
+                    await MainActor.run {
+                        self.isAnalyzing = false
+                        self.analysisError = "没有可分析的内容"
+                    }
+                    return
+                }
+                
+                let cognitionResult: CognitionResult
+                let changeDescription: String
+                
+                if let existingCognition = self.cognition {
+                    print("[ProjectMode] 🔄 Updating existing cognition...")
+                    let (updatedContent, changeDesc) = try await cognitionService.updateCognition(
+                        currentCognition: existingCognition.content,
+                        projectName: project.name,
+                        newInputs: newInputs
+                    )
+                    
+                    cognitionResult = CognitionResult(
+                        summary: existingCognition.summary,
+                        fullContent: updatedContent,
+                        background: existingCognition.background,
+                        currentUnderstanding: existingCognition.currentUnderstanding,
+                        pendingItems: existingCognition.pendingItems,
+                        keyConclusions: existingCognition.keyConclusions
+                    )
+                    changeDescription = changeDesc
+                } else {
+                    print("[ProjectMode] 🆕 Generating initial cognition...")
+                    cognitionResult = try await cognitionService.generateInitialCognition(
+                        projectName: project.name,
+                        projectDescription: project.description,
+                        initialInputs: newInputs
+                    )
+                    changeDescription = "初始认知文档生成"
+                }
+                
+                print("[ProjectMode] 💾 Saving cognition...")
+                // Save new cognition
+                let addedInputIds = unanalyzedInputs.map { $0.input.id }
+                let savedCognition = try projectService.saveCognition(
+                    projectId: project.id,
+                    content: cognitionResult.fullContent,
+                    summary: cognitionResult.summary,
+                    background: cognitionResult.background,
+                    currentUnderstanding: cognitionResult.currentUnderstanding,
+                    pendingItems: cognitionResult.pendingItems,
+                    keyConclusions: cognitionResult.keyConclusions,
+                    addedInputIds: addedInputIds,
+                    changeDescription: changeDescription
+                )
+                print("[ProjectMode] ✅ Cognition saved: \(savedCognition.id)")
+                
+                // Refresh data
+                await MainActor.run {
+                    self.isAnalyzing = false
+                    print("[ProjectMode] 🔄 Refreshing data...")
+                    self.loadData()
+                    print("[ProjectMode] ✨ Analysis complete!")
+                }
+                
+            } catch {
+                print("[ProjectMode] ❌ Analysis failed: \(error)")
+                await MainActor.run {
+                    self.isAnalyzing = false
+                    self.analysisError = error.localizedDescription
+                }
+            }
+        }
+    }
+}
+
+struct ProjectModeHeader: View {
+    let project: Project
+    let cognitionSummary: String?
+    let rawInputCount: Int
+    let unanalyzedCount: Int
+    let isAnalyzing: Bool
+    let errorMessage: String?
+    let isAIConfigured: Bool
+    let onExit: () -> Void
+    let onExport: () -> Void
+    let onAnalyze: () -> Void
+    
+    @State private var windowStartOrigin: NSPoint = .zero
+    @State private var dragStartLocation: NSPoint = .zero
+    
+    var body: some View {
+        HStack {
+            // Project Info
+            HStack(spacing: 8) {
+                Image(systemName: "folder.fill")
+                    .foregroundStyle(Color.accentColor)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(project.name)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.flexokiText)
+                    
+                    if let summary = cognitionSummary {
+                        Text(summary)
+                            .font(.caption)
+                            .foregroundStyle(Color.flexokiTextSecondary)
+                            .lineLimit(1)
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            // Status & Actions
+            HStack(spacing: 8) {
+                // AI Analysis Button
+                if isAIConfigured && unanalyzedCount > 0 {
+                    Button(action: onAnalyze) {
+                        HStack(spacing: 4) {
+                            if isAnalyzing {
+                                ProgressView()
+                                    .scaleEffect(0.6)
+                                    .frame(width: 12, height: 12)
+                                Text("分析中...")
+                            } else {
+                                Image(systemName: "wand.and.stars")
+                                    .font(.system(size: 10))
+                                Text("AI分析 (\(unanalyzedCount))")
+                            }
+                        }
+                        .font(.caption)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+                    .disabled(isAnalyzing)
+                }
+                
+                // Status Indicator
+                if !isAIConfigured {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.flexokiOrange600)
+                    Text("未配置AI")
+                        .font(.caption)
+                        .foregroundStyle(Color.flexokiOrange600)
+                } else if let error = errorMessage {
+                    Image(systemName: "exclamationmark.circle")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.flexokiRed600)
+                    Text("分析失败")
+                        .font(.caption)
+                        .foregroundStyle(Color.flexokiRed600)
+                        .help(error)
+                } else if rawInputCount > 0 {
+                    Image(systemName: "doc.text")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.flexokiTextSecondary)
+                    Text("\(rawInputCount) 条素材")
+                        .font(.caption)
+                        .foregroundStyle(Color.flexokiTextSecondary)
+                }
+                
+                Divider()
+                    .frame(height: 16)
+                    .background(Color.flexokiBorder)
+                
+                // Actions
+                Button(action: onExport) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.borderless)
+                .help("导出项目")
+                
+                Button(action: onExit) {
+                    Label("退出项目", systemImage: "xmark.circle")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    if windowStartOrigin == .zero {
+                        windowStartOrigin = FloatingWindowManager.shared.floatingWindow?.frame.origin ?? .zero
+                        dragStartLocation = NSPoint(x: value.location.x, y: value.location.y)
+                    }
+                    
+                    let translationX = value.location.x - dragStartLocation.x
+                    let translationY = value.location.y - dragStartLocation.y
+                    
+                    if let window = FloatingWindowManager.shared.floatingWindow {
+                        var newOrigin = windowStartOrigin
+                        newOrigin.x += translationX
+                        newOrigin.y -= translationY  // Y is inverted in macOS
+                        window.setFrameOrigin(newOrigin)
+                    }
+                }
+                .onEnded { _ in
+                    windowStartOrigin = .zero
+                    dragStartLocation = .zero
+                }
+        )
+    }
+}
+
+struct CognitionDocumentView: View {
+    let cognition: ProjectCognition
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                // Summary
+                Text(cognition.summary)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(Color.flexokiText)
+                    .padding(.bottom, 8)
+                
+                // Sections
+                if let background = cognition.background {
+                    CognitionSection(title: "项目背景", content: background)
+                }
+                
+                if let understanding = cognition.currentUnderstanding {
+                    CognitionSection(title: "当前理解", content: understanding)
+                }
+                
+                if let pending = cognition.pendingItems {
+                    CognitionSection(title: "待确认事项", content: pending)
+                }
+                
+                if let conclusions = cognition.keyConclusions {
+                    CognitionSection(title: "关键结论", content: conclusions)
+                }
+            }
+            .padding(20)
+        }
+        .background(Color.flexokiBackground)
+    }
+}
+
+struct CognitionSection: View {
+    let title: String
+    let content: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Color.flexokiAccent)
+            
+            Text(content)
+                .font(.system(size: 12))
+                .foregroundStyle(Color.flexokiText)
+                .lineSpacing(4)
+        }
+        .padding(12)
+        .background(Color.flexokiSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color.flexokiBorderSubtle, lineWidth: 1)
+        )
+    }
+}
+
+struct RawInputsList: View {
+    let inputs: [(input: ProjectRawInput, item: ClipboardItem?)]
+    let onDelete: (UUID) -> Void
+    let onEdit: (UUID, String, String?) -> Void
+    
+    var body: some View {
+        List {
+            ForEach(inputs, id: \.input.id) { tuple in
+                RawInputRow(
+                    input: tuple.input,
+                    item: tuple.item,
+                    onDelete: { onDelete(tuple.input.id) },
+                    onEdit: { content, sourceContext in
+                        if let item = tuple.item {
+                            onEdit(item.id, content, sourceContext)
+                        }
+                    }
+                )
+            }
+        }
+        .listStyle(.plain)
+    }
+}
+
+struct RawInputRow: View {
+    let input: ProjectRawInput
+    let item: ClipboardItem?
+    let onDelete: () -> Void
+    let onEdit: (String, String?) -> Void
+    
+    @State private var isEditing = false
+    @State private var editedContent: String = ""
+    @State private var editedSourceContext: String = ""
+    @State private var showDeleteConfirm = false
+    @State private var isHovered = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            if isEditing {
+                // Edit Mode
+                VStack(alignment: .leading, spacing: 6) {
+                    // Source Context Field
+                    HStack {
+                        Text("来源:")
+                            .font(.caption)
+                            .foregroundStyle(Color.flexokiTextSecondary)
+                        TextField("如：张三、会议记录", text: $editedSourceContext)
+                            .font(.caption)
+                            .textFieldStyle(.roundedBorder)
+                    }
+                    
+                    // Content Editor
+                    TextEditor(text: $editedContent)
+                        .font(.system(size: 11))
+                        .frame(minHeight: 60)
+                        .frame(maxHeight: 120)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.flexokiSurfaceElevated)
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 4)
+                                .stroke(Color.flexokiBorderSubtle, lineWidth: 1)
+                        )
+                    
+                    // Action Buttons
+                    HStack {
+                        Button("取消") {
+                            isEditing = false
+                        }
+                        .buttonStyle(.borderless)
+                        .controlSize(.small)
+                        .font(.caption)
+                        .foregroundStyle(Color.flexokiTextSecondary)
+                        
+                        Spacer()
+                        
+                        Button("保存") {
+                            let context = editedSourceContext.isEmpty ? nil : editedSourceContext
+                            onEdit(editedContent, context)
+                            isEditing = false
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .controlSize(.small)
+                        .font(.caption)
+                    }
+                }
+            } else {
+                // View Mode
+                HStack {
+                    Text(input.sourceContext ?? "未命名")
+                        .font(.caption)
+                        .foregroundStyle(Color.flexokiAccent)
+                        .lineLimit(1)
+                    
+                    Spacer()
+                    
+                    Text(input.createdAt, style: .time)
+                        .font(.caption2)
+                        .foregroundStyle(Color.flexokiTextTertiary)
+                }
+                
+                if let item = item {
+                    Text(item.content)
+                        .font(.system(size: 11))
+                        .lineLimit(3)
+                        .foregroundStyle(Color.flexokiText)
+                }
+                
+                HStack {
+                    if let item = item {
+                        Button(action: {
+                            editedContent = item.content
+                            editedSourceContext = input.sourceContext ?? ""
+                            isEditing = true
+                        }) {
+                            Image(systemName: "pencil")
+                                .font(.caption2)
+                                .foregroundStyle(Color.flexokiTextTertiary)
+                        }
+                        .buttonStyle(.borderless)
+                        .controlSize(.small)
+                        .opacity(isHovered ? 1 : 0.6)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: { showDeleteConfirm = true }) {
+                        Image(systemName: "trash")
+                            .font(.caption2)
+                            .foregroundStyle(Color.flexokiRed600.opacity(0.7))
+                    }
+                    .buttonStyle(.borderless)
+                    .controlSize(.small)
+                    .opacity(isHovered ? 1 : 0.6)
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(isHovered && !isEditing ? Color.flexokiBase100.opacity(0.5) : Color.clear)
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            isHovered = hovering
+        }
+        .alert("确认删除", isPresented: $showDeleteConfirm) {
+            Button("取消", role: .cancel) { }
+            Button("删除", role: .destructive) {
+                onDelete()
+            }
+        } message: {
+            Text("删除后将无法恢复，确定要删除这条素材吗？")
+        }
+    }
+}
+
+struct AnalyzingView: View {
+    let progress: String
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            ProgressView()
+                .scaleEffect(0.8)
+            Text("AI分析中...")
+                .font(.caption)
+                .foregroundStyle(Color.flexokiTextSecondary)
+            if !progress.isEmpty {
+                Text(progress)
+                    .font(.caption2)
+                    .foregroundStyle(Color.flexokiTextTertiary)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.flexokiSurface.opacity(0.5))
+    }
+}
+
+struct EmptyCognitionState: View {
+    let rawInputCount: Int
+    let unanalyzedCount: Int
+    let isAIConfigured: Bool
+    let errorMessage: String?
+    let isAnalyzing: Bool
+    let onAnalyze: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            if !isAIConfigured {
+                // AI not configured
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 40))
+                    .foregroundStyle(Color.flexokiOrange600)
+                
+                Text("AI服务未配置")
+                    .font(.headline)
+                    .foregroundStyle(Color.flexokiOrange600)
+                
+                Text("请在设置中配置AI提供商（如 OpenAI、DeepSeek等）")
+                    .font(.caption)
+                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .multilineTextAlignment(.center)
+                
+                if rawInputCount > 0 {
+                    Text("已收集 \(rawInputCount) 条素材，等待AI分析")
+                        .font(.caption2)
+                        .foregroundStyle(Color.flexokiTextTertiary)
+                        .padding(.top, 8)
+                }
+                
+            } else if let error = errorMessage {
+                // Error state
+                Image(systemName: "exclamationmark.circle")
+                    .font(.system(size: 40))
+                    .foregroundStyle(Color.flexokiRed600)
+                
+                Text("AI分析失败")
+                    .font(.headline)
+                    .foregroundStyle(Color.flexokiRed600)
+                
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .multilineTextAlignment(.center)
+                
+                if rawInputCount > 0 {
+                    Text("已收集 \(rawInputCount) 条素材")
+                        .font(.caption2)
+                        .foregroundStyle(Color.flexokiTextTertiary)
+                        .padding(.top, 8)
+                }
+                
+            } else if isAnalyzing {
+                // Analyzing
+                Image(systemName: "doc.text.magnifyingglass")
+                    .font(.system(size: 40))
+                    .foregroundStyle(Color.flexokiAccent.opacity(0.6))
+                
+                Text("已收集 \(rawInputCount) 条素材")
+                    .font(.headline)
+                    .foregroundStyle(Color.flexokiText)
+                
+                Text("AI正在分析中，请稍等片刻...")
+                    .font(.caption)
+                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .multilineTextAlignment(.center)
+                
+                ProgressView()
+                    .scaleEffect(0.8)
+                    .padding(.top, 8)
+                
+            } else if rawInputCount > 0 {
+                // Have inputs but no cognition yet - Show manual analyze button
+                Image(systemName: "brain.head.profile")
+                    .font(.system(size: 40))
+                    .foregroundStyle(Color.flexokiAccent)
+                
+                Text("已收集 \(rawInputCount) 条素材")
+                    .font(.headline)
+                    .foregroundStyle(Color.flexokiText)
+                
+                if unanalyzedCount > 0 {
+                    Text("\(unanalyzedCount) 条素材待分析")
+                        .font(.caption)
+                        .foregroundStyle(Color.flexokiTextSecondary)
+                        .multilineTextAlignment(.center)
+                    
+                    Button(action: onAnalyze) {
+                        Label("开始AI分析", systemImage: "wand.and.stars")
+                            .font(.system(size: 13, weight: .medium))
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.regular)
+                    .padding(.top, 12)
+                }
+                
+            } else {
+                // Initial state
+                Image(systemName: "doc.text")
+                    .font(.system(size: 40))
+                    .foregroundStyle(Color.flexokiTextTertiary)
+                
+                Text("暂无素材")
+                    .font(.headline)
+                    .foregroundStyle(Color.flexokiText)
+                
+                Text("复制讨论内容到剪贴板，然后点击AI分析按钮")
+                    .font(.caption)
+                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+    }
+}
+
+struct ExportProjectView: View {
+    let project: Project
+    let onDismiss: () -> Void
+    
+    @State private var includeRawInputs = true
+    @State private var isExporting = false
+    @State private var exportContent = ""
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Header
+            HStack {
+                Text("导出项目")
+                    .font(.headline)
+                Spacer()
+                Button(action: onDismiss) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            
+            // Options
+            Toggle("包含原始素材", isOn: $includeRawInputs)
+                .font(.system(size: 13))
+            
+            Divider()
+            
+            // Preview
+            if !exportContent.isEmpty {
+                TextEditor(text: .constant(exportContent))
+                    .font(.system(size: 11, design: .monospaced))
+                    .frame(height: 300)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+                    )
+            }
+            
+            // Buttons
+            HStack {
+                Button("关闭") {
+                    onDismiss()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                
+                Spacer()
+                
+                Button(action: copyToClipboard) {
+                    if isExporting {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        Label("复制到剪贴板", systemImage: "doc.on.doc")
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .disabled(isExporting)
+            }
+        }
+        .padding()
+        .frame(width: 500, height: 450)
+        .onAppear {
+            generateExport()
+        }
+    }
+    
+    private func generateExport() {
+        do {
+            exportContent = try ProjectService.shared.exportProjectToMarkdown(
+                projectId: project.id,
+                includeRawInputs: includeRawInputs
+            )
+        } catch {
+            exportContent = "导出失败: \(error.localizedDescription)"
+        }
+    }
+    
+    private func copyToClipboard() {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(exportContent, forType: .string)
+        onDismiss()
+    }
+}

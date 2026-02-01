@@ -78,33 +78,76 @@ struct FloatingWindowView: View {
 
     @StateObject private var groupPanelCoordinator = GroupPanelCoordinator()
 
+    @State private var showProjectSelector = false
+    @State private var showCreateProjectSheet = false
+    @State private var isProjectMode = false
+    @State private var currentProject: Project? = nil
+    
     var body: some View {
+        let content = contentBuilder
+        
+        return content
+            .onChange(of: isProjectMode) { newValue in
+                // Resize window when project mode changes
+                FloatingWindowManager.shared.resizeWindowForProjectMode(
+                    isProjectMode: newValue,
+                    project: currentProject
+                )
+            }
+    }
+    
+    private var contentBuilder: some View {
         HStack(spacing: 0) {
-            VStack(spacing: 0) {
-                if !searchText.isEmpty {
-                    SearchIndicatorView(
-                        searchText: searchText,
-                        isSelectionMode: isSelectionMode,
-                        filteredCount: filteredItems.count,
-                        onReset: resetSearch
+            if isProjectMode, let project = currentProject {
+                // Project Mode View
+                ProjectModeView(
+                    project: project,
+                    onExit: {
+                        isProjectMode = false
+                        currentProject = nil
+                        // Sync to ProjectService
+                        try? ProjectService.shared.exitProjectMode()
+                    }
+                )
+                .frame(width: 680, height: 480)
+            } else {
+                // Normal Clipboard View
+                VStack(spacing: 0) {
+                    // Project Mode Bar
+                    ProjectModeBar(
+                        projectService: ProjectService.shared,
+                        isProjectMode: $isProjectMode,
+                        currentProject: $currentProject,
+                        showProjectSelector: $showProjectSelector
+                    )
+                    .padding(.horizontal)
+                    .padding(.top, 6)
+                    
+                    if !searchText.isEmpty {
+                        SearchIndicatorView(
+                            searchText: searchText,
+                            isSelectionMode: isSelectionMode,
+                            filteredCount: filteredItems.count,
+                            onReset: resetSearch
+                        )
+                        Divider()
+                    }
+                    TagFilterBar(
+                        tags: allTags,
+                        selectedTag: $selectedTag,
+                        onTagSelected: handleTagSelected
                     )
                     Divider()
+                    ModeIndicatorView(isSelectionMode: isSelectionMode, searchText: searchText)
+                    Divider()
+                    if isSelectionMode {
+                        SelectionModeHintView()
+                            .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                    contentView
                 }
-                TagFilterBar(
-                    tags: allTags,
-                    selectedTag: $selectedTag,
-                    onTagSelected: handleTagSelected
-                )
-                Divider()
-                ModeIndicatorView(isSelectionMode: isSelectionMode, searchText: searchText)
-                Divider()
-                if isSelectionMode {
-                    SelectionModeHintView()
-                        .transition(.opacity.combined(with: .move(edge: .top)))
-                }
-                contentView
+                .frame(width: 360, height: 420)
             }
-            .frame(width: 360, height: 420)
 
             if isEditing {
                 EditorPanelView(
@@ -232,6 +275,31 @@ struct FloatingWindowView: View {
             if let item = selectedItem {
                 ImagePreviewView(item: item)
             }
+        }
+        .sheet(isPresented: $showProjectSelector) {
+            ProjectSelectorView(
+                isPresented: $showProjectSelector,
+                onSelectProject: { project in
+                    currentProject = project
+                    isProjectMode = true
+                    // Sync to ProjectService for clipboard monitoring
+                    try? ProjectService.shared.activateProject(id: project.id)
+                },
+                onCreateProject: {
+                    showCreateProjectSheet = true
+                }
+            )
+        }
+        .sheet(isPresented: $showCreateProjectSheet) {
+            CreateProjectSheet(
+                isPresented: $showCreateProjectSheet,
+                onCreated: { project in
+                    currentProject = project
+                    isProjectMode = true
+                    // Sync to ProjectService for clipboard monitoring
+                    try? ProjectService.shared.activateProject(id: project.id)
+                }
+            )
         }
     }
 
