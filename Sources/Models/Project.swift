@@ -12,7 +12,8 @@ struct Project: Identifiable, Hashable, Codable {
     var createdAt: Date
     var updatedAt: Date
     var currentCognitionId: UUID?
-    
+    var customPrompt: String?
+
     enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -22,8 +23,9 @@ struct Project: Identifiable, Hashable, Codable {
         case createdAt
         case updatedAt
         case currentCognitionId
+        case customPrompt
     }
-    
+
     init(
         id: UUID = UUID(),
         name: String,
@@ -32,7 +34,8 @@ struct Project: Identifiable, Hashable, Codable {
         isArchived: Bool = false,
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
-        currentCognitionId: UUID? = nil
+        currentCognitionId: UUID? = nil,
+        customPrompt: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -42,6 +45,7 @@ struct Project: Identifiable, Hashable, Codable {
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.currentCognitionId = currentCognitionId
+        self.customPrompt = customPrompt
     }
 }
 
@@ -86,52 +90,24 @@ struct ProjectRawInput: Identifiable, Hashable, Codable {
 struct ProjectCognition: Identifiable, Hashable, Codable {
     let id: UUID
     let projectId: UUID
-    var content: String // Markdown格式的认知文档
-    var summary: String // 一句话摘要
-    var background: String?
-    var currentUnderstanding: String?
-    var pendingItems: String?
-    var keyConclusions: String?
-    var rawInputsSnapshot: String? // 当时原始素材的摘要
+    var content: String
     var version: Int
     var createdAt: Date
-    
+
     enum CodingKeys: String, CodingKey {
-        case id
-        case projectId
-        case content
-        case summary
-        case background
-        case currentUnderstanding
-        case pendingItems
-        case keyConclusions
-        case rawInputsSnapshot
-        case version
-        case createdAt
+        case id, projectId, content, version, createdAt
     }
-    
+
     init(
         id: UUID = UUID(),
         projectId: UUID,
         content: String,
-        summary: String = "",
-        background: String? = nil,
-        currentUnderstanding: String? = nil,
-        pendingItems: String? = nil,
-        keyConclusions: String? = nil,
-        rawInputsSnapshot: String? = nil,
         version: Int = 1,
         createdAt: Date = Date()
     ) {
         self.id = id
         self.projectId = projectId
         self.content = content
-        self.summary = summary
-        self.background = background
-        self.currentUnderstanding = currentUnderstanding
-        self.pendingItems = pendingItems
-        self.keyConclusions = keyConclusions
-        self.rawInputsSnapshot = rawInputsSnapshot
         self.version = version
         self.createdAt = createdAt
     }
@@ -186,7 +162,6 @@ struct ProjectWithData: Identifiable {
     var id: UUID { project.id }
     
     var name: String { project.name }
-    var summary: String { currentCognition?.summary ?? "暂无内容" }
     var lastUpdated: Date { project.updatedAt }
 }
 
@@ -204,6 +179,7 @@ extension Project: FetchableRecord, PersistableRecord {
         static let createdAt = Column(CodingKeys.createdAt)
         static let updatedAt = Column(CodingKeys.updatedAt)
         static let currentCognitionId = Column(CodingKeys.currentCognitionId)
+        static let customPrompt = Column(CodingKeys.customPrompt)
     }
     
     func encode(to container: inout PersistenceContainer) throws {
@@ -215,6 +191,7 @@ extension Project: FetchableRecord, PersistableRecord {
         container[Columns.createdAt] = createdAt
         container[Columns.updatedAt] = updatedAt
         container[Columns.currentCognitionId] = currentCognitionId
+        container[Columns.customPrompt] = customPrompt
     }
 }
 
@@ -242,31 +219,19 @@ extension ProjectRawInput: FetchableRecord, PersistableRecord {
 
 extension ProjectCognition: FetchableRecord, PersistableRecord {
     static let databaseTableName = "project_cognitions"
-    
+
     enum Columns {
         static let id = Column(CodingKeys.id)
         static let projectId = Column(CodingKeys.projectId)
         static let content = Column(CodingKeys.content)
-        static let summary = Column(CodingKeys.summary)
-        static let background = Column(CodingKeys.background)
-        static let currentUnderstanding = Column(CodingKeys.currentUnderstanding)
-        static let pendingItems = Column(CodingKeys.pendingItems)
-        static let keyConclusions = Column(CodingKeys.keyConclusions)
-        static let rawInputsSnapshot = Column(CodingKeys.rawInputsSnapshot)
         static let version = Column(CodingKeys.version)
         static let createdAt = Column(CodingKeys.createdAt)
     }
-    
+
     func encode(to container: inout PersistenceContainer) throws {
         container[Columns.id] = id
         container[Columns.projectId] = projectId
         container[Columns.content] = content
-        container[Columns.summary] = summary
-        container[Columns.background] = background
-        container[Columns.currentUnderstanding] = currentUnderstanding
-        container[Columns.pendingItems] = pendingItems
-        container[Columns.keyConclusions] = keyConclusions
-        container[Columns.rawInputsSnapshot] = rawInputsSnapshot
         container[Columns.version] = version
         container[Columns.createdAt] = createdAt
     }

@@ -13,8 +13,10 @@ struct ProjectModeView: View {
     @State private var isAnalyzing = false
     @State private var analysisError: String? = nil
     @State private var showExportSheet = false
+    @State private var showPromptSettings = false
     @State private var refreshTimer: Timer? = nil
     @State private var leftPanelWidth: CGFloat = 420
+    @State private var editingProject: Project?
     
     // Computed property to check if there are unanalyzed inputs
     private var unanalyzedCount: Int {
@@ -26,7 +28,6 @@ struct ProjectModeView: View {
             // Header
             ProjectModeHeader(
                 project: project,
-                cognitionSummary: cognition?.summary,
                 rawInputCount: rawInputs.count,
                 unanalyzedCount: unanalyzedCount,
                 isAnalyzing: isAnalyzing,
@@ -34,7 +35,8 @@ struct ProjectModeView: View {
                 isAIConfigured: aiService.hasAnyConfiguredProvider,
                 onExit: onExit,
                 onExport: { showExportSheet = true },
-                onAnalyze: performAnalysis
+                onAnalyze: performAnalysis,
+                onOpenPromptSettings: { editingProject = project }
             )
             .background(Color.flexokiSurface)
             
@@ -129,6 +131,9 @@ struct ProjectModeView: View {
         }
         .sheet(isPresented: $showExportSheet) {
             ExportProjectView(project: project, onDismiss: { showExportSheet = false })
+        }
+        .sheet(item: $editingProject) { project in
+            ProjectPromptSettingsView(project: .constant(project))
         }
     }
     
@@ -238,48 +243,37 @@ struct ProjectModeView: View {
                     }
                     return
                 }
-                
-                let cognitionResult: CognitionResult
+
+                let content: String
                 let changeDescription: String
-                
+
                 if let existingCognition = self.cognition {
                     print("[ProjectMode] 🔄 Updating existing cognition...")
                     let (updatedContent, changeDesc) = try await cognitionService.updateCognition(
                         currentCognition: existingCognition.content,
                         projectName: project.name,
-                        newInputs: newInputs
+                        newInputs: newInputs,
+                        customPrompt: project.customPrompt
                     )
-                    
-                    cognitionResult = CognitionResult(
-                        summary: existingCognition.summary,
-                        fullContent: updatedContent,
-                        background: existingCognition.background,
-                        currentUnderstanding: existingCognition.currentUnderstanding,
-                        pendingItems: existingCognition.pendingItems,
-                        keyConclusions: existingCognition.keyConclusions
-                    )
+
+                    content = updatedContent
                     changeDescription = changeDesc
                 } else {
                     print("[ProjectMode] 🆕 Generating initial cognition...")
-                    cognitionResult = try await cognitionService.generateInitialCognition(
+                    content = try await cognitionService.generateInitialCognition(
                         projectName: project.name,
                         projectDescription: project.description,
-                        initialInputs: newInputs
+                        initialInputs: newInputs,
+                        customPrompt: project.customPrompt
                     )
                     changeDescription = "初始认知文档生成"
                 }
-                
+
                 print("[ProjectMode] 💾 Saving cognition...")
-                // Save new cognition
                 let addedInputIds = unanalyzedInputs.map { $0.input.id }
                 let savedCognition = try projectService.saveCognition(
                     projectId: project.id,
-                    content: cognitionResult.fullContent,
-                    summary: cognitionResult.summary,
-                    background: cognitionResult.background,
-                    currentUnderstanding: cognitionResult.currentUnderstanding,
-                    pendingItems: cognitionResult.pendingItems,
-                    keyConclusions: cognitionResult.keyConclusions,
+                    content: content,
                     addedInputIds: addedInputIds,
                     changeDescription: changeDescription
                 )
@@ -306,7 +300,6 @@ struct ProjectModeView: View {
 
 struct ProjectModeHeader: View {
     let project: Project
-    let cognitionSummary: String?
     let rawInputCount: Int
     let unanalyzedCount: Int
     let isAnalyzing: Bool
@@ -315,10 +308,10 @@ struct ProjectModeHeader: View {
     let onExit: () -> Void
     let onExport: () -> Void
     let onAnalyze: () -> Void
+    let onOpenPromptSettings: () -> Void
     
     var body: some View {
         HStack {
-            // Project Info
             HStack(spacing: 8) {
                 Image(systemName: "folder.fill")
                     .foregroundStyle(Color.accentColor)
@@ -327,13 +320,6 @@ struct ProjectModeHeader: View {
                     Text(project.name)
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(Color.flexokiText)
-                    
-                    if let summary = cognitionSummary {
-                        Text(summary)
-                            .font(.caption)
-                            .foregroundStyle(Color.flexokiTextSecondary)
-                            .lineLimit(1)
-                    }
                 }
             }
             
@@ -399,7 +385,18 @@ struct ProjectModeHeader: View {
                 }
                 .buttonStyle(.borderless)
                 .help("导出项目")
-                
+
+                Button(action: onOpenPromptSettings) {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.borderless)
+                .help("AI Prompt 设置")
+
+                Divider()
+                    .frame(height: 16)
+                    .background(Color.flexokiBorder)
+
                 Button(action: onExit) {
                     Label("退出项目", systemImage: "xmark.circle")
                         .font(.system(size: 12))
