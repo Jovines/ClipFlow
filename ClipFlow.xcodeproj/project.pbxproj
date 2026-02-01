@@ -61,6 +61,7 @@
 		DE9F42E5AB45EA8F63DDE202 /* ImageOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586557FA753777654C073B06 /* ImageOptimizer.swift */; };
 		E221FBDBB0321F208E7F7ACD /* TagSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49168E577DE43BE5063048CB /* TagSelectorView.swift */; };
 		E359ED8EB6ABFE521170F244 /* ClipboardItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */; };
+		F1737443DB483156AD58601F /* MarkdownView in Frameworks */ = {isa = PBXBuildFile; productRef = DC599C3C9FFA7EAAC7EC63E9 /* MarkdownView */; };
 		F419A4DFE952EF99C6D812E3 /* FloatingWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE72248AB11DA260D0367CA /* FloatingWindowManager.swift */; };
 		FD1B12E809937CB54BD80062 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */; };
 /* End PBXBuildFile section */
@@ -130,6 +131,7 @@
 				D02B3F67AB115455AE2F6B8C /* GRDB in Frameworks */,
 				6F45C76367DCDF0B874FD6E4 /* OpenAI in Frameworks */,
 				7D14FB63ABC308A8499DCC12 /* KeychainAccess in Frameworks */,
+				F1737443DB483156AD58601F /* MarkdownView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,6 +151,13 @@
 				D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		2CC5666090F849561953EF2F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		30C038178ACC6B57A5BDEEC4 /* Models */ = {
@@ -245,6 +254,7 @@
 				7A5005CBC73FD21709A9C0A3 /* App */,
 				30C038178ACC6B57A5BDEEC4 /* Models */,
 				7BC0A0C9BC6DDFC3E1E61095 /* Persistence */,
+				2CC5666090F849561953EF2F /* Resources */,
 				1FAB670DC211F6FB013D11DA /* Services */,
 				9CBA2BEA0C4F650CF0D60251 /* Utilities */,
 				F30E26A5923EA3A5E76A0B58 /* Views */,
@@ -312,6 +322,7 @@
 				FB5748915AE3BA482B05925F /* GRDB */,
 				93DA6328C315427CBC5C5F7B /* OpenAI */,
 				F09E4ED7C74796759763D9FC /* KeychainAccess */,
+				DC599C3C9FFA7EAAC7EC63E9 /* MarkdownView */,
 			);
 			productName = ClipFlow;
 			productReference = D5EB1FAFD466C4B3D85F8658 /* ClipFlow.app */;
@@ -345,6 +356,7 @@
 			packageReferences = (
 				2825F39A5EFB2B8B34509246 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 				5F41585E1C0E572ABAC23937 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				DE7643C841E68A7DEEB64703 /* XCRemoteSwiftPackageReference "MarkdownView" */,
 				4483FB88A7B1AF3E02188299 /* XCRemoteSwiftPackageReference "OpenAI" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -645,6 +657,14 @@
 				minimumVersion = 4.2.2;
 			};
 		};
+		DE7643C841E68A7DEEB64703 /* XCRemoteSwiftPackageReference "MarkdownView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LiYanan2004/MarkdownView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -652,6 +672,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4483FB88A7B1AF3E02188299 /* XCRemoteSwiftPackageReference "OpenAI" */;
 			productName = OpenAI;
+		};
+		DC599C3C9FFA7EAAC7EC63E9 /* MarkdownView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DE7643C841E68A7DEEB64703 /* XCRemoteSwiftPackageReference "MarkdownView" */;
+			productName = MarkdownView;
 		};
 		F09E4ED7C74796759763D9FC /* KeychainAccess */ = {
 			isa = XCSwiftPackageProductDependency;
