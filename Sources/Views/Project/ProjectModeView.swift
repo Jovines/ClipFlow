@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import MarkdownView
 
 struct ProjectModeView: View {
     let project: Project
@@ -443,58 +444,16 @@ struct CognitionDocumentView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                // Summary
-                Text(cognition.summary)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.flexokiText)
-                    .padding(.bottom, 8)
-                
-                // Sections
-                if let background = cognition.background {
-                    CognitionSection(title: "项目背景", content: background)
-                }
-                
-                if let understanding = cognition.currentUnderstanding {
-                    CognitionSection(title: "当前理解", content: understanding)
-                }
-                
-                if let pending = cognition.pendingItems {
-                    CognitionSection(title: "待确认事项", content: pending)
-                }
-                
-                if let conclusions = cognition.keyConclusions {
-                    CognitionSection(title: "关键结论", content: conclusions)
-                }
-            }
-            .padding(20)
+            MarkdownView(cognition.content)
+                .font(.system(size: 14), for: .body)
+                .font(.system(size: 22, weight: .bold), for: .h1)
+                .font(.system(size: 18, weight: .semibold), for: .h2)
+                .font(.system(size: 16, weight: .semibold), for: .h3)
+                .tint(Color.flexokiAccent, for: .inlineCodeBlock)
+                .padding(20)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.flexokiBackground)
-    }
-}
-
-struct CognitionSection: View {
-    let title: String
-    let content: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.flexokiAccent)
-            
-            Text(content)
-                .font(.system(size: 12))
-                .foregroundStyle(Color.flexokiText)
-                .lineSpacing(4)
-        }
-        .padding(12)
-        .background(Color.flexokiSurface)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
-        .overlay(
-            RoundedRectangle(cornerRadius: 6)
-                .stroke(Color.flexokiBorderSubtle, lineWidth: 1)
-        )
     }
 }
 

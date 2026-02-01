@@ -16,6 +16,9 @@ packages:
   KeychainAccess:
     url: https://github.com/kishikawakatsumi/KeychainAccess.git
     from: "4.2.2"
+  MarkdownView:
+    url: https://github.com/LiYanan2004/MarkdownView.git
+    from: "2.5.2"
 
 settings:
   base:
@@ -36,6 +39,7 @@ targets:
       - package: GRDB
       - package: OpenAI
       - package: KeychainAccess
+      - package: MarkdownView
     resources:
       - path: Resources/Assets.xcassets
       - path: Resources/en.lproj
