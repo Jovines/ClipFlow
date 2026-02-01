@@ -103,10 +103,7 @@ struct FloatingWindowView: View {
                 ProjectModeView(
                     project: project,
                     onExit: {
-                        isProjectMode = false
-                        currentProject = nil
-                        // Sync to ProjectService
-                        try? ProjectService.shared.exitProjectMode()
+                        FloatingWindowManager.shared.exitProjectMode()
                     }
                 )
                 .frame(width: 680, height: 480)

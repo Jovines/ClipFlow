@@ -79,25 +79,31 @@ final class FloatingWindowManager: ObservableObject {
         Task {
             try? await ProjectService.shared.exitProjectMode()
             await MainActor.run {
+                currentProject = nil
+                isProjectMode = false
                 if isWindowVisible {
                     hideWindow()
-                    showWindow()
+                    showWindow(recreate: true)
                 }
             }
         }
     }
 
-    func showWindow() {
-        guard !isWindowVisible else {
+    func showWindow(recreate: Bool = false) {
+        guard !isWindowVisible || recreate else {
             bringWindowToFront()
             return
+        }
+
+        if recreate {
+            floatingWindowHostingController = nil
         }
 
         NotificationCenter.default.post(name: NSNotification.Name("FloatingWindowWillShow"), object: nil)
 
         previousActiveApp = NSWorkspace.shared.frontmostApplication
 
-        if floatingWindow == nil {
+        if floatingWindow == nil || recreate {
             createWindow()
         }
 

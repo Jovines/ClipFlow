@@ -316,9 +316,6 @@ struct ProjectModeHeader: View {
     let onExport: () -> Void
     let onAnalyze: () -> Void
     
-    @State private var windowStartOrigin: NSPoint = .zero
-    @State private var dragStartLocation: NSPoint = .zero
-    
     var body: some View {
         HStack {
             // Project Info
@@ -413,29 +410,7 @@ struct ProjectModeHeader: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .gesture(
-            DragGesture()
-                .onChanged { value in
-                    if windowStartOrigin == .zero {
-                        windowStartOrigin = FloatingWindowManager.shared.floatingWindow?.frame.origin ?? .zero
-                        dragStartLocation = NSPoint(x: value.location.x, y: value.location.y)
-                    }
-                    
-                    let translationX = value.location.x - dragStartLocation.x
-                    let translationY = value.location.y - dragStartLocation.y
-                    
-                    if let window = FloatingWindowManager.shared.floatingWindow {
-                        var newOrigin = windowStartOrigin
-                        newOrigin.x += translationX
-                        newOrigin.y -= translationY  // Y is inverted in macOS
-                        window.setFrameOrigin(newOrigin)
-                    }
-                }
-                .onEnded { _ in
-                    windowStartOrigin = .zero
-                    dragStartLocation = .zero
-                }
-        )
+        .background(Color.flexokiSurface)
     }
 }
 
