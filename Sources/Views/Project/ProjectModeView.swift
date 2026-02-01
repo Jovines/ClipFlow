@@ -747,6 +747,9 @@ struct ExportProjectView: View {
             // Options
             Toggle("包含原始素材", isOn: $includeRawInputs)
                 .font(.system(size: 13))
+                .onChange(of: includeRawInputs) { _ in
+                    generateExport()
+                }
             
             Divider()
             
