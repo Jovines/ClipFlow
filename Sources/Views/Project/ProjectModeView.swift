@@ -252,8 +252,7 @@ struct ProjectModeView: View {
                     let (updatedContent, changeDesc) = try await cognitionService.updateCognition(
                         currentCognition: existingCognition.content,
                         projectName: project.name,
-                        newInputs: newInputs,
-                        customPrompt: project.customPrompt
+                        newInputs: newInputs
                     )
 
                     content = updatedContent
@@ -263,8 +262,7 @@ struct ProjectModeView: View {
                     content = try await cognitionService.generateInitialCognition(
                         projectName: project.name,
                         projectDescription: project.description,
-                        initialInputs: newInputs,
-                        customPrompt: project.customPrompt
+                        initialInputs: newInputs
                     )
                     changeDescription = "初始认知文档生成"
                 }
