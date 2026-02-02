@@ -76,10 +76,11 @@ Sources/
 
 ## Commit Messages
 
-- Use **English** for all commit messages
+- **CRITICAL: Use English for ALL commit messages** - This is a project standard, violations will be requested to amend
 - Follow **Conventional Commits** format: `<type>: <description>`
 - Types: `feat`, `fix`, `chore`, `refactor`, `perf`, `docs`, `update`, `revert`
 - Keep description concise and clear
+- Before committing, always verify the commit message is in English
 
 ## Version & Release
 
