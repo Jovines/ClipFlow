@@ -73,3 +73,26 @@ Sources/
 └── Views/            # SwiftUI views
     └── Components/   # Reusable UI components
 ```
+
+## Commit Messages
+
+- Use **English** for all commit messages
+- Follow **Conventional Commits** format: `<type>: <description>`
+- Types: `feat`, `fix`, `chore`, `refactor`, `perf`, `docs`, `update`, `revert`
+- Keep description concise and clear
+
+## Version & Release
+
+### Version Management
+- Version format: `MARKETING_VERSION.CURRENT_PROJECT_VERSION` (e.g., `1.0.0` + `1`)
+- Update in `project.yml` before releasing
+
+### GitHub Actions
+- Push to `main`: No CI build (save macOS minutes)
+- Release: Auto build and upload DMG
+- Free tier: 200 macOS minutes/month
+
+### Release Process
+1. Update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml`
+2. Create release: `gh release create v<version> --title "ClipFlow v<version>" --notes "<description>"`
+3. Use **English** for release notes
