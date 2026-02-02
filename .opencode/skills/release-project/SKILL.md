@@ -43,12 +43,12 @@ xcodebuild -project ClipFlow.xcodeproj -scheme ClipFlow -configuration Release a
 ```
 
 The archive will be at:
-`~/Library/Developer/Xcode/DerivedData/.../Build/Products/Release/ClipFlow.app`
+`~/Library/Developer/Xcode/DerivedData/.../Build/Products/Release/ClipFlow-*.app`
 
 ### 3. Create DMG
 
 ```bash
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow.app" -path "*/Release/ClipFlow.app" -type d | head -1)
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow-*.app" -path "*/Release/ClipFlow-*.app" -type d | head -1)
 hdiutil create -srcfolder "$APP_PATH" -volname "ClipFlow" ClipFlow.dmg
 ```
 

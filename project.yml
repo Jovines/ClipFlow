@@ -22,11 +22,16 @@ packages:
 
 settings:
   base:
-    MARKETING_VERSION: "1.0.1"
-    CURRENT_PROJECT_VERSION: "2"
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
     SWIFT_VERSION: "6.0"
+  configs:
+    Debug:
+      base:
+        PRODUCT_NAME: ClipFlow-debug
+    Release:
+      base:
+        PRODUCT_NAME: ClipFlow-$(MARKETING_VERSION)
 
 targets:
   ClipFlow:
