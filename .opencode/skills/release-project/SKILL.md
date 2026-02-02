@@ -15,8 +15,9 @@ This skill guides you through the complete release process for ClipFlow:
 1. Update version numbers in `project.yml`
 2. Build Release configuration
 3. Create DMG disk image
-4. Create git tag and push
-5. Upload to GitHub Release
+4. Generate release notes from commits (feat/fix)
+5. Create git tag and push
+6. Upload to GitHub Release
 
 ## When to use me
 
@@ -51,17 +52,52 @@ APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow.app" -path
 hdiutil create -srcfolder "$APP_PATH" -volname "ClipFlow" ClipFlow.dmg
 ```
 
-### 4. Create Release
+### 4. Generate Release Notes
+
+Generate changelog from commits since last release:
+
+```bash
+# Get previous version tag
+PREV_TAG=$(git tag -l "v*" --sort=-version:refname | head -2 | tail -1)
+
+# Extract features (feat:) and fixes (fix:)
+FEATURES=$(git log $PREV_TAG..HEAD --oneline --grep="feat" | sed 's/.*/ - /')
+FIXES=$(git log $PREV_TAG..HEAD --onetime --grep="fix" | sed 's/.*/ - /')
+
+# Build release notes
+cat <<EOF
+## What's New
+
+### Features
+${FEATURES:-None}
+
+### Bug Fixes
+${FIXES:-None}
+
+### Other Changes
+$(git log $PREV_TAG..HEAD --oneline --grep -v "feat" --grep -v "fix")
+EOF
+```
+
+### 5. Create Release
 
 ```bash
 # Create and push tag
 git tag v<x.y.z>
 git push origin v<x.y.z>
 
-# Upload to GitHub
+# Upload to GitHub with release notes
 gh release create v<x.y.z> \
   --title "ClipFlow v<x.y.z>" \
-  --notes "Release notes" \
+  --notes "## What's New
+
+### Features
+- New feature 1
+- New feature 2
+
+### Bug Fixes
+- Fix issue 1
+- Fix issue 2" \
   ClipFlow.dmg
 ```
 
