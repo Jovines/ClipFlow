@@ -21,10 +21,5 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
-      - name: Build ClipFlow
-        run: |
-          xcodebuild -project ClipFlow.xcodeproj \
-            -scheme ClipFlow \
-            -configuration Debug \
-            -destination 'platform=macOS' \
-            build
+      - name: Resolve packages
+        run: xcodebuild -project ClipFlow.xcodeproj -scheme ClipFlow -resolvePackageDependencies
