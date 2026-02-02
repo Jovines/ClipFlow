@@ -54,29 +54,14 @@ hdiutil create -srcfolder "$APP_PATH" -volname "ClipFlow" ClipFlow.dmg
 
 ### 4. Generate Release Notes
 
-Generate changelog from commits since last release:
+Ask OpenCode to review commits since the last release and summarize:
+- New features (commits with "feat:")
+- Bug fixes (commits with "fix:")
+- Other notable changes
 
-```bash
-# Get previous version tag
-PREV_TAG=$(git tag -l "v*" --sort=-version:refname | head -2 | tail -1)
-
-# Extract features (feat:) and fixes (fix:)
-FEATURES=$(git log $PREV_TAG..HEAD --oneline --grep="feat" | sed 's/.*/ - /')
-FIXES=$(git log $PREV_TAG..HEAD --onetime --grep="fix" | sed 's/.*/ - /')
-
-# Build release notes
-cat <<EOF
-## What's New
-
-### Features
-${FEATURES:-None}
-
-### Bug Fixes
-${FIXES:-None}
-
-### Other Changes
-$(git log $PREV_TAG..HEAD --oneline --grep -v "feat" --grep -v "fix")
-EOF
+Example prompt:
+```
+Review commits since v<x.y> and summarize the changes for release notes. List new features, bug fixes, and other changes.
 ```
 
 ### 5. Create Release
@@ -91,13 +76,7 @@ gh release create v<x.y.z> \
   --title "ClipFlow v<x.y.z>" \
   --notes "## What's New
 
-### Features
-- New feature 1
-- New feature 2
-
-### Bug Fixes
-- Fix issue 1
-- Fix issue 2" \
+[Summary from OpenCode]" \
   ClipFlow.dmg
 ```
 
