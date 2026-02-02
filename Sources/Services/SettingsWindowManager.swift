@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 import Combine
 
-final class SettingsWindowManager: ObservableObject {
+final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
     static let shared = SettingsWindowManager()
     
     private(set) var window: NSWindow?

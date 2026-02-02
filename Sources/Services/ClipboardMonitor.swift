@@ -4,7 +4,7 @@ import Foundation
 import GRDB
 import OpenAI
 
-final class ClipboardMonitor: ObservableObject {
+final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
     static let shared = ClipboardMonitor()
 
     @Published private(set) var capturedItems: [ClipboardItem] = []

@@ -77,7 +77,7 @@ struct Shortcut: Equatable, Codable {
     }
 }
 
-final class HotKeyManager {
+final class HotKeyManager: @unchecked Sendable {
     static let shared = HotKeyManager()
 
     private var globalMonitor: Any?

@@ -2,7 +2,7 @@ import Foundation
 import GRDB
 import Combine
 
-final class PromptTemplateService: ObservableObject {
+final class PromptTemplateService: ObservableObject, @unchecked Sendable {
     static let shared = PromptTemplateService()
 
     private init() {}

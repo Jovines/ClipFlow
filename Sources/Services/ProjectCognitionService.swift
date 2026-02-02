@@ -2,7 +2,7 @@ import Foundation
 import OpenAI
 import GRDB
 
-final class ProjectCognitionService {
+final class ProjectCognitionService: @unchecked Sendable {
     static let shared = ProjectCognitionService()
 
     private init() {}

@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 class GroupPanelCoordinator: ObservableObject {
     @Published var isShowingPanel = false
     @Published var panelItems: [ClipboardItem] = []
@@ -8,6 +9,7 @@ class GroupPanelCoordinator: ObservableObject {
 
     private var mouseMoveMonitor: Any?
     private var hoverTask: Task<Void, Never>?
+    private let hoverDelay: Duration = .milliseconds(700)
     private let panelWidth: CGFloat = 300
     private let minMovementThreshold: CGFloat = 100.0
     private var currentGroupIndex: Int?
@@ -20,10 +22,7 @@ class GroupPanelCoordinator: ObservableObject {
     func startTracking() {
         stopTracking()
         mouseMoveMonitor = NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved) { [weak self] event in
-            guard let self = self else { return }
-            DispatchQueue.main.async {
-                self.handleMouseMoved()
-            }
+            self?.handleMouseMoved()
         }
     }
 
@@ -76,14 +75,23 @@ class GroupPanelCoordinator: ObservableObject {
         return nil
     }
 
-    private func startHoverDelay(groupIndex: Int, groupInfo: FloatingWindowView.GroupInfo, items: [ClipboardItem]) {
-        currentGroupIndex = groupIndex
-        panelInfo = groupInfo
-        panelItems = items
-        showPanel()
+    func startHoverDelay(groupIndex: Int, groupInfo: FloatingWindowView.GroupInfo, items: [ClipboardItem]) {
+        cancelHoverDelay()
+        hoverTask = Task {
+            do {
+                try await hoverDelay
+                if !Task.isCancelled {
+                    currentGroupIndex = groupIndex
+                    panelInfo = groupInfo
+                    panelItems = items
+                    showPanel()
+                }
+            } catch {
+            }
+        }
     }
 
-    private func cancelHoverDelay() {
+    func cancelHoverDelay() {
         hoverTask?.cancel()
         hoverTask = nil
     }

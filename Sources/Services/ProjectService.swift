@@ -2,7 +2,7 @@ import Foundation
 import GRDB
 import Combine
 
-final class ProjectService: ObservableObject {
+final class ProjectService: ObservableObject, @unchecked Sendable {
     static let shared = ProjectService()
     
     @Published private var _activeProjectId: UUID?
