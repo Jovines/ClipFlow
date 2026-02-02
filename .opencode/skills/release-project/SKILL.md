@@ -41,10 +41,8 @@ xcodegen generate
 xcodebuild -project ClipFlow.xcodeproj -scheme ClipFlow -configuration Release archive
 ```
 
-Or run:
-```bash
-./run.sh
-```
+The archive will be at:
+`~/Library/Developer/Xcode/DerivedData/.../Build/Products/Release/ClipFlow.app`
 
 ### 3. Create DMG
 
