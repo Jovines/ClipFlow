@@ -5,7 +5,6 @@ struct GroupView: View {
     let items: [ClipboardItem]
     let groupIndex: Int
     let onToggleExpand: () -> Void
-    @Binding var selectedIndex: Int
     let clipboardMonitor: ClipboardMonitor
     let onItemSelected: (ClipboardItem) -> Void
     let onItemEdit: (ClipboardItem) -> Void
@@ -67,8 +66,6 @@ struct GroupView: View {
 
 struct CompactItemRow: View {
     let item: ClipboardItem
-    let index: Int
-    let isSelected: Bool
     let clipboardMonitor: ClipboardMonitor
     let onSelect: () -> Void
     let onEdit: () -> Void
@@ -78,20 +75,11 @@ struct CompactItemRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            if index < 10 {
-                Text("\(index)")
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(isSelected ? Color.flexokiAccent : .secondary)
-                    .frame(width: 14, height: 14)
-                    .background(isSelected ? Color.flexokiAccent.opacity(0.2) : Color.flexokiSurface.opacity(0.3))
-                    .clipShape(RoundedRectangle(cornerRadius: 3))
-            }
-
             contentPreview
 
             Spacer()
 
-            if isHovered && index < 9 {
+            if isHovered {
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
                         .font(.system(size: 10))
@@ -110,7 +98,7 @@ struct CompactItemRow: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 4)
-        .background(isSelected ? Color.flexokiAccent.opacity(0.2) : (isHovered ? Color.flexokiBase200.opacity(0.3) : .clear))
+        .background(isHovered ? Color.flexokiBase200.opacity(0.3) : .clear)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())
         .onHover { hovering in

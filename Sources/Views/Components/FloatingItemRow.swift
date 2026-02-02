@@ -2,8 +2,6 @@ import SwiftUI
 
 struct FloatingItemRow: View {
     let item: ClipboardItem
-    let index: Int
-    let isSelected: Bool
     let isEditing: Bool
     let onSelect: () -> Void
     let onEdit: () -> Void
@@ -13,15 +11,6 @@ struct FloatingItemRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            if index < 10 {
-                Text("\(index)")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(isSelected || isEditing ? Color.flexokiAccent : .secondary)
-                    .frame(width: 16, height: 16)
-                    .background((isSelected || isEditing) ? Color.flexokiAccent.opacity(0.2) : Color.flexokiSurface.opacity(0.3))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-            }
-
             contentPreview
 
             Spacer()
@@ -174,9 +163,6 @@ struct FloatingItemRow: View {
     private var backgroundColor: Color {
         if isEditing {
             return Color.flexokiAccent.opacity(0.15)
-        }
-        if isSelected {
-            return Color.flexokiAccent.opacity(0.2)
         }
         return isHovered ? Color.flexokiBase200.opacity(0.5) : .clear
     }
