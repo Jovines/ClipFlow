@@ -2,7 +2,7 @@ import AppKit
 import Combine
 import SwiftUI
 
-final class FloatingWindowManager: ObservableObject {
+final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
     static let shared = FloatingWindowManager()
 
     @Published private(set) var isWindowVisible = false
@@ -32,11 +32,12 @@ final class FloatingWindowManager: ObservableObject {
     }
 
     private func setupBindings() {
+        let window = floatingWindow
         NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)
-            .sink { [weak self] notification in
-                if notification.object as? NSWindow == self?.floatingWindow {
-                    DispatchQueue.main.async {
-                        self?.isWindowVisible = false
+            .sink { notification in
+                if notification.object as? NSWindow == window {
+                    Task { @MainActor in
+                        self.isWindowVisible = false
                     }
                 }
             }
@@ -282,18 +283,20 @@ final class FloatingWindowManager: ObservableObject {
     }
 
     private func createWindow() {
+        let manager = self
         let floatingView = FloatingWindowView(
             onClose: { [weak self] in
                 self?.hideWindow()
             },
             onItemSelected: { [weak self] item in
-                self?.isPasting = true
-                self?.clipboardMonitor.copyToClipboard(item)
-                self?.hideWindowForPaste()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self?.simulatePaste()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        self?.isPasting = false
+                guard let self = self else { return }
+                self.isPasting = true
+                self.clipboardMonitor.copyToClipboard(item)
+                self.hideWindowForPaste()
+                Task { @MainActor in
+                    manager.simulatePaste()
+                    Task { @MainActor in
+                        manager.isPasting = false
                     }
                 }
             },

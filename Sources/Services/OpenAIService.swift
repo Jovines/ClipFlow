@@ -1,7 +1,7 @@
 import Foundation
 import OpenAI
 
-final class OpenAIService: ObservableObject {
+final class OpenAIService: ObservableObject, @unchecked Sendable {
     static let shared = OpenAIService()
 
     private var clients: [UUID: OpenAI] = [:]

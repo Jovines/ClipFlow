@@ -32,7 +32,9 @@ struct GroupView: View {
             .onHover { hovering in
                 isHovered = hovering
                 if hovering {
-                    panelCoordinator.showPanelForGroup(groupIndex: groupIndex, groupInfo: groupInfo, items: items)
+                    panelCoordinator.startHoverDelay(groupIndex: groupIndex, groupInfo: groupInfo, items: items)
+                } else {
+                    panelCoordinator.cancelHoverDelay()
                 }
             }
     }

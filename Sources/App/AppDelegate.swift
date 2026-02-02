@@ -60,7 +60,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if trusted {
             registerGlobalShortcut()
         } else {
-            let options: [String: Bool] = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
+            let promptKey = "AXTrustedCheckOptionPrompt"
+            let options: [String: Bool] = [promptKey: true]
             AXIsProcessTrustedWithOptions(options as CFDictionary)
             ClipFlowLogger.info("System permission prompt shown")
         }
@@ -126,8 +127,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func closeMainWindow() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
+        Task { @MainActor in
             NSApp.windows.filter { window in
                 window.title == "ClipFlow"
             }.forEach { window in

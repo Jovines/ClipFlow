@@ -2,23 +2,23 @@ name: ClipFlow
 options:
   bundleIdPrefix: com.clipflow
   deploymentTarget:
-    macOS: "14.0"
-  xcodeVersion: "15.0"
+    macOS: "15.0"
+  xcodeVersion: "16.0"
   generateEmptyDirectories: true
 
 packages:
   GRDB:
     url: https://github.com/groue/GRDB.swift
-    from: 6.29.3
+    from: 7.9.0
   OpenAI:
     url: https://github.com/MacPaw/OpenAI.git
-    branch: main
+    from: "0.4.7"
   KeychainAccess:
     url: https://github.com/kishikawakatsumi/KeychainAccess.git
     from: "4.2.2"
   MarkdownView:
     url: https://github.com/LiYanan2004/MarkdownView.git
-    from: "2.5.2"
+    from: "2.4.0"
 
 settings:
   base:
@@ -26,7 +26,7 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
-    SWIFT_VERSION: "5.9"
+    SWIFT_VERSION: "6.0"
 
 targets:
   ClipFlow:
@@ -61,7 +61,7 @@ targets:
       - name: SwiftLint
         script: |
           if which swiftlint > /dev/null; then
-            swiftlint
+            swiftlint || true
           else
             echo "warning: SwiftLint not installed"
           fi

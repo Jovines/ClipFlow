@@ -18,7 +18,7 @@ struct TagUsageStats: Codable, Identifiable {
 }
 
 /// 标签使用统计管理器
-final class TagUsageManager {
+final class TagUsageManager: @unchecked Sendable {
     static let shared = TagUsageManager()
     
     private let userDefaultsKey = "tag_usage_stats"
