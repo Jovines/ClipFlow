@@ -105,20 +105,15 @@ struct FloatingWindowView: View {
                 .frame(width: 680, height: 480)
             } else {
                 VStack(spacing: 0) {
-                    ProjectModeBar(
-                        projectService: ProjectService.shared,
+                    HeaderBar(
+                        showProjectSelector: $showProjectSelector,
+                        currentProject: currentProject,
                         isProjectMode: $isProjectMode,
-                        currentProject: $currentProject,
-                        showProjectSelector: $showProjectSelector
-                    )
-                    .padding(.horizontal)
-                    .padding(.top, 6)
-                    
-                    TagFilterBar(
-                        tags: allTags,
+                        allTags: allTags,
                         selectedTag: $selectedTag,
                         onTagSelected: handleTagSelected
                     )
+
                     Divider()
                     contentView
                 }

@@ -20,6 +20,7 @@ struct GroupPanelView: View {
     var body: some View {
         VStack(spacing: 0) {
             groupPanelHeader
+                .frame(height: 36)
             Divider()
             groupPanelContent
             Divider()

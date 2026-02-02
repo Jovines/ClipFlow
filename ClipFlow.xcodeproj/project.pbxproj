@@ -24,6 +24,7 @@
 		423891FB4C39BA5FDF08B1BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B153DF2BA49164525C42A0 /* AppDelegate.swift */; };
 		42F280A7B1380E2C3746779C /* FloatingItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47801E615928703BA4682AD /* FloatingItemRow.swift */; };
 		43EE20D3F90FECAB647081D2 /* AIProviderSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1206792A0BBBC771B2B8F597 /* AIProviderSettingsView.swift */; };
+		5443AF1926B9AEEEA027FF15 /* ProjectButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3991C8C49F3C6C3A9AA0EDCA /* ProjectButton.swift */; };
 		558BE8AA87AC02DF13B09F68 /* EditorPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC18090E3D1989DB7938BC3D /* EditorPanelView.swift */; };
 		55B0264C9A61E6E0088EFE08 /* TagFilterBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E5096EBCB66391809C214D /* TagFilterBar.swift */; };
 		59AB3A450255EAC2496E9B35 /* ProjectSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2174DC89E3CFBACFE2B21C70 /* ProjectSelectorView.swift */; };
@@ -81,6 +82,7 @@
 		2F03415EE3AEA5A43EAE60A2 /* CacheManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManagementView.swift; sourceTree = "<group>"; };
 		32FBC1064BBFAFBE9D488D21 /* PromptTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplate.swift; sourceTree = "<group>"; };
 		38EAB7727A0888888E89FCDF /* GroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupView.swift; sourceTree = "<group>"; };
+		3991C8C49F3C6C3A9AA0EDCA /* ProjectButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectButton.swift; sourceTree = "<group>"; };
 		3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPopoverView.swift; sourceTree = "<group>"; };
 		49168E577DE43BE5063048CB /* TagSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSelectorView.swift; sourceTree = "<group>"; };
 		49493FC09DDDFB3A81EF6D61 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
@@ -282,6 +284,7 @@
 				C33501453ADC1CC85DF1D657 /* GroupPanelCoordinator.swift */,
 				38EAB7727A0888888E89FCDF /* GroupView.swift */,
 				27B85F0DF320B3BCDB326EEF /* ImagePreviewView.swift */,
+				3991C8C49F3C6C3A9AA0EDCA /* ProjectButton.swift */,
 				BA4353840CA24F045A37B133 /* SearchBar.swift */,
 				756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */,
 				F7E5096EBCB66391809C214D /* TagFilterBar.swift */,
@@ -438,6 +441,7 @@
 				2524E6BB6091BEF55A67FC35 /* OpenAIService.swift in Sources */,
 				DC537CD0D58974EE0D197D2A /* PresetRow.swift in Sources */,
 				CDDE7CE0F1EC0D187B385A0D /* Project.swift in Sources */,
+				5443AF1926B9AEEEA027FF15 /* ProjectButton.swift in Sources */,
 				BA1A80337592269E200B975F /* ProjectCognitionService.swift in Sources */,
 				C360348A1BA8CFCAC3BCD0C1 /* ProjectModeBar.swift in Sources */,
 				3E3307C5175AD0F1D57F5FCC /* ProjectModeContainerView.swift in Sources */,
