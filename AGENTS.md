@@ -84,4 +84,4 @@ Sources/
 ## Version & Release
 
 - Version: `MARKETING_VERSION.CURRENT_PROJECT_VERSION` in `project.yml`
-- Release: `gh release create v<version> --title "ClipFlow v<version>" --notes "<description>"`
+- Release: `gh release create v<version> --title "ClipFlow v<version>" --notes "<description>"` (use English for notes)
