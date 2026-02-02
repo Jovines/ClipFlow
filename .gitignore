@@ -67,3 +67,9 @@ coverage/
 *.plist
 !Info.plist
 *.dmg
+
+# Sisyphus
+.sisyphus/
+
+# OpenCode
+.opencode/plans/
