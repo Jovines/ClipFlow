@@ -12,7 +12,7 @@ xcodegen generate
 xcodebuild -project ClipFlow.xcodeproj -scheme ClipFlow build
 
 # Run (separate terminal for logs)
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow-debug.app" -path "*/Debug/ClipFlow-debug.app" -type d | head -1)
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow.app" -path "*/Debug/ClipFlow.app" -type d | head -1)
 "$APP_PATH/Contents/MacOS/ClipFlow"
 ```
 
