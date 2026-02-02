@@ -52,8 +52,7 @@ struct ContentView: View {
             return clipboardMonitor.capturedItems
         }
         return clipboardMonitor.capturedItems.filter { item in
-            item.content.localizedCaseInsensitiveContains(searchText) ||
-            item.tags.contains { $0.name.localizedCaseInsensitiveContains(searchText) }
+            item.content.localizedCaseInsensitiveContains(searchText)
         }
     }
 }

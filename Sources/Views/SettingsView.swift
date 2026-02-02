@@ -21,7 +21,6 @@ struct TitleBarConfigurator: NSViewRepresentable {
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
     case aiService = "AIService"
-    case tags = "Tags"
     case cache = "Cache"
     case about = "About"
 
@@ -31,7 +30,6 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general: return "gear"
         case .aiService: return "brain"
-        case .tags: return "tag"
         case .cache: return "internaldrive"
         case .about: return "info.circle"
         }
@@ -41,7 +39,6 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general: return NSLocalizedString("General", comment: "")
         case .aiService: return NSLocalizedString("AI 服务", comment: "")
-        case .tags: return NSLocalizedString("Tags", comment: "")
         case .cache: return NSLocalizedString("Cache", comment: "")
         case .about: return NSLocalizedString("About", comment: "")
         }
@@ -120,8 +117,6 @@ struct SettingsView: View {
                     generalSettingsContent
                 case .aiService:
                     AIProviderSettingsView()
-                case .tags:
-                    TagsManagementView()
                 case .cache:
                     CacheManagementView()
                 case .about:

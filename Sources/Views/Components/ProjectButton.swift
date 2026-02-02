@@ -4,9 +4,6 @@ struct HeaderBar: View {
     @Binding var showProjectSelector: Bool
     let currentProject: Project?
     @Binding var isProjectMode: Bool
-    let allTags: [Tag]
-    @Binding var selectedTag: Tag?
-    let onTagSelected: (Tag?) -> Void
 
     var body: some View {
         HStack(spacing: 8) {
@@ -14,12 +11,6 @@ struct HeaderBar: View {
                 showProjectSelector: $showProjectSelector,
                 currentProject: currentProject,
                 isProjectMode: $isProjectMode
-            )
-
-            TagFilterBar(
-                tags: allTags,
-                selectedTag: $selectedTag,
-                onTagSelected: onTagSelected
             )
 
             Spacer()

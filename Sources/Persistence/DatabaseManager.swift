@@ -33,6 +33,7 @@ final class DatabaseManager: @unchecked Sendable {
         config.prepareDatabase { db in
             try db.execute(sql: "PRAGMA journal_mode = WAL")
             try db.execute(sql: "PRAGMA synchronous = NORMAL")
+            try db.execute(sql: "PRAGMA foreign_keys = ON")
         }
 
         var pool: DatabasePool?
@@ -44,7 +45,6 @@ final class DatabaseManager: @unchecked Sendable {
             print("[Database] Database initialized successfully")
         } catch {
             print("[Database] Failed to create database: \(error)")
-            // 尝试删除旧数据库重新开始
             print("[Database] Attempting to remove old database and retry...")
             try? fileManager.removeItem(at: dbURL)
             do {
@@ -71,20 +71,6 @@ final class DatabaseManager: @unchecked Sendable {
             t.column("contentHash", .integer).notNull().defaults(to: 0)
         }
 
-        try db.create(table: "tags", ifNotExists: true) { t in
-            t.column("id", .text).primaryKey()
-            t.column("name", .text).notNull().unique()
-            t.column("color", .text).notNull().defaults(to: "blue")
-            t.column("createdAt", .datetime).notNull()
-        }
-
-        try db.create(table: "item_tags", ifNotExists: true) { t in
-            t.column("item_id", .text).notNull().references("clipboard_items", onDelete: .cascade)
-            t.column("tag_id", .text).notNull().references("tags", onDelete: .cascade)
-            t.primaryKey(["item_id", "tag_id"])
-        }
-
-        // Projects
         try db.create(table: "projects", ifNotExists: true) { t in
             t.column("id", .text).primaryKey()
             t.column("name", .text).notNull()
@@ -96,7 +82,6 @@ final class DatabaseManager: @unchecked Sendable {
             t.column("currentCognitionId", .text)
         }
 
-        // Project Raw Inputs
         try db.create(table: "project_raw_inputs", ifNotExists: true) { t in
             t.column("id", .text).primaryKey()
             t.column("projectId", .text).notNull().references("projects", onDelete: .cascade)
@@ -106,7 +91,6 @@ final class DatabaseManager: @unchecked Sendable {
             t.column("createdAt", .datetime).notNull()
         }
 
-        // Project Cognitions
         try db.create(table: "project_cognitions", ifNotExists: true) { t in
             t.column("id", .text).primaryKey()
             t.column("projectId", .text).notNull().references("projects", onDelete: .cascade)
@@ -115,7 +99,6 @@ final class DatabaseManager: @unchecked Sendable {
             t.column("createdAt", .datetime).notNull()
         }
 
-        // Project Cognition Changes
         try db.create(table: "project_cognition_changes", ifNotExists: true) { t in
             t.column("id", .text).primaryKey()
             t.column("projectId", .text).notNull().references("projects", onDelete: .cascade)
@@ -126,11 +109,8 @@ final class DatabaseManager: @unchecked Sendable {
             t.column("createdAt", .datetime).notNull()
         }
 
-        // 使用 IF NOT EXISTS 防止索引已存在的错误
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_items_created_at ON clipboard_items(createdAt)")
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_items_content_hash ON clipboard_items(contentHash)")
-        _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_item_tags_item ON item_tags(item_id)")
-        _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_item_tags_tag ON item_tags(tag_id)")
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_projects_active ON projects(isActive)")
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_projects_archived ON projects(isArchived)")
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_raw_inputs_project ON project_raw_inputs(projectId)")
@@ -158,7 +138,7 @@ final class DatabaseManager: @unchecked Sendable {
 
             try db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_templates_system ON prompt_templates(isSystem)")
 
-        try SystemPromptTemplates.all.forEach { template in
+            try SystemPromptTemplates.all.forEach { template in
                 try db.execute(sql: """
                     INSERT OR IGNORE INTO prompt_templates (id, name, description, initialPrompt, updatePrompt, isSystem, createdAt, updatedAt)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -197,14 +177,16 @@ final class DatabaseManager: @unchecked Sendable {
     }
 
     func createClipboardItem(
+        id: UUID? = nil,
         content: String,
         contentType: ClipboardItem.ContentType,
         imagePath: String? = nil,
         thumbnailPath: String? = nil,
-        contentHash: Int = 0,
-        tagNames: [String] = []
+        contentHash: Int = 0
     ) throws -> ClipboardItem {
+        let itemId = id ?? UUID()
         let item = ClipboardItem(
+            id: itemId,
             content: content,
             contentType: contentType,
             imagePath: imagePath,
@@ -214,14 +196,6 @@ final class DatabaseManager: @unchecked Sendable {
 
         try dbPool.write { db in
             try item.insert(db)
-
-            for tagName in tagNames {
-                let tag = try self.getOrCreateTag(name: tagName, in: db)
-                try db.execute(
-                    sql: "INSERT OR IGNORE INTO item_tags (item_id, tag_id) VALUES (?, ?)",
-                    arguments: [item.id.uuidString, tag.id.uuidString]
-                )
-            }
         }
 
         return item
@@ -230,28 +204,17 @@ final class DatabaseManager: @unchecked Sendable {
     func fetchClipboardItems(
         limit: Int = 100,
         offset: Int = 0,
-        searchText: String? = nil,
-        tagFilter: String? = nil
+        searchText: String? = nil
     ) throws -> [ClipboardItem] {
         try dbPool.read { db in
-            var sql = "SELECT DISTINCT i.* FROM clipboard_items i"
+            var sql = "SELECT * FROM clipboard_items i"
 
             var conditions: [String] = []
             var arguments: [DatabaseValueConvertible] = []
 
-            if tagFilter != nil {
-                sql += " LEFT JOIN item_tags it ON i.id = it.item_id"
-                sql += " LEFT JOIN tags t ON it.tag_id = t.id"
-            }
-
             if let searchText = searchText, !searchText.isEmpty {
                 conditions.append("i.content LIKE ?")
                 arguments.append("%\(searchText)%")
-            }
-
-            if let tagFilter = tagFilter {
-                conditions.append("t.name = ?")
-                arguments.append(tagFilter)
             }
 
             if !conditions.isEmpty {
@@ -262,22 +225,13 @@ final class DatabaseManager: @unchecked Sendable {
             arguments.append(limit)
             arguments.append(offset)
 
-            var items = try ClipboardItem.fetchAll(db, sql: sql, arguments: StatementArguments(arguments))
-
-            for index in items.indices {
-                items[index].tags = try self.fetchTagsForItem(id: items[index].id, in: db)
-            }
-            return items
+            return try ClipboardItem.fetchAll(db, sql: sql, arguments: StatementArguments(arguments))
         }
     }
 
     func fetchClipboardItem(by id: UUID) throws -> ClipboardItem? {
         try dbPool.read { db in
-            guard var item = try ClipboardItem.fetchOne(db, key: ["id": id.uuidString]) else {
-                return nil
-            }
-            item.tags = try fetchTagsForItem(id: id, in: db)
-            return item
+            try ClipboardItem.fetchOne(db, key: ["id": id.uuidString])
         }
     }
 
@@ -314,14 +268,12 @@ final class DatabaseManager: @unchecked Sendable {
 
     func deleteClipboardItem(id: UUID) throws {
         try dbPool.write { db in
-            try db.execute(sql: "DELETE FROM item_tags WHERE item_id = ?", arguments: [id.uuidString])
             try ClipboardItem.deleteOne(db, key: ["id": id.uuidString])
         }
     }
 
     func deleteAllClipboardItems() throws {
         try dbPool.write { db in
-            try db.execute(sql: "DELETE FROM item_tags")
             try db.execute(sql: "DELETE FROM clipboard_items")
         }
     }
@@ -338,10 +290,6 @@ final class DatabaseManager: @unchecked Sendable {
 
             let placeholders = idsToDelete.map { _ in "?" }.joined(separator: ",")
             try db.execute(sql: """
-                DELETE FROM item_tags WHERE item_id IN (\(placeholders))
-            """, arguments: StatementArguments(idsToDelete))
-
-            try db.execute(sql: """
                 DELETE FROM clipboard_items WHERE id IN (\(placeholders))
             """, arguments: StatementArguments(idsToDelete))
         }
@@ -356,89 +304,7 @@ final class DatabaseManager: @unchecked Sendable {
         }
     }
 
-    func createTag(name: String, color: String = "blue") throws -> Tag {
-        let tag = Tag(name: name, color: color)
-        try dbPool.write { db in
-            try tag.insert(db)
-        }
-        return tag
-    }
-
-    func fetchAllTags() throws -> [Tag] {
-        try dbPool.read { db in
-            try Tag.fetchAll(db, sql: "SELECT * FROM tags ORDER BY name")
-        }
-    }
-
-    func fetchTag(byName name: String) throws -> Tag? {
-        try dbPool.read { db in
-            try Tag.fetchOne(db, sql: "SELECT * FROM tags WHERE name = ?", arguments: [name])
-        }
-    }
-
-    func fetchTag(byId id: UUID) throws -> Tag? {
-        try dbPool.read { db in
-            try Tag.fetchOne(db, key: ["id": id.uuidString])
-        }
-    }
-
-    func deleteTag(id: UUID) throws {
-        try dbPool.write { db in
-            try Tag.deleteOne(db, key: ["id": id.uuidString])
-        }
-    }
-
-    func updateTagColor(id: UUID, color: String) throws {
-        try dbPool.write { db in
-            guard var tag = try Tag.fetchOne(db, key: ["id": id.uuidString]) else { return }
-            tag.color = color
-            try tag.update(db)
-        }
-    }
-
-    func updateTagName(id: UUID, name: String) throws {
-        try dbPool.write { db in
-            guard var tag = try Tag.fetchOne(db, key: ["id": id.uuidString]) else { return }
-            tag.name = name
-            try tag.update(db)
-        }
-    }
-
-    func updateItemTags(itemId: UUID, tagIds: [UUID]) throws {
-        _ = try dbPool.write { db in
-            try db.execute(sql: "DELETE FROM item_tags WHERE item_id = ?", arguments: [itemId.uuidString])
-
-            for tagId in tagIds {
-                try db.execute(
-                    sql: "INSERT INTO item_tags (item_id, tag_id) VALUES (?, ?)",
-                    arguments: [itemId.uuidString, tagId.uuidString]
-                )
-            }
-        }
-    }
-    
-    func fetchTagsForItem(itemId: UUID) throws -> [Tag] {
-        try dbPool.read { db in
-            try fetchTagsForItem(id: itemId, in: db)
-        }
-    }
-
-    private func getOrCreateTag(name: String, in db: Database) throws -> Tag {
-        if let existing = try Tag.fetchOne(db, sql: "SELECT * FROM tags WHERE name = ?", arguments: [name]) {
-            return existing
-        }
-
-        let tag = Tag(name: name, color: Tag.colorForName("blue"))
-        try tag.insert(db)
-        return tag
-    }
-
-    private func fetchTagsForItem(id: UUID, in db: Database) throws -> [Tag] {
-        try Tag.fetchAll(db, sql: """
-            SELECT t.* FROM tags t
-            INNER JOIN item_tags it ON t.id = it.tag_id
-            WHERE it.item_id = ?
-            ORDER BY t.name
-        """, arguments: [id.uuidString])
+    struct DatabaseError: Error {
+        let message: String
     }
 }

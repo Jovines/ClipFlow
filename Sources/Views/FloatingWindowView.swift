@@ -16,13 +16,10 @@ struct FloatingWindowView: View {
     }
     @State private var showImagePreview = false
     @State private var selectedItem: ClipboardItem?
-    @State private var selectedTag: Tag?
-    @State private var allTags: [Tag] = []
 
     @State private var editingItem: ClipboardItem?
     @State private var editContent: String = ""
     @State private var originalContent: String = ""
-    @State private var editingItemTags: [Tag] = []
     @State private var editorPosition: EditorPosition = .right
     @State private var editorWidth: CGFloat = 280
     @State private var expandedGroups: Set<Int> = []
@@ -80,10 +77,10 @@ struct FloatingWindowView: View {
     @State private var showCreateProjectSheet = false
     @State private var isProjectMode = false
     @State private var currentProject: Project? = nil
-    
+
     var body: some View {
         let content = contentBuilder
-        
+
         return content
             .onChange(of: isProjectMode) { newValue in
                 FloatingWindowManager.shared.resizeWindowForProjectMode(
@@ -92,7 +89,7 @@ struct FloatingWindowView: View {
                 )
             }
     }
-    
+
     private var contentBuilder: some View {
         HStack(spacing: 0) {
             if isProjectMode, let project = currentProject {
@@ -108,10 +105,7 @@ struct FloatingWindowView: View {
                     HeaderBar(
                         showProjectSelector: $showProjectSelector,
                         currentProject: currentProject,
-                        isProjectMode: $isProjectMode,
-                        allTags: allTags,
-                        selectedTag: $selectedTag,
-                        onTagSelected: handleTagSelected
+                        isProjectMode: $isProjectMode
                     )
 
                     Divider()
@@ -127,14 +121,7 @@ struct FloatingWindowView: View {
                     originalContent: originalContent,
                     onSave: saveEdit,
                     onCancel: cancelEdit,
-                    onReset: resetEdit,
-                    allTags: $allTags,
-                    itemTags: $editingItemTags,
-                    onTagsChanged: { tags in
-                        if let item = editingItem {
-                            clipboardMonitor.updateItemTags(itemId: item.id, tagIds: tags.map { $0.id })
-                        }
-                    }
+                    onReset: resetEdit
                 )
                 .frame(width: editorWidth, height: 420)
             }
@@ -161,7 +148,6 @@ struct FloatingWindowView: View {
         .shadow(color: .black.opacity(0.15), radius: 15, x: 0, y: 5)
         .onAppear {
             clipboardMonitor.refresh()
-            loadAllTags()
             groupPanelCoordinator.startTracking()
         }
         .onDisappear {
@@ -188,7 +174,6 @@ struct FloatingWindowView: View {
                 onSelectProject: { project in
                     currentProject = project
                     isProjectMode = true
-                    // Sync to ProjectService for clipboard monitoring
                     try? ProjectService.shared.activateProject(id: project.id)
                 },
                 onCreateProject: {
@@ -202,7 +187,6 @@ struct FloatingWindowView: View {
                 onCreated: { project in
                     currentProject = project
                     isProjectMode = true
-                    // Sync to ProjectService for clipboard monitoring
                     try? ProjectService.shared.activateProject(id: project.id)
                 }
             )
@@ -320,7 +304,6 @@ struct FloatingWindowView: View {
         editingItem = item
         editContent = item.content
         originalContent = item.content
-        editingItemTags = item.tags
         determineEditorPosition()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -339,14 +322,12 @@ struct FloatingWindowView: View {
         editingItem = nil
         editContent = ""
         originalContent = ""
-        editingItemTags = []
     }
 
     private func cancelEdit() {
         editingItem = nil
         editContent = ""
         originalContent = ""
-        editingItemTags = []
     }
 
     private func resetEdit() {
@@ -381,31 +362,14 @@ struct FloatingWindowView: View {
         clipboardMonitor.capturedItems
     }
 
-    private func loadAllTags() {
-        do {
-            allTags = try DatabaseManager.shared.fetchAllTags()
-        } catch {
-            ClipFlowLogger.error("Failed to load tags: \(error)")
-            allTags = []
-        }
-    }
-
-    private func handleTagSelected(_ tag: Tag?) {
-        selectedTag = tag
-        
-        if let tag = tag {
-            TagUsageManager.shared.recordUsage(for: tag.id)
-        }
-    }
-
     private func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
         return .ignored
     }
-    
+
     private func handleSelectionModeKeyPress(_ key: String) -> KeyPress.Result {
         return .ignored
     }
-    
+
     private func handleSearchModeKeyPress(_ key: String) -> KeyPress.Result {
         return .ignored
     }

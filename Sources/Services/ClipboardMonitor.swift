@@ -178,38 +178,6 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
         }
     }
 
-    func updateItemTags(itemId: UUID, tagIds: [UUID]) {
-        ClipFlowLogger.info("Updating item tags - itemId: \(itemId), tagIds: \(tagIds)")
-        if let index = capturedItems.firstIndex(where: { $0.id == itemId }) {
-            do {
-                try database.updateItemTags(itemId: itemId, tagIds: tagIds)
-                ClipFlowLogger.info("Successfully updated item tags in database")
-                
-                // 直接从数据库获取标签并更新项目
-                if let tags = try? database.fetchTagsForItem(itemId: itemId) {
-                    // 创建项目的副本并更新标签，然后替换数组中的元素
-                    var updatedItem = capturedItems[index]
-                    updatedItem.tags = tags
-                    capturedItems[index] = updatedItem
-                    ClipFlowLogger.info("Updated item with \(tags.count) tags")
-                } else {
-                    ClipFlowLogger.warning("Failed to fetch tags for item, trying full reload")
-                    // 回退到完整重载
-                    if let updatedItem = try? database.fetchClipboardItem(by: itemId) {
-                        capturedItems[index] = updatedItem
-                        ClipFlowLogger.info("Reloaded item with \(updatedItem.tags.count) tags")
-                    } else {
-                        ClipFlowLogger.warning("Failed to reload item after tag update")
-                    }
-                }
-            } catch {
-                ClipFlowLogger.error("Failed to update item tags: \(error)")
-            }
-        } else {
-            ClipFlowLogger.warning("Item not found for tag update: \(itemId)")
-        }
-    }
-
     func clearAllHistory() {
         ImageCacheManager.shared.clearCache()
         do {
@@ -281,7 +249,7 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
             
             let savedItem = saveToDatabase(item)
             addToHashCache(item.contentHash)
-            
+
             // Check if in project mode and auto-add to project
             if let activeProjectId = ProjectService.shared.activeProjectId,
                let savedItem = savedItem {
@@ -435,12 +403,12 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
     private func saveToDatabase(_ item: ClipboardItem) -> ClipboardItem? {
         do {
             let savedItem = try database.createClipboardItem(
+                id: item.id,
                 content: item.content,
                 contentType: item.contentType,
                 imagePath: item.imagePath,
                 thumbnailPath: item.thumbnailPath,
-                contentHash: item.contentHash,
-                tagNames: item.tags.map { $0.name }
+                contentHash: item.contentHash
             )
             return savedItem
         } catch {

@@ -66,3 +66,4 @@ coverage/
 *.pem
 *.plist
 !Info.plist
+*.dmg

@@ -59,19 +59,6 @@ struct FloatingItemRow: View {
 
                 HStack(spacing: 4) {
                     timeText
-
-                    if !item.tags.isEmpty {
-                        HStack(spacing: 2) {
-                            ForEach(item.tags.prefix(1)) { tag in
-                                Text(tag.name)
-                                    .font(.caption2)
-                                    .padding(.horizontal, 4)
-                                    .padding(.vertical, 1)
-                                    .background(Color.fromHex(tag.color).opacity(0.2))
-                                    .clipShape(Capsule())
-                            }
-                        }
-                    }
                 }
                 .font(.caption2)
                 .foregroundStyle(Color.flexokiTextSecondary)
