@@ -22,6 +22,10 @@ struct ProjectModeView: View {
     private var unanalyzedCount: Int {
         rawInputs.filter { !$0.input.isAnalyzed }.count
     }
+
+    private var analyzedCount: Int {
+        rawInputs.filter { $0.input.isAnalyzed }.count
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -80,6 +84,11 @@ struct ProjectModeView: View {
                                     .font(.caption)
                                     .foregroundStyle(Color.flexokiTextSecondary)
                                 Spacer()
+                                if analyzedCount > 0 {
+                                    Text("\(analyzedCount) 已分析")
+                                        .font(.caption2)
+                                        .foregroundStyle(Color.flexokiTextTertiary)
+                                }
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
@@ -498,7 +507,17 @@ struct RawInputRow: View {
     @State private var editedSourceContext: String = ""
     @State private var showDeleteConfirm = false
     @State private var isHovered = false
-    
+
+    private var backgroundColor: Color {
+        if isEditing {
+            return Color.flexokiSurfaceElevated
+        }
+        if input.isAnalyzed {
+            return Color.flexokiBase100.opacity(0.3)
+        }
+        return isHovered ? Color.flexokiBase100.opacity(0.5) : Color.clear
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             if isEditing {
@@ -602,7 +621,7 @@ struct RawInputRow: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(isHovered && !isEditing ? Color.flexokiBase100.opacity(0.5) : Color.clear)
+        .background(backgroundColor)
         .contentShape(Rectangle())
         .onHover { hovering in
             isHovered = hovering
