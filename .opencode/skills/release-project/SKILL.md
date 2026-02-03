@@ -28,17 +28,18 @@ Use this when releasing a new version of ClipFlow. The skill will prompt for ver
 
 Always use `xcodebuild build` instead of `xcodebuild archive` for Release builds. SwiftLint errors will cause `archive` to fail, but `build` succeeds (linting warnings don't block the build).
 
-Before releasing, always run `git status` to check for any uncommitted changes (like `project.pbxproj` from `xcodegen generate`) that should be included.
+Always run `xcodegen generate` BEFORE committing version changes, since it modifies `project.pbxproj` which should be included in the version commit.
 
 ## Release Steps
 
 1. Update version in `project.yml`
-2. Commit and push version changes
-3. Build Release (use `build` command)
-4. Create DMG disk image
-5. Generate release notes from commits
-6. Create git tag and push to GitHub
-7. Verify release
+2. Run `xcodegen generate` (modifies project.pbxproj)
+3. Commit and push version changes + xcodegen output
+4. Build Release (use `build` command)
+5. Create DMG disk image
+6. Generate release notes from commits
+7. Create git tag and push to GitHub
+8. Verify release
 
 ### 1. Update Version
 
@@ -50,10 +51,13 @@ settings:
     CURRENT_PROJECT_VERSION: "n"
 ```
 
-### 2. Commit Version Update
+### 2. Run xcodegen and Commit
 
 ```bash
-# Stage version changes and xcodegen output
+# Generate Xcode project (modifies project.pbxproj)
+xcodegen generate
+
+# Stage version and xcodegen changes
 git add project.yml ClipFlow.xcodeproj/
 
 # Commit with conventional format (English only)
