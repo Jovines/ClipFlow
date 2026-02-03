@@ -112,13 +112,15 @@ struct FloatingWindowView: View {
                 )
                 .frame(width: 680, height: 480)
             } else {
-                TagSidebarView(
-                    tagService: tagService,
-                    selectedTagIds: $selectedTagIds,
-                    onCreateTag: createNewTag,
-                    onManageTags: openTagManagement
-                )
-                .frame(height: 420)
+                if !tagService.allTags.isEmpty {
+                    TagSidebarView(
+                        tagService: tagService,
+                        selectedTagIds: $selectedTagIds,
+                        onCreateTag: createNewTag,
+                        onManageTags: openTagManagement
+                    )
+                    .frame(height: 420)
+                }
 
                 VStack(spacing: 0) {
                     HeaderBar(
@@ -130,7 +132,7 @@ struct FloatingWindowView: View {
                     Divider()
                     contentView
                 }
-                .frame(width: 280, height: 420)
+                .frame(width: tagService.allTags.isEmpty ? 360 : 280, height: 420)
             }
 
             if isEditing {
