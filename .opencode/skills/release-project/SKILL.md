@@ -28,6 +28,8 @@ Use this when releasing a new version of ClipFlow. The skill will prompt for ver
 
 Always use `xcodebuild build` instead of `xcodebuild archive` for Release builds. SwiftLint errors will cause `archive` to fail, but `build` succeeds (linting warnings don't block the build).
 
+Before releasing, always run `git status` to check for any uncommitted changes (like `project.pbxproj` from `xcodegen generate`) that should be included.
+
 ## Release Steps
 
 1. Update version in `project.yml`
@@ -51,7 +53,7 @@ settings:
 ### 2. Commit Version Update
 
 ```bash
-# Stage the version changes
+# Stage version changes and xcodegen output
 git add project.yml ClipFlow.xcodeproj/
 
 # Commit with conventional format (English only)
