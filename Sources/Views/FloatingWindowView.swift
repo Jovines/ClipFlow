@@ -34,20 +34,20 @@ struct FloatingWindowView: View {
     }
 
     private var groupedItems: [(groupInfo: GroupInfo, items: [ClipboardItem])] {
-        let items = clipboardMonitor.capturedItems
-        let visibleItems = Array(items.prefix(maxVisibleItems))
-        let remainingItems = Array(items.dropFirst(maxVisibleItems))
+        let filteredItems = filterItemsByTags(clipboardMonitor.capturedItems)
+        let visibleItems = Array(filteredItems.prefix(maxVisibleItems))
+        let remainingItems = Array(filteredItems.dropFirst(maxVisibleItems))
 
         var groups: [(groupInfo: GroupInfo, items: [ClipboardItem])] = []
 
         if !visibleItems.isEmpty {
-            groups.append((GroupInfo(startIndex: 1, endIndex: visibleItems.count, totalCount: items.count), visibleItems))
+            groups.append((GroupInfo(startIndex: 1, endIndex: visibleItems.count, totalCount: filteredItems.count), visibleItems))
         }
 
         for (index, chunk) in remainingItems.chunked(into: 10).enumerated() {
             let startIndex = maxVisibleItems + index * 10 + 1
-            let endIndex = min(startIndex + chunk.count - 1, items.count)
-            groups.append((GroupInfo(startIndex: startIndex, endIndex: endIndex, totalCount: items.count), Array(chunk)))
+            let endIndex = min(startIndex + chunk.count - 1, filteredItems.count)
+            groups.append((GroupInfo(startIndex: startIndex, endIndex: endIndex, totalCount: filteredItems.count), Array(chunk)))
         }
 
         return groups
@@ -80,6 +80,15 @@ struct FloatingWindowView: View {
     @State private var currentProject: Project? = nil
     @State private var itemForAddToProject: ClipboardItem?
 
+    @StateObject private var tagService = TagService.shared
+    @State private var selectedTagIds: Set<UUID> = []
+    @State private var showTagPicker = false
+    @State private var itemForTagPicker: ClipboardItem?
+    @State private var showTagManagement = false
+    @State private var showCreateTagSheet = false
+    @State private var newTagName: String = ""
+    @State private var newTagColorName: String = "blue"
+
     var body: some View {
         let content = contentBuilder
 
@@ -103,6 +112,13 @@ struct FloatingWindowView: View {
                 )
                 .frame(width: 680, height: 480)
             } else {
+                TagSidebarView(
+                    tagService: tagService,
+                    selectedTagIds: $selectedTagIds,
+                    onCreateTag: createNewTag,
+                    onManageTags: openTagManagement
+                )
+
                 VStack(spacing: 0) {
                     HeaderBar(
                         showProjectSelector: $showProjectSelector,
@@ -113,7 +129,7 @@ struct FloatingWindowView: View {
                     Divider()
                     contentView
                 }
-                .frame(width: 360, height: 420)
+                .frame(width: 300, height: 420)
             }
 
             if isEditing {
@@ -152,6 +168,7 @@ struct FloatingWindowView: View {
         .onAppear {
             clipboardMonitor.refresh()
             groupPanelCoordinator.startTracking()
+            tagService.refreshTags()
         }
         .onDisappear {
             groupPanelCoordinator.stopTracking()
@@ -205,6 +222,31 @@ struct FloatingWindowView: View {
                 )
             }
         }
+        .sheet(isPresented: $showTagPicker) {
+            if let item = itemForTagPicker {
+                TagPickerView(item: item, tagService: tagService)
+            }
+        }
+        .sheet(isPresented: $showTagManagement) {
+            TagManagementView(tagService: tagService)
+        }
+        .sheet(isPresented: $showCreateTagSheet) {
+            createTagSheet
+        }
+    }
+
+    private func filterItemsByTags(_ items: [ClipboardItem]) -> [ClipboardItem] {
+        guard !selectedTagIds.isEmpty else { return items }
+        do {
+            let filteredItems = try items.filter { item in
+                let itemTags = try tagService.getTagsForItem(itemId: item.id)
+                let itemTagIds = Set(itemTags.map { $0.id })
+                return !selectedTagIds.isEmpty && !itemTagIds.isEmpty && !selectedTagIds.isDisjoint(with: itemTagIds)
+            }
+            return filteredItems
+        } catch {
+            return items
+        }
     }
 
     private func getVisibleItems() -> [ClipboardItem] {
@@ -257,6 +299,7 @@ struct FloatingWindowView: View {
                     onEdit: { startEdit(item) },
                     onDelete: { clipboardMonitor.deleteItem(item) },
                     onAddToProject: { showAddToProject(for: item) },
+                    onManageTags: { showTagPicker(for: item) },
                     panelCoordinator: groupPanelCoordinator
                 )
             }
@@ -375,7 +418,7 @@ struct FloatingWindowView: View {
     }
 
     private var items: [ClipboardItem] {
-        clipboardMonitor.capturedItems
+        filterItemsByTags(clipboardMonitor.capturedItems)
     }
 
     private func handleKeyPress(_ press: KeyPress) -> KeyPress.Result {
@@ -402,6 +445,105 @@ struct FloatingWindowView: View {
     private func showAddToProject(for item: ClipboardItem) {
         itemForAddToProject = item
         showAddToProjectSelector = true
+    }
+
+    private func showTagPicker(for item: ClipboardItem) {
+        itemForTagPicker = item
+        showTagPicker = true
+    }
+
+    private func createNewTag() {
+        newTagName = ""
+        newTagColorName = "blue"
+        showCreateTagSheet = true
+    }
+
+    private func openTagManagement() {
+        showTagManagement = true
+    }
+
+    private var createTagSheet: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("Create Tag")
+                    .font(.headline)
+                Spacer()
+                Button(action: { showCreateTagSheet = false }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+
+            Divider()
+
+            TextField("Tag name", text: $newTagName)
+                .textFieldStyle(.plain)
+                .font(.system(size: 14))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(Color.flexokiBase200)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .padding(.horizontal, 12)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Color")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
+
+                HStack(spacing: 8) {
+                    ForEach(Tag.availableColors, id: \.name) { colorOption in
+                        Circle()
+                            .fill(Color.hex(colorOption.hex))
+                            .frame(width: 24, height: 24)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.flexokiBorder, lineWidth: newTagColorName == colorOption.name ? 2 : 0)
+                            )
+                            .onTapGesture {
+                                newTagColorName = colorOption.name
+                            }
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+            .padding(.horizontal, 12)
+
+            Spacer()
+
+            HStack(spacing: 8) {
+                Button(action: { showCreateTagSheet = false }) {
+                    Text("Cancel")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+
+                Button(action: saveNewTag) {
+                    Text("Create")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+                .disabled(newTagName.isEmpty)
+            }
+            .padding(.horizontal, 12)
+            .padding(.bottom, 12)
+        }
+        .frame(width: 260, height: 200)
+        .background(Color.flexokiSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private func saveNewTag() {
+        guard !newTagName.isEmpty else { return }
+        do {
+            _ = try tagService.createTag(name: newTagName, color: Tag.colorForName(newTagColorName))
+            showCreateTagSheet = false
+        } catch {
+            print("[FloatingWindowView] Failed to create tag: \(error)")
+        }
     }
 }
 

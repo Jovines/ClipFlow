@@ -71,6 +71,21 @@ final class DatabaseManager: @unchecked Sendable {
             t.column("contentHash", .integer).notNull().defaults(to: 0)
         }
 
+        try db.create(table: "tags", ifNotExists: true) { t in
+            t.column("id", .text).primaryKey()
+            t.column("name", .text).notNull().unique()
+            t.column("color", .text).notNull()
+            t.column("createdAt", .datetime).notNull()
+        }
+
+        try db.execute(sql: """
+            CREATE TABLE IF NOT EXISTS clipboard_items_tags (
+                clipboardItemId TEXT NOT NULL,
+                tagId TEXT NOT NULL,
+                PRIMARY KEY (clipboardItemId, tagId)
+            )
+        """)
+
         try db.create(table: "projects", ifNotExists: true) { t in
             t.column("id", .text).primaryKey()
             t.column("name", .text).notNull()
@@ -117,6 +132,33 @@ final class DatabaseManager: @unchecked Sendable {
         _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_cognitions_project ON project_cognitions(projectId)")
 
         try migratePromptTemplates(db: db)
+        try migrateTags(db: db)
+    }
+
+    private static func migrateTags(db: Database) throws {
+        let tagsTableExists = try Int.fetchOne(db, sql: """
+            SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='tags'
+            """) ?? 0
+
+        if tagsTableExists == 0 {
+            try db.create(table: "tags", ifNotExists: true) { t in
+                t.column("id", .text).primaryKey()
+                t.column("name", .text).notNull().unique()
+                t.column("color", .text).notNull()
+                t.column("createdAt", .datetime).notNull()
+            }
+
+            try db.execute(sql: """
+                CREATE TABLE IF NOT EXISTS clipboard_items_tags (
+                    clipboardItemId TEXT NOT NULL,
+                    tagId TEXT NOT NULL,
+                    PRIMARY KEY (clipboardItemId, tagId)
+                )
+            """)
+
+            _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_items_tags_item ON clipboard_items_tags(clipboardItemId)")
+            _ = try? db.execute(sql: "CREATE INDEX IF NOT EXISTS idx_items_tags_tag ON clipboard_items_tags(tagId)")
+        }
     }
 
     private static func migratePromptTemplates(db: Database) throws {
@@ -301,6 +343,91 @@ final class DatabaseManager: @unchecked Sendable {
                 SELECT COUNT(*) FROM clipboard_items WHERE contentHash = ?
             """, arguments: [hash]) ?? 0
             return count > 0
+        }
+    }
+
+    func createTag(name: String, color: String) throws -> Tag {
+        let tag = Tag(name: name, color: color)
+        try dbPool.write { db in
+            try tag.insert(db)
+        }
+        return tag
+    }
+
+    func fetchAllTags() throws -> [Tag] {
+        try dbPool.read { db in
+            try Tag.order(Column("createdAt").desc).fetchAll(db)
+        }
+    }
+
+    func fetchTag(by id: UUID) throws -> Tag? {
+        try dbPool.read { db in
+            try Tag.fetchOne(db, key: ["id": id.uuidString])
+        }
+    }
+
+    func deleteTag(id: UUID) throws {
+        try dbPool.write { db in
+            try Tag.deleteOne(db, key: ["id": id.uuidString])
+        }
+    }
+
+    func updateTag(id: UUID, name: String, color: String) throws {
+        try dbPool.write { db in
+            guard var tag = try Tag.fetchOne(db, key: ["id": id.uuidString]) else { return }
+            tag.name = name
+            tag.color = color
+            try tag.update(db)
+        }
+    }
+
+    func addTagToItem(itemId: UUID, tagId: UUID) throws {
+        try dbPool.write { db in
+            try db.execute(sql: """
+                INSERT OR IGNORE INTO clipboard_items_tags (clipboardItemId, tagId)
+                VALUES (?, ?)
+            """, arguments: [itemId.uuidString, tagId.uuidString])
+        }
+    }
+
+    func removeTagFromItem(itemId: UUID, tagId: UUID) throws {
+        try dbPool.write { db in
+            try db.execute(sql: """
+                DELETE FROM clipboard_items_tags WHERE clipboardItemId = ? AND tagId = ?
+            """, arguments: [itemId.uuidString, tagId.uuidString])
+        }
+    }
+
+    func fetchTagsForItem(itemId: UUID) throws -> [Tag] {
+        try dbPool.read { db in
+            let sql = """
+                SELECT t.* FROM tags t
+                INNER JOIN clipboard_items_tags it ON t.id = it.tagId
+                WHERE it.clipboardItemId = ?
+                ORDER BY t.createdAt DESC
+            """
+            return try Tag.fetchAll(db, sql: sql, arguments: [itemId.uuidString])
+        }
+    }
+
+    func fetchItemsForTag(tagId: UUID) throws -> [ClipboardItem] {
+        try dbPool.read { db in
+            let sql = """
+                SELECT i.* FROM clipboard_items i
+                INNER JOIN clipboard_items_tags it ON i.id = it.clipboardItemId
+                WHERE it.tagId = ?
+                ORDER BY i.createdAt DESC
+            """
+            return try ClipboardItem.fetchAll(db, sql: sql, arguments: [tagId.uuidString])
+        }
+    }
+
+    func searchTags(query: String) throws -> [Tag] {
+        try dbPool.read { db in
+            let sql = """
+                SELECT * FROM tags WHERE name LIKE ? ORDER BY createdAt DESC
+            """
+            return try Tag.fetchAll(db, sql: sql, arguments: ["%\(query)%"])
         }
     }
 

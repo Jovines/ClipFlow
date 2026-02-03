@@ -72,6 +72,7 @@ struct CompactItemRow: View {
     let onEdit: () -> Void
     let onDelete: () -> Void
     let onAddToProject: () -> Void
+    let onManageTags: () -> Void
     @ObservedObject var panelCoordinator: GroupPanelCoordinator
     @State private var isHovered = false
 
@@ -81,7 +82,29 @@ struct CompactItemRow: View {
 
             Spacer()
 
+            if !itemTags.isEmpty {
+                HStack(spacing: 2) {
+                    ForEach(Array(itemTags.prefix(3))) { tag in
+                        Circle()
+                            .fill(Color.hex(tag.color))
+                            .frame(width: 6, height: 6)
+                    }
+                    if itemTags.count > 3 {
+                        Text("+\(itemTags.count - 3)")
+                            .font(.system(size: 9))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
             if isHovered {
+                Button(action: onManageTags) {
+                    Image(systemName: "tag")
+                        .font(.system(size: 10))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.flexokiTextSecondary)
+
                 Button(action: onAddToProject) {
                     Image(systemName: "folder.badge.plus")
                         .font(.system(size: 10))
@@ -117,6 +140,30 @@ struct CompactItemRow: View {
             }
         }
         .onTapGesture(perform: onSelect)
+        .contextMenu {
+            Button(action: onManageTags) {
+                Label("Manage Tags", systemImage: "tag")
+            }
+            Button(action: onAddToProject) {
+                Label("Add to Project", systemImage: "folder.badge.plus")
+            }
+            Divider()
+            Button(action: onEdit) {
+                Label("Edit", systemImage: "pencil")
+            }
+            Divider()
+            Button(role: .destructive, action: onDelete) {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+    }
+
+    private var itemTags: [Tag] {
+        do {
+            return try TagService.shared.getTagsForItem(itemId: item.id)
+        } catch {
+            return []
+        }
     }
 
     private var contentPreview: some View {
