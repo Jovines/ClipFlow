@@ -161,7 +161,8 @@ struct ProjectModeView: View {
             let cognitionChanged = (self.cognition?.id != newCognition?.id) ||
                                   (self.cognition?.createdAt != newCognition?.createdAt)
             let inputsChanged = self.rawInputs.count != newRawInputs.count ||
-                               Set(self.rawInputs.map { $0.input.id }) != Set(newRawInputs.map { $0.input.id })
+                                Set(self.rawInputs.map { $0.input.id }) != Set(newRawInputs.map { $0.input.id }) ||
+                                zip(self.rawInputs, newRawInputs).contains { $0.input.sourceContext != $1.input.sourceContext }
             
             if cognitionChanged || inputsChanged {
                 self.cognition = newCognition
@@ -187,10 +188,8 @@ struct ProjectModeView: View {
     
     private func updateItemAndSource(itemId: UUID, content: String, sourceContext: String?) {
         do {
-            // Update item content
             try DatabaseManager.shared.updateItemContent(id: itemId, content: content)
             
-            // Find and update the raw input's source context
             if let tuple = rawInputs.first(where: { $0.item?.id == itemId }) {
                 try projectService.updateRawInputSourceContext(id: tuple.input.id, sourceContext: sourceContext)
             }
@@ -202,6 +201,40 @@ struct ProjectModeView: View {
         }
     }
     
+    private func sendNotification(projectName: String) {
+        let notification = NSUserNotification()
+        notification.title = "AI 分析完成"
+        notification.informativeText = "项目「\(projectName)」的 AI 分析已完成"
+        notification.soundName = NSUserNotificationDefaultSoundName
+        NSUserNotificationCenter.default.deliver(notification)
+    }
+    
+    private func formatErrorMessage(_ error: Error) -> String {
+        let message = error.localizedDescription
+        
+        if message.contains("API") || message.contains("APIKey") || message.contains("not configured") {
+            return "AI 服务未配置或配置无效。请在设置中检查 API Key 是否正确。"
+        }
+        
+        if message.contains("network") || message.contains("Connection") || message.contains("timeout") {
+            return "网络连接失败，请检查网络设置后重试。"
+        }
+        
+        if message.contains("rate limit") || message.contains("quota") {
+            return "API 调用次数已达上限，请稍后再试或升级配额。"
+        }
+        
+        if message.contains("invalid request") || message.contains("bad request") {
+            return "请求参数无效，请检查 AI 服务商设置。"
+        }
+        
+        if message.contains("model") || message.contains("model not found") {
+            return "AI 模型不存在，请检查设置中的模型名称是否正确。"
+        }
+        
+        return message
+    }
+
     private func performAnalysis() {
         guard !isAnalyzing else { 
             print("[ProjectMode] Analysis already in progress")
@@ -283,13 +316,16 @@ struct ProjectModeView: View {
                     print("[ProjectMode] 🔄 Refreshing data...")
                     self.loadData()
                     print("[ProjectMode] ✨ Analysis complete!")
+                    if !FloatingWindowManager.shared.isWindowVisible {
+                        self.sendNotification(projectName: project.name)
+                    }
                 }
                 
             } catch {
                 print("[ProjectMode] ❌ Analysis failed: \(error)")
                 await MainActor.run {
                     self.isAnalyzing = false
-                    self.analysisError = error.localizedDescription
+                    self.analysisError = self.formatErrorMessage(error)
                 }
             }
         }
