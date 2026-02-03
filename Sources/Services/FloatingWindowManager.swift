@@ -22,8 +22,8 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
     private let windowWidth: CGFloat = 360
     private let projectWindowWidth: CGFloat = 680
     private let windowHeight: CGFloat = 480
-    private let maxVisibleItems = 10
-    private let itemsPerGroup = 10
+    private let maxVisibleItems = 15
+    private let itemsPerGroup = 15
 
     private init(clipboardMonitor: ClipboardMonitor = .shared) {
         self.clipboardMonitor = clipboardMonitor

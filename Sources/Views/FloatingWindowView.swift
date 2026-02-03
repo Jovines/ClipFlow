@@ -46,8 +46,8 @@ struct FloatingWindowView: View {
             groups.append((GroupInfo(startIndex: 1, endIndex: visibleItems.count, totalCount: filteredItems.count), visibleItems))
         }
 
-        for (index, chunk) in remainingItems.chunked(into: 10).enumerated() {
-            let startIndex = maxVisibleItems + index * 10 + 1
+        for (index, chunk) in remainingItems.chunked(into: 15).enumerated() {
+            let startIndex = maxVisibleItems + index * 15 + 1
             let endIndex = min(startIndex + chunk.count - 1, filteredItems.count)
             groups.append((GroupInfo(startIndex: startIndex, endIndex: endIndex, totalCount: filteredItems.count), Array(chunk)))
         }
