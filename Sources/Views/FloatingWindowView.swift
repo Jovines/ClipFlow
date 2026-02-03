@@ -81,7 +81,7 @@ struct FloatingWindowView: View {
     @State private var itemForAddToProject: ClipboardItem?
 
     @StateObject private var tagService = TagService.shared
-    @State private var selectedTagIds: Set<UUID> = []
+    @State private var selectedTagIds: [UUID] = []
     @State private var showTagPicker = false
     @State private var itemForTagPicker: ClipboardItem?
     @State private var showTagManagement = false
@@ -243,8 +243,8 @@ struct FloatingWindowView: View {
         do {
             let filteredItems = try items.filter { item in
                 let itemTags = try tagService.getTagsForItem(itemId: item.id)
-                let itemTagIds = Set(itemTags.map { $0.id })
-                return !selectedTagIds.isEmpty && !itemTagIds.isEmpty && !selectedTagIds.isDisjoint(with: itemTagIds)
+                let itemTagIds = itemTags.map { $0.id }
+                return !selectedTagIds.isEmpty && !itemTagIds.isEmpty && !Set(selectedTagIds).isDisjoint(with: itemTagIds)
             }
             return filteredItems
         } catch {

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TagSidebarView: View {
     @ObservedObject var tagService: TagService
-    @Binding var selectedTagIds: Set<UUID>
+    @Binding var selectedTagIds: [UUID]
     let onCreateTag: () -> Void
     let onManageTags: () -> Void
 
@@ -47,10 +47,10 @@ struct TagSidebarView: View {
     }
 
     private func toggleTag(_ tagId: UUID) {
-        if selectedTagIds.contains(tagId) {
-            selectedTagIds.remove(tagId)
+        if let index = selectedTagIds.firstIndex(of: tagId) {
+            selectedTagIds.remove(at: index)
         } else {
-            selectedTagIds.insert(tagId)
+            selectedTagIds.append(tagId)
         }
     }
 }
