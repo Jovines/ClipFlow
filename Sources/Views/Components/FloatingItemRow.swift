@@ -109,7 +109,12 @@ struct FloatingItemRow: View {
         Group {
             switch item.contentType {
             case .text:
-                Text(item.content)
+                let cleanedContent = item.content
+                    .replacingOccurrences(of: "\n", with: " ")
+                    .replacingOccurrences(of: "\r", with: " ")
+                    .replacingOccurrences(of: "  ", with: " ")
+                    .trimmingCharacters(in: .whitespaces)
+                Text(cleanedContent)
             case .image:
                 Text("Image")
             }
