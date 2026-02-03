@@ -138,26 +138,28 @@ struct TagRowView: View {
     let onToggle: () -> Void
 
     var body: some View {
-        Button(action: onToggle) {
-            HStack(spacing: 6) {
-                Circle()
-                    .fill(Color.hex(tag.color))
-                    .frame(width: 8, height: 8)
+        HStack(spacing: 6) {
+            Circle()
+                .fill(Color.hex(tag.color))
+                .frame(width: 8, height: 8)
 
-                Text(tag.name)
-                    .font(.system(size: 12))
+            Text(tag.name)
+                .font(.system(size: 12))
 
-                Spacer()
+            Spacer()
 
-                Image(systemName: isAttached ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: 12))
-                    .foregroundStyle(isAttached ? Color.hex(tag.color) : .secondary)
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(isAttached ? Color.hex(tag.color).opacity(0.1) : Color.flexokiSurface)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
+            Image(systemName: isAttached ? "checkmark.circle.fill" : "circle")
+                .font(.system(size: 12))
+                .foregroundStyle(isAttached ? Color.hex(tag.color) : .secondary)
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(isAttached ? Color.hex(tag.color).opacity(0.1) : Color.flexokiSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .contentShape(Rectangle())
+        .onTapGesture {
+            print("[TagRowView] tapped tag: \(tag.name), isAttached=\(isAttached)")
+            onToggle()
+        }
     }
 }
