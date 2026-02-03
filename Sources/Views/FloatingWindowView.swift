@@ -75,8 +75,10 @@ struct FloatingWindowView: View {
 
     @State private var showProjectSelector = false
     @State private var showCreateProjectSheet = false
+    @State private var showAddToProjectSelector = false
     @State private var isProjectMode = false
     @State private var currentProject: Project? = nil
+    @State private var itemForAddToProject: ClipboardItem?
 
     var body: some View {
         let content = contentBuilder
@@ -138,6 +140,7 @@ struct FloatingWindowView: View {
                     },
                     onItemEdit: startEdit,
                     onItemDelete: { clipboardMonitor.deleteItem($0) },
+                    onAddToProject: { showAddToProject(for: $0) },
                     onHide: { groupPanelCoordinator.hidePanel() }
                 )
                 .frame(width: groupPanelWidth, height: 420)
@@ -191,6 +194,17 @@ struct FloatingWindowView: View {
                 }
             )
         }
+        .sheet(isPresented: $showAddToProjectSelector) {
+            if let item = itemForAddToProject {
+                AddToProjectSelectorView(
+                    isPresented: $showAddToProjectSelector,
+                    clipboardItem: item,
+                    onAdded: {
+                        ClipFlowLogger.info("✅ Item added to project: \(item.id)")
+                    }
+                )
+            }
+        }
     }
 
     private func getVisibleItems() -> [ClipboardItem] {
@@ -242,6 +256,7 @@ struct FloatingWindowView: View {
                     onSelect: { handleItemSelection(item) },
                     onEdit: { startEdit(item) },
                     onDelete: { clipboardMonitor.deleteItem(item) },
+                    onAddToProject: { showAddToProject(for: item) },
                     panelCoordinator: groupPanelCoordinator
                 )
             }
@@ -259,6 +274,7 @@ struct FloatingWindowView: View {
             onItemSelected: handleItemSelection,
             onItemEdit: startEdit,
             onItemDelete: { clipboardMonitor.deleteItem($0) },
+            onAddToProject: { showAddToProject(for: $0) },
             panelCoordinator: groupPanelCoordinator
         )
     }
@@ -381,6 +397,11 @@ struct FloatingWindowView: View {
     }
 
     private func resetSearch() {
+    }
+
+    private func showAddToProject(for item: ClipboardItem) {
+        itemForAddToProject = item
+        showAddToProjectSelector = true
     }
 }
 

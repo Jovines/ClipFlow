@@ -8,6 +8,7 @@ struct GroupPanelView: View {
     let onItemSelected: (ClipboardItem) -> Void
     let onItemEdit: (ClipboardItem) -> Void
     let onItemDelete: (ClipboardItem) -> Void
+    let onAddToProject: (ClipboardItem) -> Void
     let onHide: () -> Void
 
     private let panelWidth: CGFloat = 300
@@ -58,7 +59,8 @@ struct GroupPanelView: View {
                             onHide()
                         },
                         onEdit: { onItemEdit(item) },
-                        onDelete: { onItemDelete(item) }
+                        onDelete: { onItemDelete(item) },
+                        onAddToProject: { onAddToProject(item) }
                     )
                 }
             }

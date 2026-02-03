@@ -1,6 +1,7 @@
 import Foundation
 import AppKit
 
+@MainActor
 final class NotificationService {
     static let shared = NotificationService()
 

@@ -6,6 +6,7 @@ struct FloatingItemRow: View {
     let onSelect: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
+    let onAddToProject: () -> Void
     let clipboardMonitor: ClipboardMonitor
     @State private var isHovered = false
 
@@ -16,6 +17,13 @@ struct FloatingItemRow: View {
             Spacer()
 
             if isHovered && !isEditing {
+                Button(action: onAddToProject) {
+                    Image(systemName: "folder.badge.plus")
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.flexokiAccent)
+
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
                         .font(.system(size: 12))

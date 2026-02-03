@@ -9,6 +9,7 @@ struct GroupView: View {
     let onItemSelected: (ClipboardItem) -> Void
     let onItemEdit: (ClipboardItem) -> Void
     let onItemDelete: (ClipboardItem) -> Void
+    let onAddToProject: (ClipboardItem) -> Void
     @ObservedObject var panelCoordinator: GroupPanelCoordinator
 
     @State private var isHovered = false
@@ -70,6 +71,7 @@ struct CompactItemRow: View {
     let onSelect: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
+    let onAddToProject: () -> Void
     @ObservedObject var panelCoordinator: GroupPanelCoordinator
     @State private var isHovered = false
 
@@ -80,6 +82,13 @@ struct CompactItemRow: View {
             Spacer()
 
             if isHovered {
+                Button(action: onAddToProject) {
+                    Image(systemName: "folder.badge.plus")
+                        .font(.system(size: 10))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.flexokiAccent)
+
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
                         .font(.system(size: 10))
@@ -138,6 +147,7 @@ struct GroupPanelItemRow: View {
     let onSelect: () -> Void
     let onEdit: () -> Void
     let onDelete: () -> Void
+    let onAddToProject: () -> Void
     @State private var isHovered = false
 
     var body: some View {
@@ -147,6 +157,13 @@ struct GroupPanelItemRow: View {
             Spacer()
 
             if isHovered {
+                Button(action: onAddToProject) {
+                    Image(systemName: "folder.badge.plus")
+                        .font(.system(size: 10))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(Color.flexokiAccent)
+
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
                         .font(.system(size: 10))
