@@ -12,7 +12,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         checkAndRequestAccessibilityPermission()
         setupWindowFocusMonitoring()
         setupWindowNotifications()
-        print("[INFO] 应用启动，当前窗口: \(NSApp.windows.map { "\($0.title):\($0.isVisible)" })")
     }
 
     private func setupWindowNotifications() {
@@ -26,7 +25,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func windowDidClose(_ notification: Notification) {
         if let window = notification.object as? NSWindow {
-            print("[INFO] 窗口关闭: \(window.title), 剩余窗口: \(NSApp.windows.map { "\($0.title):\($0.isVisible)" })")
         }
     }
 
@@ -39,8 +37,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if hasCheckedPermission {
             let trusted = AXIsProcessTrustedWithOptions(nil)
             let hasShortcut = HotKeyManager.shared.currentShortcut != nil
-            ClipFlowLogger.info("DidBecomeActive - trusted: \(trusted), hasShortcut: \(hasShortcut)")
-            
+
             if trusted && !hasShortcut {
                 registerGlobalShortcut()
             }
@@ -55,7 +52,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         hasCheckedPermission = true
         
         let trusted = AXIsProcessTrustedWithOptions(nil)
-        ClipFlowLogger.info("Initial permission check - trusted: \(trusted)")
         
         if trusted {
             registerGlobalShortcut()
@@ -63,24 +59,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let promptKey = "AXTrustedCheckOptionPrompt"
             let options: [String: Bool] = [promptKey: true]
             AXIsProcessTrustedWithOptions(options as CFDictionary)
-            ClipFlowLogger.info("System permission prompt shown")
         }
     }
 
     private func registerGlobalShortcut() {
         let shortcut = HotKeyManager.shared.loadSavedShortcut()
-        ClipFlowLogger.info("Attempting to register shortcut: \(shortcut.displayString)")
         
         let success = HotKeyManager.shared.register(shortcut)
         
         if success {
             HotKeyManager.shared.onHotKeyPressed = { [weak self] in
-                ClipFlowLogger.info("Hotkey pressed!")
                 self?.toggleFloatingWindow()
             }
-            ClipFlowLogger.info("Global shortcut registered successfully: \(shortcut.displayString)")
-        } else {
-            ClipFlowLogger.error("Failed to register global shortcut: \(shortcut.displayString)")
         }
     }
 

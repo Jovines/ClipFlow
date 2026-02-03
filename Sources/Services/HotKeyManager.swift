@@ -113,7 +113,6 @@ final class HotKeyManager: @unchecked Sendable {
         currentShortcut = shortcut
         startMonitoring(shortcut)
         saveShortcut(shortcut)
-        print("[INFO] HotKeyManager - Registered shortcut: \(shortcut.displayString)")
         return true
     }
 

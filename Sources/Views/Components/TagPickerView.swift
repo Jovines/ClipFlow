@@ -6,6 +6,8 @@ struct TagPickerView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var newTagName: String = ""
     @State private var showCreateTag: Bool = false
+    @State private var itemTagsData: [Tag] = []
+    @State private var isLoading = true
 
     var body: some View {
         VStack(spacing: 0) {
@@ -66,19 +68,26 @@ struct TagPickerView: View {
         .frame(width: 220, height: 280)
         .background(Color.flexokiSurface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .onAppear { loadTags() }
     }
 
     private var itemTags: [Tag] {
-        do {
-            return try tagService.getTagsForItem(itemId: item.id)
-        } catch {
-            return []
-        }
+        itemTagsData
     }
 
     private var availableTags: [Tag] {
-        let itemTagIds = Set(itemTags.map { $0.id })
+        let itemTagIds = Set(itemTagsData.map { $0.id })
         return tagService.allTags.filter { !itemTagIds.contains($0.id) }
+    }
+
+    private func loadTags() {
+        isLoading = true
+        do {
+            itemTagsData = try tagService.getTagsForItem(itemId: item.id)
+        } catch {
+            itemTagsData = []
+        }
+        isLoading = false
     }
 
     private var createTagView: some View {
@@ -115,6 +124,7 @@ struct TagPickerView: View {
         do {
             try tagService.toggleTagOnItem(itemId: item.id, tagId: tagId)
             tagService.refreshTags()
+            loadTags()
         } catch {
             print("[TagPickerView] Failed to toggle tag: \(error)")
         }

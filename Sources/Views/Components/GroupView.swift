@@ -156,15 +156,23 @@ struct CompactItemRow: View {
                 Label("Delete", systemImage: "trash")
             }
         }
+        .onAppear { loadItemTags() }
     }
 
+    @State private var itemTagsData: [Tag] = []
+
     private var itemTags: [Tag] {
+        itemTagsData
+    }
+
+    private func loadItemTags() {
         do {
-            return try TagService.shared.getTagsForItem(itemId: item.id)
+            itemTagsData = try TagService.shared.getTagsForItem(itemId: item.id)
         } catch {
-            return []
+            itemTagsData = []
         }
     }
+
 
     private var contentPreview: some View {
         HStack(spacing: 6) {

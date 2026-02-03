@@ -10,7 +10,6 @@ struct MenuBarPopoverView: View {
                 icon: "gear",
                 label: "设置",
                 action: {
-                    print("[INFO] MenuBarPopoverView - 点击设置")
                     FloatingWindowManager.shared.hideWindow()
                     dismiss()
                     SettingsWindowManager.shared.show()
@@ -24,16 +23,12 @@ struct MenuBarPopoverView: View {
                 icon: "power",
                 label: "退出",
                 action: {
-                    print("[INFO] MenuBarPopoverView - 点击退出")
                     NSApplication.shared.terminate(nil)
                 }
             )
         }
         .padding(.vertical, 4)
         .frame(width: 160)
-        .task {
-            print("[INFO] MenuBarPopoverView - 出现，当前窗口: \(NSApp.windows.map { "\($0.title):\($0.isVisible)" })")
-        }
     }
 }
 

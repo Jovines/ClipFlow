@@ -342,12 +342,6 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
         let screenFrame = screen.visibleFrame
         let screenFrameFull = screen.frame
 
-        ClipFlowLogger.debug("=== Position Debug ===")
-        ClipFlowLogger.debug("Mouse location: (\(mouseLocation.x), \(mouseLocation.y))")
-        ClipFlowLogger.debug("Screen full frame: minX=\(screenFrameFull.minX), maxX=\(screenFrameFull.maxX), minY=\(screenFrameFull.minY), maxY=\(screenFrameFull.maxY)")
-        ClipFlowLogger.debug("Screen visible frame: minX=\(screenFrame.minX), maxX=\(screenFrame.maxX), minY=\(screenFrame.minY), maxY=\(screenFrame.maxY)")
-        ClipFlowLogger.debug("Window size: (\(windowWidthToUse), \(windowHeight))")
-
         let margin: CGFloat = 2
 
         var windowOrigin = NSPoint(x: 0, y: 0)
@@ -371,39 +365,22 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
         let mouseRelativeY = mouseLocation.y - minY
         let isMouseInLowerHalf = mouseRelativeY > screenHeight * 0.6
         
-        ClipFlowLogger.debug("spaceBelow: \(spaceBelow), spaceAbove: \(spaceAbove), windowHeight: \(windowHeight)")
-        ClipFlowLogger.debug("minY: \(minY), maxY: \(maxY)")
-        ClipFlowLogger.debug("mouseRelativeY: \(mouseRelativeY), screenHeight: \(screenHeight), isMouseInLowerHalf: \(isMouseInLowerHalf)")
-
         if spaceBelow >= windowHeight && (!isMouseInLowerHalf || spaceAbove < windowHeight) {
             windowOrigin.y = mouseLocation.y - windowHeight - margin
-            ClipFlowLogger.debug("Placing window BELOW mouse")
         } else if spaceAbove >= windowHeight {
             windowOrigin.y = mouseLocation.y + margin
-            ClipFlowLogger.debug("Placing window ABOVE mouse")
         } else {
             windowOrigin.y = spaceBelow > spaceAbove ? minY : maxY - windowHeight
-            ClipFlowLogger.debug("Placing window at EDGE: \(spaceBelow > spaceAbove ? "BOTTOM" : "TOP")")
         }
-
-        ClipFlowLogger.debug("Final window origin: (\(windowOrigin.x), \(windowOrigin.y))")
-        ClipFlowLogger.debug("Window will appear at: x=\(Int(windowOrigin.x)), y=\(Int(windowOrigin.y))")
         
         let minValidY = minY
         let maxValidY = maxY - windowHeight
         if windowOrigin.y < minValidY {
-            ClipFlowLogger.debug("WARNING: Window y (\(windowOrigin.y)) < minValidY (\(minValidY)), clamping")
             windowOrigin.y = minValidY
         } else if windowOrigin.y > maxValidY {
-            ClipFlowLogger.debug("WARNING: Window y (\(windowOrigin.y)) > maxValidY (\(maxValidY)), clamping")
             windowOrigin.y = maxValidY
         }
         
-        ClipFlowLogger.debug("Window frame: (\(windowOrigin.x), \(windowOrigin.y)) [\(Int(windowWidthToUse))×\(Int(windowHeight))]")
-        ClipFlowLogger.debug("Mouse to window bottom distance: \(abs(mouseLocation.y - windowOrigin.y))")
-        ClipFlowLogger.debug("Mouse to window top distance: \(abs(mouseLocation.y - (windowOrigin.y + windowHeight)))")
-        ClipFlowLogger.debug("Window placement: \(windowOrigin.y < mouseLocation.y ? "BELOW mouse" : "ABOVE mouse")")
-
         window.setFrameOrigin(windowOrigin)
     }
 
