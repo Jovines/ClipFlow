@@ -1,8 +1,7 @@
 import Foundation
 import Combine
 
-@MainActor
-final class TagService: ObservableObject {
+final class TagService: ObservableObject, @unchecked Sendable {
     static let shared = TagService()
 
     @Published private(set) var allTags: [Tag] = []
@@ -51,7 +50,7 @@ final class TagService: ObservableObject {
         if hasTag {
             try removeTagFromItem(itemId: itemId, tagId: tagId)
         } else {
-            try addTagToItem(itemId: itemId, tagId: tagId)
+            try db.addTagToItem(itemId: itemId, tagId: tagId)
         }
     }
 

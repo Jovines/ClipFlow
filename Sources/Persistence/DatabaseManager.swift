@@ -47,6 +47,8 @@ final class DatabaseManager: @unchecked Sendable {
             print("[Database] Failed to create database: \(error)")
             print("[Database] Attempting to remove old database and retry...")
             try? fileManager.removeItem(at: dbURL)
+            try? fileManager.removeItem(at: dbURL.appendingPathExtension("sqlite-wal"))
+            try? fileManager.removeItem(at: dbURL.appendingPathExtension("sqlite-shm"))
             do {
                 pool = try DatabasePool(path: dbURL.path, configuration: config)
                 try pool?.write { db in
@@ -355,10 +357,9 @@ final class DatabaseManager: @unchecked Sendable {
     }
 
     func fetchAllTags() throws -> [Tag] {
-        let tags = try dbPool.read { db in
+        try dbPool.read { db in
             try Tag.order(Column("createdAt").desc).fetchAll(db)
         }
-        return tags
     }
 
     func fetchTag(by id: UUID) throws -> Tag? {
@@ -402,7 +403,7 @@ final class DatabaseManager: @unchecked Sendable {
     }
 
     func fetchTagsForItem(itemId: UUID) throws -> [Tag] {
-        let tags = try dbPool.read { db in
+        try dbPool.read { db in
             let sql = """
                 SELECT t.* FROM tags t
                 INNER JOIN clipboard_items_tags it ON t.id = it.tagId
@@ -411,11 +412,10 @@ final class DatabaseManager: @unchecked Sendable {
             """
             return try Tag.fetchAll(db, sql: sql, arguments: [itemId.uuidString])
         }
-        return tags
     }
 
     func fetchItemsForTag(tagId: UUID) throws -> [ClipboardItem] {
-        let items = try dbPool.read { db in
+        try dbPool.read { db in
             let sql = """
                 SELECT i.* FROM clipboard_items i
                 INNER JOIN clipboard_items_tags it ON i.id = it.clipboardItemId
@@ -424,8 +424,6 @@ final class DatabaseManager: @unchecked Sendable {
             """
             return try ClipboardItem.fetchAll(db, sql: sql, arguments: [tagId.uuidString])
         }
-        print("[DB] fetchItemsForTag: found \(items.count) items for tag")
-        return items
     }
 
     func searchTags(query: String) throws -> [Tag] {

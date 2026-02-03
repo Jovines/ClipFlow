@@ -168,7 +168,6 @@ struct TagRowView: View {
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())
         .onTapGesture {
-            print("[TagRowView] tapped tag: \(tag.name), isAttached=\(isAttached)")
             onToggle()
         }
     }

@@ -58,6 +58,19 @@ Do NOT build after every code change—only after completing a task. Fix errors 
 - Use `Columns` enum for type-safe column access
 - Define `databaseTableName`
 
+#### UUID Storage Type Consistency
+**Requirement**: When using UUID as a primary key or foreign key, explicitly encode it as TEXT in `encode(to:)`:
+
+```swift
+func encode(to container: inout PersistenceContainer) throws {
+    container[Columns.id] = id.uuidString  // Required: Force TEXT storage
+}
+```
+
+**Why**: GRDB defaults to BLOB storage for UUID. When table columns are defined as `TEXT`, BLOB vs TEXT type mismatch causes JOIN queries to fail silently.
+
+**Verification**: Run `SELECT typeof(column_name) FROM table_name LIMIT 1` to confirm storage type is `text`, not `blob`.
+
 #### SwiftUI Hit Testing
 - When adding `onTapGesture` to container views (`VStack`, `HStack`, `Group`), always add `.contentShape(Rectangle())` before the gesture modifier to ensure the entire view area responds to clicks, not just areas with content
 - Place `.contentShape(Rectangle())` on the outermost view that should respond to taps, not on nested child views

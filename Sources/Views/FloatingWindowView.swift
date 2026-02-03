@@ -110,15 +110,13 @@ struct FloatingWindowView: View {
                 )
                 .frame(width: 680, height: 480)
             } else {
-                if !tagService.allTags.isEmpty {
-                    TagSidebarView(
-                        tagService: tagService,
-                        selectedTagIds: $selectedTagIds,
-                        onCreateTag: createNewTag,
-                        onManageTags: openTagManagement
-                    )
-                    .frame(height: 420)
-                }
+                TagSidebarView(
+                    tagService: tagService,
+                    selectedTagIds: $selectedTagIds,
+                    onCreateTag: createNewTag,
+                    onManageTags: openTagManagement
+                )
+                .frame(height: 420)
 
                 VStack(spacing: 0) {
                     HeaderBar(
@@ -130,7 +128,7 @@ struct FloatingWindowView: View {
                     Divider()
                     contentView
                 }
-                .frame(width: tagService.allTags.isEmpty ? 360 : 280, height: 420)
+                .frame(width: tagService.allTags.isEmpty ? 360 : 280, height: 460)
             }
 
             if isEditing {
@@ -450,7 +448,9 @@ struct FloatingWindowView: View {
     }
 
     private func showTagPicker(for item: ClipboardItem) {
+        ClipFlowLogger.info("🎯 showTagPicker called for item: \(item.id)")
         editingItem = item
+        ClipFlowLogger.info("🎯 editingItem set to: \(String(describing: editingItem))")
     }
 
     private func createNewTag() {

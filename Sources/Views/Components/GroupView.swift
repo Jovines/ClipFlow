@@ -129,7 +129,7 @@ struct CompactItemRow: View {
             }
         }
         .padding(.horizontal, 10)
-        .padding(.vertical, 4)
+        .padding(.vertical, 3)
         .background(isHovered ? Color.flexokiBase200.opacity(0.3) : .clear)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())

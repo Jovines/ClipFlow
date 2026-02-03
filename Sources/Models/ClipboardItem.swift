@@ -123,21 +123,21 @@ struct Tag: Identifiable, Hashable, Codable {
 
 extension Tag: FetchableRecord, PersistableRecord {
     static let databaseTableName = "tags"
-    
+
     enum Columns {
-        static let id = Column(CodingKeys.id)
+        static let id = Column("id")
         static let name = Column(CodingKeys.name)
         static let color = Column(CodingKeys.color)
         static let createdAt = Column(CodingKeys.createdAt)
     }
-    
+
     func encode(to container: inout PersistenceContainer) throws {
-        container[Columns.id] = id
+        container[Columns.id] = id.uuidString
         container[Columns.name] = name
         container[Columns.color] = color
         container[Columns.createdAt] = createdAt
     }
-    
+
     static let availableColors: [(name: String, hex: String)] = [
         ("blue", "#205EA6"),
         ("green", "#66800B"),
@@ -148,11 +148,11 @@ extension Tag: FetchableRecord, PersistableRecord {
         ("yellow", "#AD8301"),
         ("cyan", "#24837B")
     ]
-    
+
     static func colorForName(_ name: String) -> String {
         availableColors.first { $0.name == name }?.hex ?? "#007AFF"
     }
-    
+
     static func nameForColor(_ hex: String) -> String {
         availableColors.first { $0.hex == hex }?.name ?? "blue"
     }
