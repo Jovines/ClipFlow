@@ -347,17 +347,22 @@ final class DatabaseManager: @unchecked Sendable {
     }
 
     func createTag(name: String, color: String) throws -> Tag {
+        print("[DB] createTag: name=\(name), color=\(color)")
         let tag = Tag(name: name, color: color)
         try dbPool.write { db in
             try tag.insert(db)
+            let count = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM tags WHERE id = ?", arguments: [tag.id.uuidString]) ?? 0
+            print("[DB] createTag: inserted, verified count=\(count)")
         }
         return tag
     }
 
     func fetchAllTags() throws -> [Tag] {
-        try dbPool.read { db in
+        let tags = try dbPool.read { db in
             try Tag.order(Column("createdAt").desc).fetchAll(db)
         }
+        print("[DB] fetchAllTags: returned \(tags.count) tags")
+        return tags
     }
 
     func fetchTag(by id: UUID) throws -> Tag? {
@@ -367,39 +372,59 @@ final class DatabaseManager: @unchecked Sendable {
     }
 
     func deleteTag(id: UUID) throws {
+        print("[DB] deleteTag: id=\(id.uuidString)")
         try dbPool.write { db in
             try Tag.deleteOne(db, key: ["id": id.uuidString])
         }
     }
 
     func updateTag(id: UUID, name: String, color: String) throws {
+        print("[DB] updateTag: id=\(id.uuidString), name=\(name), color=\(color)")
         try dbPool.write { db in
-            guard var tag = try Tag.fetchOne(db, key: ["id": id.uuidString]) else { return }
+            guard var tag = try Tag.fetchOne(db, key: ["id": id.uuidString]) else {
+                print("[DB] updateTag: tag not found")
+                return
+            }
             tag.name = name
             tag.color = color
             try tag.update(db)
+            print("[DB] updateTag: updated successfully")
         }
     }
 
     func addTagToItem(itemId: UUID, tagId: UUID) throws {
+        print("[DB] addTagToItem: itemId=\(itemId.uuidString), tagId=\(tagId.uuidString)")
         try dbPool.write { db in
-            try db.execute(sql: """
+            let result = try db.execute(sql: """
                 INSERT OR IGNORE INTO clipboard_items_tags (clipboardItemId, tagId)
                 VALUES (?, ?)
             """, arguments: [itemId.uuidString, tagId.uuidString])
+            print("[DB] addTagToItem: execute result=\(result)")
+
+            let count = try Int.fetchOne(db, sql: """
+                SELECT COUNT(*) FROM clipboard_items_tags WHERE clipboardItemId = ? AND tagId = ?
+            """, arguments: [itemId.uuidString, tagId.uuidString]) ?? 0
+            print("[DB] addTagToItem: verified association count=\(count)")
         }
     }
 
     func removeTagFromItem(itemId: UUID, tagId: UUID) throws {
+        print("[DB] removeTagFromItem: itemId=\(itemId.uuidString), tagId=\(tagId.uuidString)")
         try dbPool.write { db in
             try db.execute(sql: """
                 DELETE FROM clipboard_items_tags WHERE clipboardItemId = ? AND tagId = ?
             """, arguments: [itemId.uuidString, tagId.uuidString])
+
+            let count = try Int.fetchOne(db, sql: """
+                SELECT COUNT(*) FROM clipboard_items_tags WHERE clipboardItemId = ? AND tagId = ?
+            """, arguments: [itemId.uuidString, tagId.uuidString]) ?? 0
+            print("[DB] removeTagFromItem: remaining count=\(count)")
         }
     }
 
     func fetchTagsForItem(itemId: UUID) throws -> [Tag] {
-        try dbPool.read { db in
+        print("[DB] fetchTagsForItem: itemId=\(itemId.uuidString)")
+        let tags = try dbPool.read { db in
             let sql = """
                 SELECT t.* FROM tags t
                 INNER JOIN clipboard_items_tags it ON t.id = it.tagId
@@ -408,10 +433,13 @@ final class DatabaseManager: @unchecked Sendable {
             """
             return try Tag.fetchAll(db, sql: sql, arguments: [itemId.uuidString])
         }
+        print("[DB] fetchTagsForItem: found \(tags.count) tags for item")
+        return tags
     }
 
     func fetchItemsForTag(tagId: UUID) throws -> [ClipboardItem] {
-        try dbPool.read { db in
+        print("[DB] fetchItemsForTag: tagId=\(tagId.uuidString)")
+        let items = try dbPool.read { db in
             let sql = """
                 SELECT i.* FROM clipboard_items i
                 INNER JOIN clipboard_items_tags it ON i.id = it.clipboardItemId
@@ -420,6 +448,8 @@ final class DatabaseManager: @unchecked Sendable {
             """
             return try ClipboardItem.fetchAll(db, sql: sql, arguments: [tagId.uuidString])
         }
+        print("[DB] fetchItemsForTag: found \(items.count) items for tag")
+        return items
     }
 
     func searchTags(query: String) throws -> [Tag] {

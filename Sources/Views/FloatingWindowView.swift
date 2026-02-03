@@ -34,7 +34,9 @@ struct FloatingWindowView: View {
     }
 
     private var groupedItems: [(groupInfo: GroupInfo, items: [ClipboardItem])] {
+        print("[View] groupedItems: called, capturedItemsCount=\(clipboardMonitor.capturedItems.count), selectedTagIds=\(selectedTagIds.map { $0.uuidString.prefix(8) })")
         let filteredItems = filterItemsByTags(clipboardMonitor.capturedItems)
+        print("[View] groupedItems: filteredItemsCount=\(filteredItems.count)")
         let visibleItems = Array(filteredItems.prefix(maxVisibleItems))
         let remainingItems = Array(filteredItems.dropFirst(maxVisibleItems))
 
@@ -50,6 +52,7 @@ struct FloatingWindowView: View {
             groups.append((GroupInfo(startIndex: startIndex, endIndex: endIndex, totalCount: filteredItems.count), Array(chunk)))
         }
 
+        print("[View] groupedItems: returning \(groups.count) groups")
         return groups
     }
 
@@ -239,15 +242,23 @@ struct FloatingWindowView: View {
     }
 
     private func filterItemsByTags(_ items: [ClipboardItem]) -> [ClipboardItem] {
-        guard !selectedTagIds.isEmpty else { return items }
+        print("[Filter] filterItemsByTags: itemsCount=\(items.count), selectedTagIds=\(selectedTagIds.map { $0.uuidString.prefix(8) })")
+        guard !selectedTagIds.isEmpty else {
+            print("[Filter] filterItemsByTags: no tags selected, return all items")
+            return items
+        }
         do {
             let filteredItems = try items.filter { item in
                 let itemTags = try tagService.getTagsForItem(itemId: item.id)
                 let itemTagIds = itemTags.map { $0.id }
-                return !selectedTagIds.isEmpty && !itemTagIds.isEmpty && !Set(selectedTagIds).isDisjoint(with: itemTagIds)
+                let hasMatch = !selectedTagIds.isEmpty && !itemTagIds.isEmpty && !Set(selectedTagIds).isDisjoint(with: itemTagIds)
+                print("[Filter] filterItemsByTags: item=\(item.id.uuidString.prefix(8)), itemTags=\(itemTags.map { $0.name }), hasMatch=\(hasMatch)")
+                return hasMatch
             }
+            print("[Filter] filterItemsByTags: filteredItemsCount=\(filteredItems.count)")
             return filteredItems
         } catch {
+            print("[Filter] filterItemsByTags: error=\(error)")
             return items
         }
     }
