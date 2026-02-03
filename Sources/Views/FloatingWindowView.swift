@@ -118,6 +118,7 @@ struct FloatingWindowView: View {
                     onCreateTag: createNewTag,
                     onManageTags: openTagManagement
                 )
+                .frame(height: 420)
 
                 VStack(spacing: 0) {
                     HeaderBar(
@@ -129,7 +130,7 @@ struct FloatingWindowView: View {
                     Divider()
                     contentView
                 }
-                .frame(width: 300, height: 420)
+                .frame(width: 280, height: 420)
             }
 
             if isEditing {
