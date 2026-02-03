@@ -34,9 +34,7 @@ struct FloatingWindowView: View {
     }
 
     private var groupedItems: [(groupInfo: GroupInfo, items: [ClipboardItem])] {
-        print("[View] groupedItems: called, capturedItemsCount=\(clipboardMonitor.capturedItems.count), selectedTagIds=\(selectedTagIds.map { $0.uuidString.prefix(8) })")
         let filteredItems = filterItemsByTags(clipboardMonitor.capturedItems)
-        print("[View] groupedItems: filteredItemsCount=\(filteredItems.count)")
         let visibleItems = Array(filteredItems.prefix(maxVisibleItems))
         let remainingItems = Array(filteredItems.dropFirst(maxVisibleItems))
 
@@ -52,7 +50,6 @@ struct FloatingWindowView: View {
             groups.append((GroupInfo(startIndex: startIndex, endIndex: endIndex, totalCount: filteredItems.count), Array(chunk)))
         }
 
-        print("[View] groupedItems: returning \(groups.count) groups")
         return groups
     }
 
@@ -84,7 +81,7 @@ struct FloatingWindowView: View {
     @State private var itemForAddToProject: ClipboardItem?
 
     @StateObject private var tagService = TagService.shared
-    @State private var selectedTagIds: [UUID] = []
+    @State private var selectedTagIds: Set<UUID> = []
     @State private var showTagPicker = false
     @State private var itemForTagPicker: ClipboardItem?
     @State private var showTagManagement = false
@@ -115,15 +112,12 @@ struct FloatingWindowView: View {
                 )
                 .frame(width: 680, height: 480)
             } else {
-                if !tagService.allTags.isEmpty {
-                    TagSidebarView(
-                        tagService: tagService,
-                        selectedTagIds: $selectedTagIds,
-                        onCreateTag: createNewTag,
-                        onManageTags: openTagManagement
-                    )
-                    .frame(height: 420)
-                }
+                TagSidebarView(
+                    tagService: tagService,
+                    selectedTagIds: $selectedTagIds,
+                    onCreateTag: createNewTag,
+                    onManageTags: openTagManagement
+                )
 
                 VStack(spacing: 0) {
                     HeaderBar(
@@ -135,7 +129,7 @@ struct FloatingWindowView: View {
                     Divider()
                     contentView
                 }
-                .frame(width: tagService.allTags.isEmpty ? 360 : 280, height: 420)
+                .frame(width: 300, height: 420)
             }
 
             if isEditing {
@@ -242,23 +236,15 @@ struct FloatingWindowView: View {
     }
 
     private func filterItemsByTags(_ items: [ClipboardItem]) -> [ClipboardItem] {
-        print("[Filter] filterItemsByTags: itemsCount=\(items.count), selectedTagIds=\(selectedTagIds.map { $0.uuidString.prefix(8) })")
-        guard !selectedTagIds.isEmpty else {
-            print("[Filter] filterItemsByTags: no tags selected, return all items")
-            return items
-        }
+        guard !selectedTagIds.isEmpty else { return items }
         do {
             let filteredItems = try items.filter { item in
                 let itemTags = try tagService.getTagsForItem(itemId: item.id)
-                let itemTagIds = itemTags.map { $0.id }
-                let hasMatch = !selectedTagIds.isEmpty && !itemTagIds.isEmpty && !Set(selectedTagIds).isDisjoint(with: itemTagIds)
-                print("[Filter] filterItemsByTags: item=\(item.id.uuidString.prefix(8)), itemTags=\(itemTags.map { $0.name }), hasMatch=\(hasMatch)")
-                return hasMatch
+                let itemTagIds = Set(itemTags.map { $0.id })
+                return !selectedTagIds.isEmpty && !itemTagIds.isEmpty && !selectedTagIds.isDisjoint(with: itemTagIds)
             }
-            print("[Filter] filterItemsByTags: filteredItemsCount=\(filteredItems.count)")
             return filteredItems
         } catch {
-            print("[Filter] filterItemsByTags: error=\(error)")
             return items
         }
     }
