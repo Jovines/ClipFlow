@@ -6,6 +6,8 @@ struct ProjectPromptSettingsView: View {
     @Binding var project: Project
     @Environment(\.dismiss) private var dismiss
 
+    var onApply: (() -> Void)?
+
     @State private var selectedTemplateId: UUID?
     @State private var templates: [PromptTemplate] = []
     @State private var showCreateTemplate = false
@@ -288,6 +290,8 @@ struct ProjectPromptSettingsView: View {
         do {
             try projectService.updateProject(updatedProject)
             project = updatedProject
+            dismiss()
+            onApply?()
         } catch {
             print("[ProjectPromptSettings] Failed to apply template: \(error)")
         }

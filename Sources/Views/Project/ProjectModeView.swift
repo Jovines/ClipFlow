@@ -146,7 +146,14 @@ struct ProjectModeView: View {
             ExportProjectView(project: project, onDismiss: { showExportSheet = false })
         }
         .sheet(item: $editingProject) { project in
-            ProjectPromptSettingsView(project: .constant(project))
+            ProjectPromptSettingsView(project: .constant(project)) {
+                checkAndTriggerAnalysis()
+            }
+        }
+        .onChange(of: editingProject) { _, newValue in
+            if newValue == nil {
+                checkAndTriggerAnalysis()
+            }
         }
         .alert("重新分析", isPresented: $showResetConfirmation) {
             Button("取消", role: .cancel) { }
@@ -204,6 +211,17 @@ struct ProjectModeView: View {
             loadData()
         } catch {
             print("[ProjectMode] ❌ Failed to delete raw input: \(error)")
+        }
+    }
+    
+    private func checkAndTriggerAnalysis() {
+        guard unanalyzedCount > 0 else { return }
+        
+        if let updatedProject = projectService.projects.first(where: { $0.id == project.id }) {
+            if updatedProject.selectedPromptTemplateId != project.selectedPromptTemplateId {
+                print("[ProjectMode] Template changed, triggering analysis...")
+                performAnalysis()
+            }
         }
     }
     
