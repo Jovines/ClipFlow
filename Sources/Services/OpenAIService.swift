@@ -40,10 +40,16 @@ final class OpenAIService: ObservableObject, @unchecked Sendable {
     func refreshAllClients() {
         clients.removeAll()
         for provider in availableProviders where !provider.apiKey.isEmpty {
+            guard let url = URL(string: provider.baseURL) else {
+                continue
+            }
+            let host = url.host ?? provider.baseURL
+            let basePath = url.path.isEmpty ? "/v1" : url.path
             let configuration = OpenAI.Configuration(
                 token: provider.apiKey,
-                host: provider.baseURL.replacingOccurrences(of: "https://", with: "").replacingOccurrences(of: "/v1", with: ""),
-                scheme: "https"
+                host: host,
+                scheme: url.scheme ?? "https",
+                basePath: basePath
             )
             clients[provider.id] = OpenAI(configuration: configuration)
         }
