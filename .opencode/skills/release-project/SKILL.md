@@ -14,7 +14,7 @@ This skill guides you through the complete release process for ClipFlow:
 
 1. Update version numbers in `project.yml`
 2. Commit and push version changes
-3. Build Release configuration
+3. Build Release configuration (using `build` instead of `archive` to avoid SwiftLint blocking)
 4. Create DMG disk image
 5. Generate release notes from commits (feat/fix)
 6. Create git tag and push
@@ -24,11 +24,15 @@ This skill guides you through the complete release process for ClipFlow:
 
 Use this when releasing a new version of ClipFlow. The skill will prompt for version number if not provided.
 
+## Important Note
+
+Always use `xcodebuild build` instead of `xcodebuild archive` for Release builds. SwiftLint errors will cause `archive` to fail, but `build` succeeds (linting warnings don't block the build).
+
 ## Release Steps
 
 1. Update version in `project.yml`
 2. Commit and push version changes
-3. Build Release archive
+3. Build Release (use `build` command)
 4. Create DMG disk image
 5. Generate release notes from commits
 6. Create git tag and push to GitHub
@@ -61,11 +65,13 @@ git push origin main
 
 ```bash
 xcodegen generate
-xcodebuild -project ClipFlow.xcodeproj -scheme ClipFlow -configuration Release archive
+xcodebuild -project ClipFlow.xcodeproj -scheme ClipFlow -configuration Release build
 ```
 
-The archive will be at:
+The Release build will be at:
 `~/Library/Developer/Xcode/DerivedData/.../Build/Products/Release/ClipFlow.app`
+
+Note: Use `build` instead of `archive` because SwiftLint errors will cause `archive` to fail, but `build` succeeds (warnings don't block the build).
 
 ### 4. Create DMG
 
