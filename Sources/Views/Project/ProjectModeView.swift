@@ -14,6 +14,8 @@ struct ProjectModeView: View {
     @State private var analysisError: String? = nil
     @State private var showExportSheet = false
     @State private var showPromptSettings = false
+    @State private var showResetConfirmation = false
+    @State private var isResettingAnalysis = false
     @State private var refreshTimer: Timer? = nil
     @State private var leftPanelWidth: CGFloat = 420
     @State private var editingProject: Project?
@@ -35,11 +37,13 @@ struct ProjectModeView: View {
                 rawInputCount: rawInputs.count,
                 unanalyzedCount: unanalyzedCount,
                 isAnalyzing: isAnalyzing,
+                isResettingAnalysis: isResettingAnalysis,
                 errorMessage: analysisError,
                 isAIConfigured: aiService.hasAnyConfiguredProvider,
                 onExit: onExit,
                 onExport: { showExportSheet = true },
                 onAnalyze: performAnalysis,
+                onResetAnalysis: { showResetConfirmation = true },
                 onOpenPromptSettings: { editingProject = project }
             )
             .background(Color.flexokiSurface)
@@ -143,6 +147,14 @@ struct ProjectModeView: View {
         }
         .sheet(item: $editingProject) { project in
             ProjectPromptSettingsView(project: .constant(project))
+        }
+        .alert("重新分析", isPresented: $showResetConfirmation) {
+            Button("取消", role: .cancel) { }
+            Button("继续分析", role: .destructive) {
+                performResetAnalysis()
+            }
+        } message: {
+            Text("此操作将重置所有素材的分析状态，并基于现有素材重新生成认知文档。旧版本认知将保留在历史记录中。")
         }
     }
     
@@ -339,6 +351,83 @@ struct ProjectModeView: View {
             }
         }
     }
+
+    private func performResetAnalysis() {
+        guard !isResettingAnalysis else {
+            print("[ProjectMode] Reset analysis already in progress")
+            return
+        }
+        guard cognition != nil else {
+            print("[ProjectMode] No existing cognition to reset")
+            return
+        }
+        guard !rawInputs.isEmpty else {
+            print("[ProjectMode] No inputs to analyze")
+            return
+        }
+
+        isResettingAnalysis = true
+        analysisError = nil
+        print("[ProjectMode] 🚀 Starting reset analysis...")
+
+        Task {
+            do {
+                try projectService.resetAnalysisState(projectId: project.id)
+                print("[ProjectMode] ✅ Reset analysis state, now triggering analysis...")
+
+                let cognitionService = ProjectCognitionService.shared
+
+                let allInputs: [(source: String?, content: String)] = rawInputs.compactMap { tuple in
+                    guard let item = tuple.item else {
+                        print("[ProjectMode] ⚠️ Skipping input \(tuple.input.id) - no associated item")
+                        return nil
+                    }
+                    return (tuple.input.sourceContext, item.content)
+                }
+
+                guard !allInputs.isEmpty else {
+                    await MainActor.run {
+                        self.isResettingAnalysis = false
+                        self.analysisError = "没有可分析的内容"
+                    }
+                    return
+                }
+
+                print("[ProjectMode] 🆕 Regenerating cognition with \(allInputs.count) inputs...")
+                let content = try await cognitionService.generateInitialCognition(
+                    projectName: project.name,
+                    projectDescription: project.description,
+                    initialInputs: allInputs
+                )
+
+                let inputIds = rawInputs.map { $0.input.id }
+                let savedCognition = try projectService.saveCognition(
+                    projectId: project.id,
+                    content: content,
+                    addedInputIds: inputIds,
+                    changeDescription: "重新分析 - 基于所有素材生成新认知"
+                )
+
+                print("[ProjectMode] ✅ Reset cognition saved: \(savedCognition.id)")
+
+                await MainActor.run {
+                    self.isResettingAnalysis = false
+                    self.loadData()
+                    print("[ProjectMode] ✨ Reset analysis complete!")
+                    if !FloatingWindowManager.shared.isWindowVisible {
+                        self.sendNotification(projectName: project.name)
+                    }
+                }
+
+            } catch {
+                print("[ProjectMode] ❌ Reset analysis failed: \(error)")
+                await MainActor.run {
+                    self.isResettingAnalysis = false
+                    self.analysisError = self.formatErrorMessage(error)
+                }
+            }
+        }
+    }
 }
 
 struct ProjectModeHeader: View {
@@ -346,11 +435,13 @@ struct ProjectModeHeader: View {
     let rawInputCount: Int
     let unanalyzedCount: Int
     let isAnalyzing: Bool
+    let isResettingAnalysis: Bool
     let errorMessage: String?
     let isAIConfigured: Bool
     let onExit: () -> Void
     let onExport: () -> Void
     let onAnalyze: () -> Void
+    let onResetAnalysis: () -> Void
     let onOpenPromptSettings: () -> Void
     
     var body: some View {
@@ -370,7 +461,7 @@ struct ProjectModeHeader: View {
             
             // Status & Actions
             HStack(spacing: 8) {
-                // AI Analysis Button
+                // Incremental Analysis Button
                 if isAIConfigured && unanalyzedCount > 0 {
                     Button(action: onAnalyze) {
                         HStack(spacing: 4) {
@@ -382,7 +473,7 @@ struct ProjectModeHeader: View {
                             } else {
                                 Image(systemName: "wand.and.stars")
                                     .font(.system(size: 10))
-                                Text("AI分析 (\(unanalyzedCount))")
+                                Text("增量分析 (\(unanalyzedCount))")
                             }
                         }
                         .font(.caption)
@@ -390,6 +481,33 @@ struct ProjectModeHeader: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
                     .disabled(isAnalyzing)
+                }
+
+                // Regenerate Button
+                if rawInputCount > 0 && !isAnalyzing && !isResettingAnalysis {
+                    Button(action: onResetAnalysis) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "arrow.counterclockwise")
+                                .font(.system(size: 10))
+                            Text("重新生成")
+                        }
+                        .font(.caption)
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .foregroundStyle(Color.flexokiOrange600)
+                }
+
+                // Resetting Indicator
+                if isResettingAnalysis {
+                    HStack(spacing: 4) {
+                        ProgressView()
+                            .scaleEffect(0.6)
+                            .frame(width: 12, height: 12)
+                        Text("重置中...")
+                    }
+                    .font(.caption)
+                    .foregroundStyle(Color.flexokiOrange600)
                 }
                 
                 // Status Indicator
@@ -748,7 +866,7 @@ struct EmptyCognitionState: View {
                         .multilineTextAlignment(.center)
                     
                     Button(action: onAnalyze) {
-                        Label("开始AI分析", systemImage: "wand.and.stars")
+                        Label("开始分析", systemImage: "wand.and.stars")
                             .font(.system(size: 13, weight: .medium))
                     }
                     .buttonStyle(.borderedProminent)
@@ -766,7 +884,7 @@ struct EmptyCognitionState: View {
                     .font(.headline)
                     .foregroundStyle(Color.flexokiText)
                 
-                Text("复制讨论内容到剪贴板，然后点击AI分析按钮")
+                Text("复制讨论内容到剪贴板，然后点击分析按钮")
                     .font(.caption)
                     .foregroundStyle(Color.flexokiTextSecondary)
                     .multilineTextAlignment(.center)

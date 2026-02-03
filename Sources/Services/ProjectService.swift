@@ -295,6 +295,19 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
         return cognition
     }
     
+    // MARK: - Analysis Reset
+
+    func resetAnalysisState(projectId: UUID) throws {
+        try DatabaseManager.shared.dbPool.write { db in
+            try db.execute(
+                sql: "UPDATE project_raw_inputs SET isAnalyzed = 0 WHERE projectId = ?",
+                arguments: [projectId]
+            )
+        }
+        print("[ProjectService] ✅ Reset analysis state for project: \(projectId)")
+        loadProjects()
+    }
+
     // MARK: - Export
     
     func exportProjectToMarkdown(projectId: UUID, includeRawInputs: Bool = true) throws -> String {
