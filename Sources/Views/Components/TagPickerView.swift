@@ -66,7 +66,7 @@ struct TagPickerView: View {
             }
         }
         .frame(width: 220, height: 280)
-        .background(Color.flexokiSurface)
+        .background(ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .onAppear { loadTags() }
     }
@@ -97,7 +97,7 @@ struct TagPickerView: View {
                     .font(.system(size: 12))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 6)
-                    .background(Color.flexokiBase150)
+                    .background(ThemeManager.shared.surfaceElevated)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
 
             HStack(spacing: 4) {
@@ -107,7 +107,7 @@ struct TagPickerView: View {
                         .frame(width: 16, height: 16)
                         .overlay(
                             Circle()
-                                .stroke(Color.flexokiBorder, lineWidth: 1)
+                                .stroke(ThemeManager.shared.border, lineWidth: 1)
                         )
                         .onTapGesture {
                             createTag(colorName: colorOption.name)
@@ -116,7 +116,7 @@ struct TagPickerView: View {
             }
         }
         .padding(8)
-        .background(Color.flexokiBase200.opacity(0.5))
+        .background(ThemeManager.shared.surfaceElevated.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -164,7 +164,7 @@ struct TagRowView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(isAttached ? Color.hex(tag.color).opacity(0.1) : Color.flexokiSurface)
+        .background(isAttached ? Color.hex(tag.color).opacity(0.1) : ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())
         .onTapGesture {

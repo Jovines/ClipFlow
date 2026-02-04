@@ -10,23 +10,22 @@ enum AppSurfaceColor {
 }
 
 struct AppColorModifier: ViewModifier {
-    @Environment(\.colorScheme) private var colorScheme
     let color: AppSurfaceColor
 
     func body(content: Content) -> some View {
         switch color {
         case .background:
-            content.background(Color.appBackground(for: colorScheme))
+            content.background(ThemeManager.shared.background)
         case .surface:
-            content.background(Color.appSurface(for: colorScheme))
+            content.background(ThemeManager.shared.surface)
         case .surfaceElevated:
-            content.background(Color.appSurfaceElevated(for: colorScheme))
+            content.background(ThemeManager.shared.surfaceElevated)
         case .border:
-            content.background(Color.appBorder(for: colorScheme))
+            content.background(ThemeManager.shared.border)
         case .text:
-            content.foregroundColor(Color.appText(for: colorScheme))
+            content.foregroundColor(ThemeManager.shared.text)
         case .textSecondary:
-            content.foregroundColor(Color.appTextSecondary(for: colorScheme))
+            content.foregroundColor(ThemeManager.shared.textSecondary)
         }
     }
 }

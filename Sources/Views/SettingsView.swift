@@ -12,7 +12,7 @@ struct TitleBarConfigurator: NSViewRepresentable {
         DispatchQueue.main.async {
             if let window = nsView.window {
                 window.titlebarAppearsTransparent = true
-                window.backgroundColor = NSColor(Color.flexokiSurface)
+                window.backgroundColor = NSColor(ThemeManager.shared.surface)
             }
         }
     }
@@ -67,13 +67,13 @@ struct SettingsView: View {
         HStack(spacing: 0) {
             sidebar
                 .frame(width: 140)
-                .background(Color.flexokiSurface)
+                .background(ThemeManager.shared.surface)
 
             contentView
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: 560, height: 440)
-        .background(Color.flexokiPaper)
+        .background(ThemeManager.shared.background)
         .alert("Shortcut Conflict", isPresented: $showConflictAlert) {
             Button("OK") {}
         } message: {
@@ -127,7 +127,7 @@ struct SettingsView: View {
             .padding(.top, 12)
             .padding(.bottom, 20)
         }
-        .background(Color.flexokiPaper)
+        .background(ThemeManager.shared.background)
     }
 
     private var generalSettingsContent: some View {
@@ -155,7 +155,7 @@ struct SettingsView: View {
                     ))
                 }
                 .padding(12)
-                .background(Color.flexokiSurface)
+                .background(ThemeManager.shared.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -199,7 +199,7 @@ struct SettingsView: View {
                     .toggleStyle(.checkbox)
                 }
                 .padding(12)
-                .background(Color.flexokiSurface)
+                .background(ThemeManager.shared.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -234,7 +234,7 @@ struct SettingsView: View {
                     }
                 }
                 .padding(12)
-                .background(Color.flexokiSurface)
+                .background(ThemeManager.shared.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 

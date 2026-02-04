@@ -10,6 +10,8 @@ struct FloatingItemRow: View {
     let clipboardMonitor: ClipboardMonitor
     @State private var isHovered = false
 
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     var body: some View {
         HStack(spacing: 10) {
             contentPreview
@@ -22,14 +24,14 @@ struct FloatingItemRow: View {
                         .font(.system(size: 12))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(Color.flexokiAccent)
+                .foregroundStyle(themeManager.accent)
 
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
                         .font(.system(size: 12))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(Color.flexokiAccent)
+                .foregroundStyle(themeManager.accent)
 
                 Button(action: onDelete) {
                     Image(systemName: "trash")
@@ -45,7 +47,7 @@ struct FloatingItemRow: View {
         .background(backgroundColor)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(isEditing ? Color.flexokiAccent : Color.clear, lineWidth: 2)
+                .stroke(isEditing ? themeManager.accent : Color.clear, lineWidth: 2)
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .contentShape(Rectangle())
@@ -69,7 +71,7 @@ struct FloatingItemRow: View {
                     timeText
                 }
                 .font(.caption2)
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(themeManager.textSecondary)
             }
         }
     }
@@ -79,7 +81,7 @@ struct FloatingItemRow: View {
             switch item.contentType {
             case .text:
                 Image(systemName: "doc.text")
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(themeManager.textSecondary)
                     .font(.system(size: 14))
             case .image:
                 thumbnailView
@@ -100,7 +102,7 @@ struct FloatingItemRow: View {
                 .clipShape(RoundedRectangle(cornerRadius: 4))
         } else {
             Image(systemName: "photo")
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(themeManager.textSecondary)
                 .font(.system(size: 14))
         }
     }
@@ -162,9 +164,9 @@ struct FloatingItemRow: View {
 
     private var backgroundColor: Color {
         if isEditing {
-            return Color.flexokiAccent.opacity(0.15)
+            return themeManager.accent.opacity(0.15)
         }
-        return isHovered ? Color.flexokiBase200.opacity(0.5) : .clear
+        return isHovered ? (themeManager.colorScheme == .dark ? Color.flexokiBase600Dark : Color.flexokiBase200).opacity(0.5) : .clear
     }
 
     private var accessibilityLabel: String {

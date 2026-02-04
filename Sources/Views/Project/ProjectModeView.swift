@@ -46,10 +46,10 @@ struct ProjectModeView: View {
                 onResetAnalysis: { showResetConfirmation = true },
                 onOpenPromptSettings: { editingProject = project }
             )
-            .background(Color.flexokiSurface)
+            .background(ThemeManager.shared.surface)
             
             Divider()
-                .background(Color.flexokiBorder)
+                .background(ThemeManager.shared.border)
             
             if let cognition = cognition {
                 // Main Content - Custom Split View with hidden divider
@@ -58,7 +58,7 @@ struct ProjectModeView: View {
                         // Left: Cognition Document
                         CognitionDocumentView(cognition: cognition)
                             .frame(width: leftPanelWidth)
-                            .background(Color.flexokiBackground)
+                            .background(ThemeManager.shared.background)
                         
                         // Hidden Draggable Divider
                         Rectangle()
@@ -86,40 +86,40 @@ struct ProjectModeView: View {
                             HStack {
                                 Text("原始素材 (\(rawInputs.count))")
                                     .font(.caption)
-                                    .foregroundStyle(Color.flexokiTextSecondary)
+                                    .foregroundStyle(ThemeManager.shared.textSecondary)
                                 Spacer()
                                 if analyzedCount > 0 {
                                     Text("\(analyzedCount) 已分析")
                                         .font(.caption2)
-                                        .foregroundStyle(Color.flexokiTextTertiary)
+                                        .foregroundStyle(ThemeManager.shared.textTertiary)
                                 }
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(Color.flexokiSurfaceElevated)
+                            .background(ThemeManager.shared.surfaceElevated)
                             
                             Divider()
-                                .background(Color.flexokiBorderSubtle)
+                                .background(ThemeManager.shared.borderSubtle)
                             
                             RawInputsList(
                                 inputs: rawInputs,
                                 onDelete: deleteRawInput,
                                 onEdit: updateItemAndSource
                             )
-                            .background(Color.flexokiSurface)
+                            .background(ThemeManager.shared.surface)
                         }
                         .frame(minWidth: 180, minHeight: 360)
-                        .background(Color.flexokiSurface)
+                        .background(ThemeManager.shared.surface)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .overlay(
                             RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color.flexokiBorder, lineWidth: 1)
+                                .stroke(ThemeManager.shared.border, lineWidth: 1)
                         )
                         .padding(.vertical, 8)
                         .padding(.trailing, 8)
                     }
                 }
-                .background(Color.flexokiBackground)
+                .background(ThemeManager.shared.background)
             } else {
                 // Empty State
                 EmptyCognitionState(
@@ -130,11 +130,11 @@ struct ProjectModeView: View {
                     isAnalyzing: isAnalyzing,
                     onAnalyze: performAnalysis
                 )
-                .background(Color.flexokiBackground)
+                .background(ThemeManager.shared.background)
             }
         }
         .frame(minHeight: 440)
-        .background(Color.flexokiBackground)
+        .background(ThemeManager.shared.background)
         .onAppear {
             loadData()
             startRefreshTimer()
@@ -547,15 +547,15 @@ struct ProjectModeHeader: View {
                 } else if rawInputCount > 0 {
                     Image(systemName: "doc.text")
                         .font(.system(size: 10))
-                        .foregroundStyle(Color.flexokiTextSecondary)
+                        .foregroundStyle(ThemeManager.shared.textSecondary)
                     Text("\(rawInputCount) 条素材")
                         .font(.caption)
-                        .foregroundStyle(Color.flexokiTextSecondary)
+                        .foregroundStyle(ThemeManager.shared.textSecondary)
                 }
                 
                 Divider()
                     .frame(height: 16)
-                    .background(Color.flexokiBorder)
+                    .background(ThemeManager.shared.border)
                 
                 // Actions
                 Button(action: onExport) {
@@ -574,7 +574,7 @@ struct ProjectModeHeader: View {
 
                 Divider()
                     .frame(height: 16)
-                    .background(Color.flexokiBorder)
+                    .background(ThemeManager.shared.border)
 
                 Button(action: onExit) {
                     Label("退出项目", systemImage: "xmark.circle")
@@ -586,7 +586,7 @@ struct ProjectModeHeader: View {
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
-        .background(Color.flexokiSurface)
+        .background(ThemeManager.shared.surface)
     }
 }
 
@@ -604,7 +604,7 @@ struct CognitionDocumentView: View {
                 .padding(20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.flexokiBackground)
+        .background(ThemeManager.shared.background)
     }
 }
 
@@ -646,7 +646,7 @@ struct RawInputRow: View {
 
     private var backgroundColor: Color {
         if isEditing {
-            return Color.flexokiSurfaceElevated
+            return ThemeManager.shared.surfaceElevated
         }
         if input.isAnalyzed {
             return Color.flexokiBase100.opacity(0.3)
@@ -663,7 +663,7 @@ struct RawInputRow: View {
                     HStack {
                         Text("来源:")
                             .font(.caption)
-                            .foregroundStyle(Color.flexokiTextSecondary)
+                            .foregroundStyle(ThemeManager.shared.textSecondary)
                         TextField("如：张三、会议记录", text: $editedSourceContext)
                             .font(.caption)
                             .textFieldStyle(.roundedBorder)
@@ -675,11 +675,11 @@ struct RawInputRow: View {
                         .frame(minHeight: 60)
                         .frame(maxHeight: 120)
                         .scrollContentBackground(.hidden)
-                        .background(Color.flexokiSurfaceElevated)
+                        .background(ThemeManager.shared.surfaceElevated)
                         .clipShape(RoundedRectangle(cornerRadius: 4))
                         .overlay(
                             RoundedRectangle(cornerRadius: 4)
-                                .stroke(Color.flexokiBorderSubtle, lineWidth: 1)
+                                .stroke(ThemeManager.shared.borderSubtle, lineWidth: 1)
                         )
                     
                     // Action Buttons
@@ -690,7 +690,7 @@ struct RawInputRow: View {
                         .buttonStyle(.borderless)
                         .controlSize(.small)
                         .font(.caption)
-                        .foregroundStyle(Color.flexokiTextSecondary)
+                        .foregroundStyle(ThemeManager.shared.textSecondary)
                         
                         Spacer()
                         
@@ -716,7 +716,7 @@ struct RawInputRow: View {
                     
                     Text(input.createdAt, style: .time)
                         .font(.caption2)
-                        .foregroundStyle(Color.flexokiTextTertiary)
+                        .foregroundStyle(ThemeManager.shared.textTertiary)
                 }
                 
                 if let item = item {
@@ -735,7 +735,7 @@ struct RawInputRow: View {
                         }) {
                             Image(systemName: "pencil")
                                 .font(.caption2)
-                                .foregroundStyle(Color.flexokiTextTertiary)
+                                .foregroundStyle(ThemeManager.shared.textTertiary)
                         }
                         .buttonStyle(.borderless)
                         .controlSize(.small)
@@ -782,15 +782,15 @@ struct AnalyzingView: View {
                 .scaleEffect(0.8)
             Text("AI分析中...")
                 .font(.caption)
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(ThemeManager.shared.textSecondary)
             if !progress.isEmpty {
                 Text(progress)
                     .font(.caption2)
-                    .foregroundStyle(Color.flexokiTextTertiary)
+                    .foregroundStyle(ThemeManager.shared.textTertiary)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.flexokiSurface.opacity(0.5))
+        .background(ThemeManager.shared.surface.opacity(0.5))
     }
 }
 
@@ -816,13 +816,13 @@ struct EmptyCognitionState: View {
                 
                 Text("请在设置中配置AI提供商（如 OpenAI、DeepSeek等）")
                     .font(.caption)
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(ThemeManager.shared.textSecondary)
                     .multilineTextAlignment(.center)
                 
                 if rawInputCount > 0 {
                     Text("已收集 \(rawInputCount) 条素材，等待AI分析")
                         .font(.caption2)
-                        .foregroundStyle(Color.flexokiTextTertiary)
+                        .foregroundStyle(ThemeManager.shared.textTertiary)
                         .padding(.top, 8)
                 }
                 
@@ -838,13 +838,13 @@ struct EmptyCognitionState: View {
                 
                 Text(error)
                     .font(.caption)
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(ThemeManager.shared.textSecondary)
                     .multilineTextAlignment(.center)
                 
                 if rawInputCount > 0 {
                     Text("已收集 \(rawInputCount) 条素材")
                         .font(.caption2)
-                        .foregroundStyle(Color.flexokiTextTertiary)
+                        .foregroundStyle(ThemeManager.shared.textTertiary)
                         .padding(.top, 8)
                 }
                 
@@ -860,7 +860,7 @@ struct EmptyCognitionState: View {
                 
                 Text("AI正在分析中，请稍等片刻...")
                     .font(.caption)
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(ThemeManager.shared.textSecondary)
                     .multilineTextAlignment(.center)
                 
                 ProgressView()
@@ -880,7 +880,7 @@ struct EmptyCognitionState: View {
                 if unanalyzedCount > 0 {
                     Text("\(unanalyzedCount) 条素材待分析")
                         .font(.caption)
-                        .foregroundStyle(Color.flexokiTextSecondary)
+                        .foregroundStyle(ThemeManager.shared.textSecondary)
                         .multilineTextAlignment(.center)
                     
                     Button(action: onAnalyze) {
@@ -896,7 +896,7 @@ struct EmptyCognitionState: View {
                 // Initial state
                 Image(systemName: "doc.text")
                     .font(.system(size: 40))
-                    .foregroundStyle(Color.flexokiTextTertiary)
+                    .foregroundStyle(ThemeManager.shared.textTertiary)
                 
                 Text("暂无素材")
                     .font(.headline)
@@ -904,7 +904,7 @@ struct EmptyCognitionState: View {
                 
                 Text("复制讨论内容到剪贴板，然后点击分析按钮")
                     .font(.caption)
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(ThemeManager.shared.textSecondary)
                     .multilineTextAlignment(.center)
             }
         }

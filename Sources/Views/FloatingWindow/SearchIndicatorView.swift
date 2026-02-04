@@ -7,16 +7,18 @@ struct SearchIndicatorView: View {
     let filteredCount: Int
     let onReset: () -> Void
 
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: isSelectionMode ? "number" : "magnifyingglass")
-                .foregroundStyle(isSelectionMode ? Color.flexokiAccent : .secondary)
+                .foregroundStyle(isSelectionMode ? themeManager.accent : .secondary)
                 .font(.system(size: 13))
 
             if isSelectionMode {
                 Text("选择模式")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(Color.flexokiAccent)
+                    .foregroundStyle(themeManager.accent)
             } else {
                 Text(searchText)
                     .font(.system(size: 13))
@@ -27,15 +29,15 @@ struct SearchIndicatorView: View {
 
             Text("\(filteredCount)")
                 .font(.caption)
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(themeManager.textSecondary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background(Color.flexokiSurface)
+                .background(themeManager.surface)
                 .clipShape(Capsule())
 
             Button(action: onReset) {
                 Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(themeManager.textSecondary)
                     .font(.system(size: 14))
             }
             .buttonStyle(.plain)

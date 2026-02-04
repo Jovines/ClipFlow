@@ -110,7 +110,7 @@ struct AIProviderSettingsView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, minHeight: 100)
-        .background(Color.flexokiSurface)
+        .background(ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -131,7 +131,7 @@ struct AIProviderSettingsView: View {
                 }
             }
         }
-        .background(Color.flexokiSurface)
+        .background(ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -156,7 +156,7 @@ struct AIProviderSettingsView: View {
             .pickerStyle(.menu)
             .controlSize(.small)
             .padding(12)
-            .background(Color.flexokiSurface)
+            .background(ThemeManager.shared.surface)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
@@ -177,11 +177,11 @@ struct AIProviderSettingsView: View {
                     .font(.system(size: 13))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.flexokiSurfaceElevated)
+                    .background(ThemeManager.shared.surfaceElevated)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
                     .overlay(
                         RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.flexokiBorder, lineWidth: 1)
+                            .stroke(ThemeManager.shared.border, lineWidth: 1)
                     )
 
                 Button("发送测试请求") {
@@ -196,7 +196,7 @@ struct AIProviderSettingsView: View {
                 }
             }
             .padding(12)
-            .background(Color.flexokiSurface)
+            .background(ThemeManager.shared.surface)
             .clipShape(RoundedRectangle(cornerRadius: 8))
         }
     }
@@ -211,7 +211,7 @@ struct AIProviderSettingsView: View {
                 .font(.system(size: 12))
                 .padding(8)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.flexokiSurfaceElevated)
+                .background(ThemeManager.shared.surfaceElevated)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
         }
     }

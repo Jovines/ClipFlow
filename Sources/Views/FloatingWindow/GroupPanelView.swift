@@ -28,7 +28,7 @@ struct GroupPanelView: View {
             groupPanelFooter
         }
         .frame(width: panelWidth, height: 420)
-        .background(Color.flexokiSurface.opacity(0.95))
+        .background(ThemeManager.shared.surface.opacity(0.95))
     }
 
     private var groupPanelHeader: some View {
@@ -40,7 +40,7 @@ struct GroupPanelView: View {
             Spacer()
             Text("\(panelItems.count) 条")
                 .font(.caption)
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(ThemeManager.shared.textSecondary)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)

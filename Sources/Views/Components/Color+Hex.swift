@@ -139,3 +139,29 @@ extension Color {
         colorScheme == .dark ? .flexokiTextTertiaryDark : .flexokiTextTertiary
     }
 }
+
+extension View {
+    func appBackground(_ colorScheme: ColorScheme) -> some View {
+        self.background(Color.appBackground(for: colorScheme))
+    }
+    
+    func appSurface(_ colorScheme: ColorScheme) -> some View {
+        self.background(Color.appSurface(for: colorScheme))
+    }
+    
+    func appSurfaceElevated(_ colorScheme: ColorScheme) -> some View {
+        self.background(Color.appSurfaceElevated(for: colorScheme))
+    }
+    
+    func appBorder(_ colorScheme: ColorScheme) -> some View {
+        self.overlay(Rectangle().fill(Color.appBorder(for: colorScheme)))
+    }
+    
+    func appText(_ colorScheme: ColorScheme) -> some View {
+        self.foregroundColor(Color.appText(for: colorScheme))
+    }
+    
+    func appTextSecondary(_ colorScheme: ColorScheme) -> some View {
+        self.foregroundColor(Color.appTextSecondary(for: colorScheme))
+    }
+}

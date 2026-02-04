@@ -47,10 +47,10 @@ struct TagSidebarView: View {
                 .help("Create new tag")
             }
             .frame(height: 28)
-            .background(Color.flexokiSurface)
+            .background(ThemeManager.shared.surface)
         }
         .frame(width: sidebarWidth)
-        .background(Color.flexokiSurface.opacity(0.5))
+        .background(ThemeManager.shared.surface.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 

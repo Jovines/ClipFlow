@@ -4,6 +4,8 @@ struct ClipboardItemRow: View {
     let item: ClipboardItem
     @State private var isHovered = false
 
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: iconName)
@@ -36,7 +38,7 @@ struct ClipboardItemRow: View {
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
         .padding(12)
-        .background(isHovered ? Color.flexokiAccent.opacity(0.15) : Color.clear)
+        .background(isHovered ? themeManager.accent.opacity(0.15) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .onHover { hovering in
             isHovered = hovering

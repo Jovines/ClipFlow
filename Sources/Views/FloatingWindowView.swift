@@ -93,10 +93,13 @@ struct FloatingWindowView: View {
 
     private let recommendationService = RecommendationService.shared
 
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     var body: some View {
         let content = contentBuilder
 
         return content
+            .themeAware()
             .onChange(of: isProjectMode) { newValue in
                 FloatingWindowManager.shared.resizeWindowForProjectMode(
                     isProjectMode: newValue,
@@ -168,7 +171,7 @@ struct FloatingWindowView: View {
                 .frame(width: groupPanelWidth, height: 420)
             }
         }
-        .background(Color.flexokiSurface.opacity(0.95))
+        .background(ThemeManager.shared.surface.opacity(0.95))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.15), radius: 15, x: 0, y: 5)
         .onAppear {
@@ -337,12 +340,12 @@ struct FloatingWindowView: View {
                 Text("推荐")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(themeManager.textSecondary)
                 Spacer()
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
-            .background(Color.flexokiBase200.opacity(0.5))
+            .background(themeManager.colorScheme == .dark ? Color.flexokiBase700.opacity(0.5) : Color.flexokiBase200.opacity(0.5))
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
             LazyVStack(spacing: 4) {
@@ -370,11 +373,11 @@ struct FloatingWindowView: View {
             HStack {
                 Image(systemName: "clock.arrow.circlepath")
                     .font(.caption)
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(themeManager.textSecondary)
                 Text("推荐历史")
                     .font(.caption)
                     .fontWeight(.medium)
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(themeManager.textSecondary)
                 Spacer()
                 if !recommendationHistoryItems.isEmpty {
                     Text("\(recommendationHistoryItems.count) 条")
@@ -384,7 +387,7 @@ struct FloatingWindowView: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 6)
-            .background(Color.flexokiBase200.opacity(0.5))
+            .background(themeManager.colorScheme == .dark ? Color.flexokiBase700.opacity(0.5) : Color.flexokiBase200.opacity(0.5))
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
             if recommendationHistoryItems.isEmpty {
@@ -623,7 +626,7 @@ struct FloatingWindowView: View {
                 .font(.system(size: 14))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(Color.flexokiBase200)
+                .background(ThemeManager.shared.borderSubtle)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .padding(.horizontal, 12)
 
@@ -640,7 +643,7 @@ struct FloatingWindowView: View {
                             .frame(width: 24, height: 24)
                             .overlay(
                                 Circle()
-                                    .stroke(Color.flexokiBorder, lineWidth: newTagColorName == colorOption.name ? 2 : 0)
+                                    .stroke(themeManager.border, lineWidth: newTagColorName == colorOption.name ? 2 : 0)
                             )
                             .onTapGesture {
                                 newTagColorName = colorOption.name
@@ -671,7 +674,7 @@ struct FloatingWindowView: View {
             .padding(.bottom, 12)
         }
         .frame(width: 260, height: 200)
-        .background(Color.flexokiSurface)
+        .background(ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 

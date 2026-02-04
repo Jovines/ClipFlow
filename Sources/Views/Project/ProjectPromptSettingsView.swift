@@ -73,10 +73,10 @@ struct ProjectPromptSettingsView: View {
                     }
                 }
                 .frame(width: 200)
-                .background(Color.flexokiSurface)
+                .background(ThemeManager.shared.surface)
 
                 Rectangle()
-                    .fill(Color.flexokiBorder)
+                    .fill(ThemeManager.shared.border)
                     .frame(width: 1)
 
                 VStack(alignment: .leading, spacing: 12) {
@@ -137,11 +137,11 @@ struct ProjectPromptSettingsView: View {
                                         .font(.system(size: 11, design: .monospaced))
                                         .frame(height: 150)
                                         .scrollContentBackground(.hidden)
-                                        .background(Color.flexokiSurfaceElevated)
+                                        .background(ThemeManager.shared.surfaceElevated)
                                         .clipShape(RoundedRectangle(cornerRadius: 6))
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 6)
-                                                .stroke(Color.flexokiBorder, lineWidth: 1)
+                                                .stroke(ThemeManager.shared.border, lineWidth: 1)
                                         )
                                         .disabled(true)
                                 }
@@ -157,11 +157,11 @@ struct ProjectPromptSettingsView: View {
                                         .font(.system(size: 11, design: .monospaced))
                                         .frame(height: 150)
                                         .scrollContentBackground(.hidden)
-                                        .background(Color.flexokiSurfaceElevated)
+                                        .background(ThemeManager.shared.surfaceElevated)
                                         .clipShape(RoundedRectangle(cornerRadius: 6))
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 6)
-                                                .stroke(Color.flexokiBorder, lineWidth: 1)
+                                                .stroke(ThemeManager.shared.border, lineWidth: 1)
                                         )
                                         .disabled(true)
                                 }
@@ -414,11 +414,11 @@ struct TemplateEditSheet: View {
                             .font(.system(size: 12, design: .monospaced))
                             .frame(height: 200)
                             .scrollContentBackground(.hidden)
-                            .background(Color.flexokiSurfaceElevated)
+                            .background(ThemeManager.shared.surfaceElevated)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.flexokiBorder, lineWidth: 1)
+                                    .stroke(ThemeManager.shared.border, lineWidth: 1)
                             )
                     }
 
@@ -431,11 +431,11 @@ struct TemplateEditSheet: View {
                             .font(.system(size: 12, design: .monospaced))
                             .frame(height: 200)
                             .scrollContentBackground(.hidden)
-                            .background(Color.flexokiSurfaceElevated)
+                            .background(ThemeManager.shared.surfaceElevated)
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.flexokiBorder, lineWidth: 1)
+                                    .stroke(ThemeManager.shared.border, lineWidth: 1)
                             )
                     }
 

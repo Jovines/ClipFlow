@@ -52,7 +52,7 @@ struct TagManagementView: View {
                     .font(.system(size: 12))
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
-                    .background(Color.flexokiBase200)
+                    .background(ThemeManager.shared.surfaceElevated)
                     .clipShape(RoundedRectangle(cornerRadius: 6))
 
                 Menu {
@@ -91,7 +91,7 @@ struct TagManagementView: View {
             .padding(.vertical, 10)
         }
         .frame(width: 280, height: 360)
-        .background(Color.flexokiSurface)
+        .background(ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .sheet(isPresented: .constant(editingTag != nil)) {
             editTagSheet
@@ -145,7 +145,7 @@ struct TagManagementView: View {
                 .font(.system(size: 14))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(Color.flexokiBase200)
+                .background(ThemeManager.shared.surfaceElevated)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .padding(.horizontal, 12)
 
@@ -192,7 +192,7 @@ struct TagManagementView: View {
             .padding(.bottom, 12)
         }
         .frame(width: 260, height: 220)
-        .background(Color.flexokiSurface)
+        .background(ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
@@ -271,7 +271,7 @@ struct TagManagementRowView: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
-        .background(Color.flexokiBase200.opacity(0.3))
+        .background(ThemeManager.shared.surfaceElevated.opacity(0.3))
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 }

@@ -16,6 +16,8 @@ struct GroupView: View {
 
     private let itemsPerGroup = 10
 
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     private var displayIndex: Int {
         if groupIndex == 0 {
             return -1
@@ -43,11 +45,11 @@ struct GroupView: View {
         HStack(spacing: 6) {
             Image(systemName: "chevron.right")
                 .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(themeManager.textSecondary)
 
             Text("\(groupInfo.startIndex)-\(groupInfo.endIndex)")
                 .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(themeManager.textSecondary)
 
             Spacer()
 
@@ -59,7 +61,7 @@ struct GroupView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 6)
-        .background(isHovered ? Color.flexokiSurface.opacity(0.5) : Color.clear)
+        .background(isHovered ? themeManager.surface.opacity(0.5) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())
     }
@@ -75,6 +77,8 @@ struct CompactItemRow: View {
     let onManageTags: () -> Void
     @ObservedObject var panelCoordinator: GroupPanelCoordinator
     @State private var isHovered = false
+
+    private var themeManager: ThemeManager { ThemeManager.shared }
 
     var body: some View {
         HStack(spacing: 8) {
@@ -103,21 +107,21 @@ struct CompactItemRow: View {
                         .font(.system(size: 10))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(themeManager.textSecondary)
 
                 Button(action: onAddToProject) {
                     Image(systemName: "folder.badge.plus")
                         .font(.system(size: 10))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(Color.flexokiAccent)
+                .foregroundStyle(themeManager.accent)
 
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
                         .font(.system(size: 10))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(Color.flexokiAccent)
+                .foregroundStyle(themeManager.accent)
 
                 Button(action: onDelete) {
                     Image(systemName: "trash")
@@ -130,7 +134,7 @@ struct CompactItemRow: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 3)
-        .background(isHovered ? Color.flexokiBase200.opacity(0.3) : .clear)
+        .background(isHovered ? themeManager.borderSubtle.opacity(0.3) : .clear)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())
         .onHover { hovering in
@@ -184,13 +188,13 @@ struct CompactItemRow: View {
                     Image(systemName: "photo")
                 }
             }
-            .foregroundStyle(Color.flexokiTextSecondary)
+            .foregroundStyle(themeManager.textSecondary)
             .font(.system(size: 11))
 
             Text(item.content)
                 .font(.system(size: 11))
                 .lineLimit(1)
-                .foregroundStyle(Color.flexokiText)
+                .foregroundStyle(themeManager.text)
         }
     }
 }
@@ -205,6 +209,8 @@ struct GroupPanelItemRow: View {
     let onAddToProject: () -> Void
     @State private var isHovered = false
 
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     var body: some View {
         HStack(spacing: 8) {
             contentPreview
@@ -217,14 +223,14 @@ struct GroupPanelItemRow: View {
                         .font(.system(size: 10))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(Color.flexokiAccent)
+                .foregroundStyle(themeManager.accent)
 
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
                         .font(.system(size: 10))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(Color.flexokiAccent)
+                .foregroundStyle(themeManager.accent)
 
                 Button(action: onDelete) {
                     Image(systemName: "trash")
@@ -237,7 +243,7 @@ struct GroupPanelItemRow: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .background(isHovered ? Color.flexokiBase200.opacity(0.5) : .clear)
+        .background(isHovered ? themeManager.borderSubtle.opacity(0.5) : .clear)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())
         .onHover { hovering in
@@ -256,13 +262,13 @@ struct GroupPanelItemRow: View {
                     Image(systemName: "photo")
                 }
             }
-            .foregroundStyle(Color.flexokiTextSecondary)
+            .foregroundStyle(themeManager.textSecondary)
             .font(.system(size: 11))
 
             Text(item.content)
                 .font(.system(size: 11))
                 .lineLimit(1)
-                .foregroundStyle(Color.flexokiText)
+                .foregroundStyle(themeManager.text)
         }
     }
 }

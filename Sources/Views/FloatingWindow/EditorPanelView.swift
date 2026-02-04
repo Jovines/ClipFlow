@@ -26,7 +26,7 @@ struct EditorPanelView: View {
             editorFooter
         }
         .frame(width: editorWidth, height: 420)
-        .background(Color.flexokiSurface.opacity(0.95))
+        .background(ThemeManager.shared.surface.opacity(0.95))
     }
 
     private var editorHeader: some View {
@@ -37,7 +37,7 @@ struct EditorPanelView: View {
             Button(action: onCancel) {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 14))
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(ThemeManager.shared.textSecondary)
             }
             .buttonStyle(.plain)
         }
@@ -56,7 +56,7 @@ struct EditorPanelView: View {
             HStack {
                 Text("\(characterCount)/\(maxCharacterCount)")
                     .font(.caption)
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(ThemeManager.shared.textSecondary)
                 Spacer()
             }
             .padding(.horizontal, 12)

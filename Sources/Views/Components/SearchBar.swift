@@ -12,7 +12,7 @@ struct SearchBar: View {
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(ThemeManager.shared.textSecondary)
 
             TextField("Search...", text: $text)
                 .textFieldStyle(.plain)
@@ -23,13 +23,13 @@ struct SearchBar: View {
             if !text.isEmpty {
                 Button(action: { text = "" }) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(Color.flexokiTextSecondary)
+                        .foregroundStyle(ThemeManager.shared.textSecondary)
                 }
                 .buttonStyle(.plain)
             }
         }
         .padding(10)
-        .background(Color.flexokiSurface)
+        .background(ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -109,7 +109,7 @@ struct AdvancedSearchBar: View {
         HStack(spacing: 8) {
             HStack {
                 Image(systemName: "magnifyingglass")
-                    .foregroundStyle(Color.flexokiTextSecondary)
+                    .foregroundStyle(ThemeManager.shared.textSecondary)
 
                 TextField("Search...", text: $text)
                     .textFieldStyle(.plain)
@@ -117,14 +117,14 @@ struct AdvancedSearchBar: View {
                 if !text.isEmpty {
                     Button(action: { text = "" }) {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(Color.flexokiTextSecondary)
+                            .foregroundStyle(ThemeManager.shared.textSecondary)
                     }
                     .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
-            .background(Color.flexokiSurface)
+            .background(ThemeManager.shared.surface)
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Menu {
@@ -140,9 +140,9 @@ struct AdvancedSearchBar: View {
                 }
             } label: {
                 Image(systemName: selectedFilter.icon)
-                    .foregroundStyle(selectedFilter == .all ? Color.flexokiTextSecondary : Color.flexokiAccent)
+                    .foregroundStyle(selectedFilter == .all ? ThemeManager.shared.textSecondary : ThemeManager.shared.accent)
                     .padding(10)
-                    .background(Color.flexokiSurface)
+                    .background(ThemeManager.shared.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }

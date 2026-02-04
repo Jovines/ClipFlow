@@ -49,7 +49,7 @@ struct AboutView: View {
                     url: URL(string: "https://github.com/Jovines/ClipFlow/issues") ?? URL(string: "https://github.com")!
                 )
             }
-            .background(Color.flexokiSurface)
+            .background(ThemeManager.shared.surface)
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Spacer()

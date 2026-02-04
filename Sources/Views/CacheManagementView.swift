@@ -44,7 +44,7 @@ struct CacheManagementView: View {
                 .controlSize(.regular)
             }
             .padding(12)
-            .background(Color.flexokiSurface)
+            .background(ThemeManager.shared.surface)
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Spacer()
@@ -105,7 +105,7 @@ struct StatCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .background(Color.flexokiSurfaceElevated)
+        .background(ThemeManager.shared.surfaceElevated)
         .clipShape(RoundedRectangle(cornerRadius: 6))
     }
 }

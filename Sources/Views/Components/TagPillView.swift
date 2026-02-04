@@ -16,12 +16,12 @@ struct TagPillView: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(isSelected ? Color.hex(tag.color).opacity(0.2) : Color.flexokiSurface)
-            .foregroundStyle(isSelected ? Color.hex(tag.color) : .secondary)
+            .background(isSelected ? Color.hex(tag.color).opacity(0.2) : ThemeManager.shared.surface)
+            .foregroundStyle(isSelected ? Color.hex(tag.color) : ThemeManager.shared.textSecondary)
             .clipShape(Capsule())
             .overlay(
                 Capsule()
-                    .stroke(isSelected ? Color.hex(tag.color).opacity(0.5) : Color.flexokiBorder, lineWidth: 1)
+                    .stroke(isSelected ? Color.hex(tag.color).opacity(0.5) : ThemeManager.shared.border, lineWidth: 1)
             )
         }
         .buttonStyle(.plain)
