@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import CoreGraphics
 
 struct Shortcut: Equatable, Codable {
     var keyCode: UInt16
@@ -80,8 +81,8 @@ struct Shortcut: Equatable, Codable {
 final class HotKeyManager: @unchecked Sendable {
     static let shared = HotKeyManager()
 
-    private var globalMonitor: Any?
-    private var localMonitor: Any?
+    private var eventTap: CFMachPort?
+    private var runLoopSource: CFRunLoopSource?
 
     var onHotKeyPressed: (() -> Void)?
 
@@ -138,55 +139,69 @@ final class HotKeyManager: @unchecked Sendable {
     private func startMonitoring(_ shortcut: Shortcut) {
         stopMonitoring()
 
-        localMonitor = NSEvent.addLocalMonitorForEvents(
-            matching: .keyDown
-        ) { [weak self] event in
-            guard let self = self else { return nil }
-            return self.handleKeyDown(event, shortcut: shortcut)
-        }
+        let eventMask = CGEventMask(1 << CGEventType.keyDown.rawValue)
 
-        globalMonitor = NSEvent.addGlobalMonitorForEvents(
-            matching: .keyDown
-        ) { [weak self] event in
-            guard let self = self else { return }
-            if self.matchesShortcut(event, shortcut: shortcut) {
-                DispatchQueue.main.async {
-                    self.onHotKeyPressed?()
-                }
+        class UserInfo {
+            let manager: HotKeyManager
+            let shortcut: Shortcut
+
+            init(manager: HotKeyManager, shortcut: Shortcut) {
+                self.manager = manager
+                self.shortcut = shortcut
             }
         }
+
+        let userInfo = UserInfo(manager: self, shortcut: shortcut)
+        let userInfoPtr = Unmanaged.passRetained(userInfo).toOpaque()
+
+        guard let eventTap = CGEvent.tapCreate(
+            tap: .cgSessionEventTap,
+            place: .headInsertEventTap,
+            options: .defaultTap,
+            eventsOfInterest: eventMask,
+            callback: { (proxy, type, event, refcon) -> Unmanaged<CGEvent>? in
+                guard let refcon = refcon else { return Unmanaged.passRetained(event).autorelease() }
+                let userInfo = Unmanaged<UserInfo>.fromOpaque(refcon).takeRetainedValue()
+
+                if type == .keyDown {
+                    let eventKeyCode = event.getIntegerValueField(.keyboardEventKeycode)
+                    let eventFlags = UInt(event.flags.rawValue)
+                    let shortcut = userInfo.shortcut
+
+                    if UInt16(eventKeyCode) == shortcut.keyCode &&
+                       (eventFlags & shortcut.modifierFlags) == shortcut.modifierFlags {
+                        let manager = userInfo.manager
+                        DispatchQueue.main.async {
+                            manager.onHotKeyPressed?()
+                        }
+                        return nil
+                    }
+                }
+
+                return Unmanaged.passRetained(event).autorelease()
+            },
+            userInfo: userInfoPtr
+        ) else {
+            print("[ERROR] HotKeyManager - Failed to create event tap")
+            return
+        }
+
+        self.eventTap = eventTap
+
+        runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
+        CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
     }
 
     private func stopMonitoring() {
-        if let monitor = localMonitor {
-            NSEvent.removeMonitor(monitor)
-            localMonitor = nil
-        }
-        if let monitor = globalMonitor {
-            NSEvent.removeMonitor(monitor)
-            globalMonitor = nil
-        }
-    }
-
-    private func handleKeyDown(_ event: NSEvent, shortcut: Shortcut) -> NSEvent? {
-        if event.keyCode == kVK_Escape {
-            stopMonitoring()
-            return nil
+        if let source = runLoopSource {
+            CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
+            runLoopSource = nil
         }
 
-        if matchesShortcut(event, shortcut: shortcut) {
-            onHotKeyPressed?()
-            return nil
+        if let tap = eventTap {
+            CFMachPortInvalidate(tap)
+            eventTap = nil
         }
-
-        return event
-    }
-
-    private func matchesShortcut(_ event: NSEvent, shortcut: Shortcut) -> Bool {
-        guard event.keyCode == shortcut.keyCode else { return false }
-
-        let eventMods = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
-        return eventMods == shortcut.modifiers
     }
 
     private func checkForConflicts(_ shortcut: Shortcut) -> String? {
@@ -214,10 +229,6 @@ final class HotKeyManager: @unchecked Sendable {
     }
 }
 
-// MARK: - Key Code Constants
-// (definitions at end of file)
-
-// Legacy Carbon modifiers (for internal use)
 private let cmdKey: UInt32 = UInt32(1 << 16)
 private let shiftKey: UInt32 = UInt32(1 << 17)
 private let controlKey: UInt32 = UInt32(1 << 18)

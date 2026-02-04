@@ -34,20 +34,20 @@ struct FloatingWindowView: View {
     }
 
     private var groupedItems: [(groupInfo: GroupInfo, items: [ClipboardItem])] {
-        let filteredItems = filterItemsByTags(clipboardMonitor.capturedItems)
-        let visibleItems = Array(filteredItems.prefix(maxVisibleItems))
-        let remainingItems = Array(filteredItems.dropFirst(maxVisibleItems))
+        let sourceItems = showRecommendationHistory ? recommendationHistoryItems : filterItemsByTags(clipboardMonitor.capturedItems)
+        let visibleItems = Array(sourceItems.prefix(maxVisibleItems))
+        let remainingItems = Array(sourceItems.dropFirst(maxVisibleItems))
 
         var groups: [(groupInfo: GroupInfo, items: [ClipboardItem])] = []
 
         if !visibleItems.isEmpty {
-            groups.append((GroupInfo(startIndex: 1, endIndex: visibleItems.count, totalCount: filteredItems.count), visibleItems))
+            groups.append((GroupInfo(startIndex: 1, endIndex: visibleItems.count, totalCount: sourceItems.count), visibleItems))
         }
 
         for (index, chunk) in remainingItems.chunked(into: 15).enumerated() {
             let startIndex = maxVisibleItems + index * 15 + 1
-            let endIndex = min(startIndex + chunk.count - 1, filteredItems.count)
-            groups.append((GroupInfo(startIndex: startIndex, endIndex: endIndex, totalCount: filteredItems.count), Array(chunk)))
+            let endIndex = min(startIndex + chunk.count - 1, sourceItems.count)
+            groups.append((GroupInfo(startIndex: startIndex, endIndex: endIndex, totalCount: sourceItems.count), Array(chunk)))
         }
 
         return groups
@@ -307,15 +307,11 @@ struct FloatingWindowView: View {
                         recommendationSection
                     }
 
-                    if showRecommendationHistory {
-                        recommendationHistorySection
-                    } else {
-                        ForEach(Array(groupedItems.enumerated()), id: \.offset) { groupIndex, group in
-                            if groupIndex == 0 {
-                                firstGroupView(for: group)
-                            } else {
-                                expandedGroupView(for: group, groupIndex: groupIndex)
-                            }
+                    ForEach(Array(groupedItems.enumerated()), id: \.offset) { groupIndex, group in
+                        if groupIndex == 0 {
+                            firstGroupView(for: group)
+                        } else {
+                            expandedGroupView(for: group, groupIndex: groupIndex)
                         }
                     }
                 }
@@ -354,56 +350,6 @@ struct FloatingWindowView: View {
         .padding(4)
         .background(themeManager.surfaceElevated)
         .clipShape(RoundedRectangle(cornerRadius: 6))
-        .padding(.bottom, 8)
-    }
-
-    @ViewBuilder
-    private var recommendationHistorySection: some View {
-        VStack(spacing: 4) {
-            HStack {
-                Image(systemName: "clock.arrow.circlepath")
-                    .font(.caption)
-                    .foregroundStyle(themeManager.textSecondary)
-                Text("推荐历史")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(themeManager.textSecondary)
-                Spacer()
-                if !recommendationHistoryItems.isEmpty {
-                    Text("\(recommendationHistoryItems.count) 条")
-                        .font(.caption2)
-                        .foregroundStyle(.tertiary)
-                }
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(themeManager.colorScheme == .dark ? Color.flexokiBase700.opacity(0.5) : Color.flexokiBase200.opacity(0.5))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-
-            if recommendationHistoryItems.isEmpty {
-                Text("暂无推荐历史")
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-                    .padding(.vertical, 20)
-            } else {
-                LazyVStack(spacing: 4) {
-                    ForEach(Array(recommendationHistoryItems.enumerated()), id: \.element.id) { index, item in
-                        CompactItemRow(
-                            item: item,
-                            clipboardMonitor: clipboardMonitor,
-                            onSelect: { handleItemSelection(item) },
-                            onEdit: { startEdit(item) },
-                            onDelete: { clipboardMonitor.deleteItem(item) },
-                            onAddToProject: { showAddToProject(for: item) },
-                            onManageTags: { showTagPicker(for: item) },
-                            isRecommended: false,
-                            panelCoordinator: groupPanelCoordinator
-                        )
-                    }
-                }
-                .padding(.horizontal, 4)
-            }
-        }
         .padding(.bottom, 8)
     }
 
