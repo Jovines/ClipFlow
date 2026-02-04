@@ -87,6 +87,13 @@ Sources/
     └── Components/   # Reusable UI components
 ```
 
+## Skills
+
+For specialized workflows, load the appropriate skill:
+- **Release**: Use `release` skill for versioning, builds, and GitHub releases
+- **UI/Colors**: Use `flexoki` skill for SwiftUI color scheme and styling
+- **Skill Development**: Use `skill-creation` skill for creating/modifying skills
+
 ## Commit Messages
 
 - **CRITICAL: Use English for ALL commit messages** - This is a project standard, violations will be requested to amend
@@ -95,7 +102,4 @@ Sources/
 - Keep description concise and clear
 - Before committing, always verify the commit message is in English
 
-## Version & Release
 
-- Version: `MARKETING_VERSION.CURRENT_PROJECT_VERSION` in `project.yml`
-- Release: `gh release create v<version> --title "ClipFlow v<version>" --notes "<description>"` (use English for notes)
