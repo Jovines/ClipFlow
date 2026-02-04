@@ -68,6 +68,7 @@
 		DE9F42E5AB45EA8F63DDE202 /* ImageOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586557FA753777654C073B06 /* ImageOptimizer.swift */; };
 		E359ED8EB6ABFE521170F244 /* ClipboardItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */; };
 		E37ACAB2BCAFB9EFC06ADEB8 /* PromptTemplateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B1A4FBF5647B3D3F8D06AE /* PromptTemplateService.swift */; };
+		F0B73B669780E5250DFA112D /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FACF06E664A88EAB8A90F48 /* ThemeManager.swift */; };
 		F1737443DB483156AD58601F /* MarkdownView in Frameworks */ = {isa = PBXBuildFile; productRef = DC599C3C9FFA7EAAC7EC63E9 /* MarkdownView */; };
 		F419A4DFE952EF99C6D812E3 /* FloatingWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CE72248AB11DA260D0367CA /* FloatingWindowManager.swift */; };
 		FD1B12E809937CB54BD80062 /* ClipboardMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */; };
@@ -76,6 +77,7 @@
 /* Begin PBXFileReference section */
 		03A12D83C57164491EEDBE41 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		03C1763E894D72D45EDB506E /* AddToProjectSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToProjectSelectorView.swift; sourceTree = "<group>"; };
+		0FACF06E664A88EAB8A90F48 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		1206792A0BBBC771B2B8F597 /* AIProviderSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIProviderSettingsView.swift; sourceTree = "<group>"; };
 		1CE72248AB11DA260D0367CA /* FloatingWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowManager.swift; sourceTree = "<group>"; };
 		1EAB4DFF745C159D542E8DB9 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 				739BC23603618562A2000E0B /* RecommendationService.swift */,
 				D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */,
 				9B6AD15DA34582BEE329A65B /* TagService.swift */,
+				0FACF06E664A88EAB8A90F48 /* ThemeManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -476,6 +479,7 @@
 				C1517D613BA6C43851CEF6E0 /* TagPillView.swift in Sources */,
 				18709452236C2E743240E16C /* TagService.swift in Sources */,
 				800CC0C13BD71E4B76EF6C47 /* TagSidebarView.swift in Sources */,
+				F0B73B669780E5250DFA112D /* ThemeManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -531,7 +535,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -551,7 +555,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -612,7 +616,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -626,7 +630,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
