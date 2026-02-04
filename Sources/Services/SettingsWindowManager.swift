@@ -54,7 +54,9 @@ final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
         window.title = NSLocalizedString("Settings", comment: "")
         window.isReleasedWhenClosed = false
         window.isOpaque = false
-        window.backgroundColor = NSColor(Color.flexokiPaper)
+        Task { @MainActor in
+            window.backgroundColor = NSColor(ThemeManager.shared.background)
+        }
         
         window.titlebarAppearsTransparent = false
         window.titleVisibility = .visible

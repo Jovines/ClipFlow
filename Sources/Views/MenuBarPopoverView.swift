@@ -51,7 +51,7 @@ struct MenuButton: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
-        .background(isHovered ? Color.flexokiSurface : Color.clear)
+        .background(isHovered ? ThemeManager.shared.surface : Color.clear)
         .onHover { hovering in
             isHovered = hovering
         }

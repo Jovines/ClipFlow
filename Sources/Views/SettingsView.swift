@@ -163,6 +163,38 @@ struct SettingsView: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
+                    Image(systemName: "paintbrush")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Appearance")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    HStack {
+                        Text("Theme")
+                            .font(.system(size: 13))
+                        Spacer()
+                        Picker("Theme", selection: Binding(
+                            get: { ThemeManager.shared.colorScheme },
+                            set: { ThemeManager.shared.setColorScheme($0) }
+                        )) {
+                            Text("Light").tag(ColorScheme.light)
+                            Text("Dark").tag(ColorScheme.dark)
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(width: 140)
+                    }
+                }
+                .padding(12)
+                .background(ThemeManager.shared.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
                     Image(systemName: "clock.arrow.circlepath")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))

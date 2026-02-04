@@ -43,7 +43,7 @@ struct ContentView: View {
         .sheet(isPresented: $showingSettings) {
             SettingsView()
                 .frame(minWidth: 560, minHeight: 440)
-                .presentationBackground(Color.flexokiSurface)
+                .presentationBackground(ThemeManager.shared.surface)
         }
     }
 
