@@ -75,6 +75,7 @@ struct CompactItemRow: View {
     let onDelete: () -> Void
     let onAddToProject: () -> Void
     let onManageTags: () -> Void
+    let isRecommended: Bool
     @ObservedObject var panelCoordinator: GroupPanelCoordinator
     @State private var isHovered = false
 
@@ -99,6 +100,12 @@ struct CompactItemRow: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+            }
+
+            if isRecommended {
+                Image(systemName: "sparkle")
+                    .font(.system(size: 10))
+                    .foregroundStyle(themeManager.textSecondary)
             }
 
             if isHovered {
@@ -191,11 +198,27 @@ struct CompactItemRow: View {
             .foregroundStyle(themeManager.textSecondary)
             .font(.system(size: 11))
 
-            Text(item.content)
-                .font(.system(size: 11))
-                .lineLimit(1)
-                .foregroundStyle(themeManager.text)
+            previewText
         }
+    }
+
+    private var previewText: some View {
+        Group {
+            switch item.contentType {
+            case .text:
+                let cleanedContent = item.content
+                    .replacingOccurrences(of: "\n", with: " ")
+                    .replacingOccurrences(of: "\r", with: " ")
+                    .replacingOccurrences(of: "  ", with: " ")
+                    .trimmingCharacters(in: .whitespaces)
+                Text(cleanedContent)
+            case .image:
+                Text("Image")
+            }
+        }
+        .font(.system(size: 11))
+        .lineLimit(1)
+        .foregroundStyle(themeManager.text)
     }
 }
 
@@ -265,10 +288,26 @@ struct GroupPanelItemRow: View {
             .foregroundStyle(themeManager.textSecondary)
             .font(.system(size: 11))
 
-            Text(item.content)
-                .font(.system(size: 11))
-                .lineLimit(1)
-                .foregroundStyle(themeManager.text)
+            previewText
         }
+    }
+
+    private var previewText: some View {
+        Group {
+            switch item.contentType {
+            case .text:
+                let cleanedContent = item.content
+                    .replacingOccurrences(of: "\n", with: " ")
+                    .replacingOccurrences(of: "\r", with: " ")
+                    .replacingOccurrences(of: "  ", with: " ")
+                    .trimmingCharacters(in: .whitespaces)
+                Text(cleanedContent)
+            case .image:
+                Text("Image")
+            }
+        }
+        .font(.system(size: 11))
+        .lineLimit(1)
+        .foregroundStyle(themeManager.text)
     }
 }

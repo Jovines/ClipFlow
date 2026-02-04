@@ -333,21 +333,6 @@ struct FloatingWindowView: View {
     @ViewBuilder
     private var recommendationSection: some View {
         VStack(spacing: 4) {
-            HStack {
-                Image(systemName: "star.fill")
-                    .font(.caption)
-                    .foregroundStyle(Color.flexokiYellow)
-                Text("推荐")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(themeManager.textSecondary)
-                Spacer()
-            }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 6)
-            .background(themeManager.colorScheme == .dark ? Color.flexokiBase700.opacity(0.5) : Color.flexokiBase200.opacity(0.5))
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-
             LazyVStack(spacing: 4) {
                 ForEach(Array(recommendedItems.enumerated()), id: \.element.id) { index, item in
                     CompactItemRow(
@@ -358,12 +343,17 @@ struct FloatingWindowView: View {
                         onDelete: { clipboardMonitor.deleteItem(item) },
                         onAddToProject: { showAddToProject(for: item) },
                         onManageTags: { showTagPicker(for: item) },
+                        isRecommended: true,
                         panelCoordinator: groupPanelCoordinator
                     )
                 }
             }
             .padding(.horizontal, 4)
+            .padding(.vertical, 4)
         }
+        .padding(4)
+        .background(themeManager.surfaceElevated)
+        .clipShape(RoundedRectangle(cornerRadius: 6))
         .padding(.bottom, 8)
     }
 
@@ -406,6 +396,7 @@ struct FloatingWindowView: View {
                             onDelete: { clipboardMonitor.deleteItem(item) },
                             onAddToProject: { showAddToProject(for: item) },
                             onManageTags: { showTagPicker(for: item) },
+                            isRecommended: false,
                             panelCoordinator: groupPanelCoordinator
                         )
                     }
@@ -428,6 +419,7 @@ struct FloatingWindowView: View {
                     onDelete: { clipboardMonitor.deleteItem(item) },
                     onAddToProject: { showAddToProject(for: item) },
                     onManageTags: { showTagPicker(for: item) },
+                    isRecommended: false,
                     panelCoordinator: groupPanelCoordinator
                 )
             }
