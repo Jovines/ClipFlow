@@ -87,6 +87,12 @@ struct FloatingWindowView: View {
     @State private var newTagName: String = ""
     @State private var newTagColorName: String = "blue"
 
+    @State private var showRecommendationHistory = false
+    @State private var recommendationHistoryItems: [ClipboardItem] = []
+    @State private var recommendedItems: [ClipboardItem] = []
+
+    private let recommendationService = RecommendationService.shared
+
     var body: some View {
         let content = contentBuilder
 
@@ -114,7 +120,8 @@ struct FloatingWindowView: View {
                     tagService: tagService,
                     selectedTagIds: $selectedTagIds,
                     onCreateTag: createNewTag,
-                    onManageTags: openTagManagement
+                    onManageTags: openTagManagement,
+                    showRecommendationHistory: $showRecommendationHistory
                 )
                 .frame(height: 420)
 
@@ -168,6 +175,8 @@ struct FloatingWindowView: View {
             clipboardMonitor.refresh()
             groupPanelCoordinator.startTracking()
             tagService.refreshTags()
+            loadRecommendations()
+            loadRecommendationHistory()
         }
         .onDisappear {
             groupPanelCoordinator.stopTracking()
@@ -232,6 +241,27 @@ struct FloatingWindowView: View {
         }
     }
 
+    private func loadRecommendations() {
+        Task {
+            do {
+                recommendedItems = try recommendationService.fetchRecommendedItems()
+            } catch {
+                ClipFlowLogger.error("Failed to load recommendations: \(error)")
+            }
+        }
+    }
+
+    private func loadRecommendationHistory() {
+        Task {
+            do {
+                recommendationHistoryItems = try recommendationService.fetchRecommendationHistory()
+                tagService.refreshRecommendationHistoryCount()
+            } catch {
+                ClipFlowLogger.error("Failed to load recommendation history: \(error)")
+            }
+        }
+    }
+
     private func filterItemsByTags(_ items: [ClipboardItem]) -> [ClipboardItem] {
         guard !selectedTagIds.isEmpty else {
             return items
@@ -263,16 +293,26 @@ struct FloatingWindowView: View {
 
     @ViewBuilder
     private var contentView: some View {
-        if items.isEmpty {
+        let displayItems = showRecommendationHistory ? recommendationHistoryItems : filterItemsByTags(clipboardMonitor.capturedItems)
+
+        if displayItems.isEmpty && recommendedItems.isEmpty {
             emptyStateView
         } else {
             ScrollView {
                 LazyVStack(spacing: 4) {
-                    ForEach(Array(groupedItems.enumerated()), id: \.offset) { groupIndex, group in
-                        if groupIndex == 0 {
-                            firstGroupView(for: group)
-                        } else {
-                            expandedGroupView(for: group, groupIndex: groupIndex)
+                    if !showRecommendationHistory && !recommendedItems.isEmpty {
+                        recommendationSection
+                    }
+
+                    if showRecommendationHistory {
+                        recommendationHistorySection
+                    } else {
+                        ForEach(Array(groupedItems.enumerated()), id: \.offset) { groupIndex, group in
+                            if groupIndex == 0 {
+                                firstGroupView(for: group)
+                            } else {
+                                expandedGroupView(for: group, groupIndex: groupIndex)
+                            }
                         }
                     }
                 }
@@ -280,12 +320,97 @@ struct FloatingWindowView: View {
                 .onAppear {
                     groupPanelCoordinator.updateGroupedItems(groupedItems)
                 }
-                .onChange(of: items.count) { _, _ in
+                .onChange(of: displayItems.count) { _, _ in
                     groupPanelCoordinator.updateGroupedItems(groupedItems)
                 }
-
             }
         }
+    }
+
+    @ViewBuilder
+    private var recommendationSection: some View {
+        VStack(spacing: 4) {
+            HStack {
+                Image(systemName: "star.fill")
+                    .font(.caption)
+                    .foregroundStyle(Color.flexokiYellow)
+                Text("推荐")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundStyle(Color.flexokiTextSecondary)
+                Spacer()
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(Color.flexokiBase200.opacity(0.5))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+            LazyVStack(spacing: 4) {
+                ForEach(Array(recommendedItems.enumerated()), id: \.element.id) { index, item in
+                    CompactItemRow(
+                        item: item,
+                        clipboardMonitor: clipboardMonitor,
+                        onSelect: { handleItemSelection(item) },
+                        onEdit: { startEdit(item) },
+                        onDelete: { clipboardMonitor.deleteItem(item) },
+                        onAddToProject: { showAddToProject(for: item) },
+                        onManageTags: { showTagPicker(for: item) },
+                        panelCoordinator: groupPanelCoordinator
+                    )
+                }
+            }
+            .padding(.horizontal, 4)
+        }
+        .padding(.bottom, 8)
+    }
+
+    @ViewBuilder
+    private var recommendationHistorySection: some View {
+        VStack(spacing: 4) {
+            HStack {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.caption)
+                    .foregroundStyle(Color.flexokiTextSecondary)
+                Text("推荐历史")
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundStyle(Color.flexokiTextSecondary)
+                Spacer()
+                if !recommendationHistoryItems.isEmpty {
+                    Text("\(recommendationHistoryItems.count) 条")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .background(Color.flexokiBase200.opacity(0.5))
+            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+            if recommendationHistoryItems.isEmpty {
+                Text("暂无推荐历史")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .padding(.vertical, 20)
+            } else {
+                LazyVStack(spacing: 4) {
+                    ForEach(Array(recommendationHistoryItems.enumerated()), id: \.element.id) { index, item in
+                        CompactItemRow(
+                            item: item,
+                            clipboardMonitor: clipboardMonitor,
+                            onSelect: { handleItemSelection(item) },
+                            onEdit: { startEdit(item) },
+                            onDelete: { clipboardMonitor.deleteItem(item) },
+                            onAddToProject: { showAddToProject(for: item) },
+                            onManageTags: { showTagPicker(for: item) },
+                            panelCoordinator: groupPanelCoordinator
+                        )
+                    }
+                }
+                .padding(.horizontal, 4)
+            }
+        }
+        .padding(.bottom, 8)
     }
 
     @ViewBuilder
@@ -339,6 +464,19 @@ struct FloatingWindowView: View {
         } else {
             onItemSelected(item)
         }
+
+        Task {
+            do {
+                try recommendationService.updateUsage(itemId: item.id)
+                ClipFlowLogger.info("✅ Updated usage for item: \(item.id)")
+                try await recommendationService.recalculateRecommendations()
+                await MainActor.run {
+                    loadRecommendations()
+                }
+            } catch {
+                ClipFlowLogger.error("❌ Failed to update usage: \(error)")
+            }
+        }
     }
 
     private var emptyStateView: some View {
@@ -347,11 +485,11 @@ struct FloatingWindowView: View {
                 .font(.system(size: 36))
                 .foregroundStyle(Color.flexokiTextSecondary)
 
-            Text("No clipboard history")
+            Text(showRecommendationHistory ? "暂无推荐历史" : "No clipboard history")
                 .font(.subheadline)
                 .foregroundStyle(Color.flexokiTextSecondary)
 
-            Text("Copy something to see it here")
+            Text(showRecommendationHistory ? "使用频率高的项目会出现在这里" : "Copy something to see it here")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }

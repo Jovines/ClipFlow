@@ -135,6 +135,22 @@ final class DatabaseManager: @unchecked Sendable {
 
         try migratePromptTemplates(db: db)
         try migrateTags(db: db)
+        try migrateRecommendationFields(db: db)
+    }
+
+    private static func migrateRecommendationFields(db: Database) throws {
+        let usageCountColumnExists = try Int.fetchOne(db, sql: """
+            SELECT COUNT(*) FROM pragma_table_info('clipboard_items') WHERE name = 'usageCount'
+            """) ?? 0
+
+        if usageCountColumnExists == 0 {
+            try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN usageCount INTEGER NOT NULL DEFAULT 0")
+            try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN lastUsedAt DATETIME")
+            try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN recommendationScore REAL NOT NULL DEFAULT 0")
+            try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN recommendedAt DATETIME")
+            try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN evictedAt DATETIME")
+            print("[Database] Migration: Added recommendation columns to clipboard_items table")
+        }
     }
 
     private static func migrateTags(db: Database) throws {

@@ -5,6 +5,7 @@ struct TagSidebarView: View {
     @Binding var selectedTagIds: [UUID]
     let onCreateTag: () -> Void
     let onManageTags: () -> Void
+    @Binding var showRecommendationHistory: Bool
 
     private let sidebarWidth: CGFloat = 80
 
@@ -12,6 +13,17 @@ struct TagSidebarView: View {
         VStack(spacing: 0) {
             ScrollView {
                 VStack(spacing: 4) {
+                    RecommendationHistorySidebarItem(
+                        isSelected: $showRecommendationHistory,
+                        count: tagService.recommendationHistoryCount
+                    )
+                    .onTapGesture {
+                        showRecommendationHistory.toggle()
+                    }
+
+                    Divider()
+                        .padding(.vertical, 4)
+
                     ForEach(allTags) { tag in
                         TagSidebarRowView(
                             tag: tag,
@@ -52,6 +64,35 @@ struct TagSidebarView: View {
         } else {
             selectedTagIds.append(tagId)
         }
+    }
+}
+
+struct RecommendationHistorySidebarItem: View {
+    @Binding var isSelected: Bool
+    let count: Int
+
+    var body: some View {
+        Button {
+            isSelected.toggle()
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.system(size: 10))
+                    .foregroundStyle(isSelected ? Color.flexokiYellow : .secondary)
+
+                Text("推荐历史")
+                    .font(.system(size: 10))
+                    .lineLimit(1)
+            }
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(isSelected ? Color.flexokiYellow.opacity(0.15) : Color.clear)
+            .foregroundStyle(isSelected ? Color.flexokiYellow : .secondary)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 }
 

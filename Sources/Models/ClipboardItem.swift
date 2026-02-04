@@ -9,15 +9,16 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
     var thumbnailPath: String?
     var createdAt: Date
     var contentHash: Int
+    var usageCount: Int
+    var lastUsedAt: Date?
+    var recommendationScore: Double
+    var recommendedAt: Date?
+    var evictedAt: Date?
 
     enum CodingKeys: String, CodingKey {
-        case id
-        case content
-        case contentType
-        case imagePath
-        case thumbnailPath
-        case createdAt
-        case contentHash
+        case id, content, contentType, imagePath, thumbnailPath
+        case createdAt, contentHash, usageCount, lastUsedAt
+        case recommendationScore, recommendedAt, evictedAt
     }
 
     init(from decoder: Decoder) throws {
@@ -29,6 +30,11 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
         thumbnailPath = try container.decodeIfPresent(String.self, forKey: .thumbnailPath)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         contentHash = try container.decode(Int.self, forKey: .contentHash)
+        usageCount = try container.decodeIfPresent(Int.self, forKey: .usageCount) ?? 0
+        lastUsedAt = try container.decodeIfPresent(Date.self, forKey: .lastUsedAt)
+        recommendationScore = try container.decodeIfPresent(Double.self, forKey: .recommendationScore) ?? 0
+        recommendedAt = try container.decodeIfPresent(Date.self, forKey: .recommendedAt)
+        evictedAt = try container.decodeIfPresent(Date.self, forKey: .evictedAt)
     }
 
     enum ContentType: String, Codable {
@@ -43,7 +49,12 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
         imagePath: String? = nil,
         thumbnailPath: String? = nil,
         createdAt: Date = Date(),
-        contentHash: Int = 0
+        contentHash: Int = 0,
+        usageCount: Int = 0,
+        lastUsedAt: Date? = nil,
+        recommendationScore: Double = 0,
+        recommendedAt: Date? = nil,
+        evictedAt: Date? = nil
     ) {
         self.id = id
         self.content = content
@@ -52,6 +63,11 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
         self.thumbnailPath = thumbnailPath
         self.createdAt = createdAt
         self.contentHash = contentHash
+        self.usageCount = usageCount
+        self.lastUsedAt = lastUsedAt
+        self.recommendationScore = recommendationScore
+        self.recommendedAt = recommendedAt
+        self.evictedAt = evictedAt
     }
 
     var hasImage: Bool {
@@ -64,6 +80,42 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+}
+
+extension ClipboardItem {
+    static let recommendationDecayConstant: Double = 0.347
+    static let minRecommendationScore: Double = 1.0
+
+    static func calculateScore(usageCount: Int, daysSinceLastUse: Double) -> Double {
+        Double(usageCount) * exp(-recommendationDecayConstant * daysSinceLastUse)
+    }
+
+    var daysSinceLastUse: Double {
+        guard let lastUsed = lastUsedAt else { return .infinity }
+        return Date().timeIntervalSince(lastUsed) / 86400
+    }
+
+    var currentScore: Double {
+        guard usageCount > 0 else { return 0 }
+        return Self.calculateScore(usageCount: usageCount, daysSinceLastUse: daysSinceLastUse)
+    }
+
+    var shouldBeRecommended: Bool {
+        currentScore >= Self.minRecommendationScore
+    }
+
+    var recommendationPriority: Double {
+        currentScore
+    }
+
+    var isCurrentlyRecommended: Bool {
+        recommendedAt != nil && evictedAt == nil
+    }
+
+    var daysSinceEvicted: Double? {
+        guard let evicted = evictedAt else { return nil }
+        return Date().timeIntervalSince(evicted) / 86400
     }
 }
 
@@ -89,16 +141,26 @@ extension ClipboardItem: FetchableRecord, PersistableRecord {
         static let thumbnailPath = Column(CodingKeys.thumbnailPath)
         static let createdAt = Column(CodingKeys.createdAt)
         static let contentHash = Column(CodingKeys.contentHash)
+        static let usageCount = Column(CodingKeys.usageCount)
+        static let lastUsedAt = Column(CodingKeys.lastUsedAt)
+        static let recommendationScore = Column(CodingKeys.recommendationScore)
+        static let recommendedAt = Column(CodingKeys.recommendedAt)
+        static let evictedAt = Column(CodingKeys.evictedAt)
     }
 
     func encode(to container: inout PersistenceContainer) throws {
-        container[Columns.id] = id
+        container[Columns.id] = id.uuidString
         container[Columns.content] = content
         container[Columns.contentType] = contentType
         container[Columns.imagePath] = imagePath
         container[Columns.thumbnailPath] = thumbnailPath
         container[Columns.createdAt] = createdAt
         container[Columns.contentHash] = contentHash
+        container[Columns.usageCount] = usageCount
+        container[Columns.lastUsedAt] = lastUsedAt
+        container[Columns.recommendationScore] = recommendationScore
+        container[Columns.recommendedAt] = recommendedAt
+        container[Columns.evictedAt] = evictedAt
     }
 }
 

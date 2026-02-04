@@ -19,6 +19,7 @@
 		2524E6BB6091BEF55A67FC35 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DA421858CFFE55FE1B1533 /* OpenAIService.swift */; };
 		2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */; };
 		37743BE3D096EDF86BBDD238 /* SettingsWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */; };
+		37A764745FD0F207D9429DA4 /* RecommendationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 739BC23603618562A2000E0B /* RecommendationService.swift */; };
 		3AB7E32F2A2782D8EC61E146 /* SearchIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5C68D15CA5FE443AF36F99 /* SearchIndicatorView.swift */; };
 		3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */; };
 		3E3307C5175AD0F1D57F5FCC /* ProjectModeContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF9EE54435FAA70FA993FA3 /* ProjectModeContainerView.swift */; };
@@ -95,6 +96,7 @@
 		586557FA753777654C073B06 /* ImageOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOptimizer.swift; sourceTree = "<group>"; };
 		5E65F7E93164C977B289D518 /* TagPillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagPillView.swift; sourceTree = "<group>"; };
 		65B1A4FBF5647B3D3F8D06AE /* PromptTemplateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplateService.swift; sourceTree = "<group>"; };
+		739BC23603618562A2000E0B /* RecommendationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationService.swift; sourceTree = "<group>"; };
 		756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorderView.swift; sourceTree = "<group>"; };
 		77B153DF2BA49164525C42A0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		77BE29F8D89D216AF58F99DF /* AIProviderConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIProviderConfig.swift; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 				CD7C7F3B1ED4D0330A17E0AA /* ProjectCognitionService.swift */,
 				AD2BEBCBDE3F8381B84FCD45 /* ProjectService.swift */,
 				65B1A4FBF5647B3D3F8D06AE /* PromptTemplateService.swift */,
+				739BC23603618562A2000E0B /* RecommendationService.swift */,
 				D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */,
 				9B6AD15DA34582BEE329A65B /* TagService.swift */,
 			);
@@ -462,6 +465,7 @@
 				C48C49737F662257A78682E6 /* ProviderEditSheet.swift in Sources */,
 				D0FD714EEA703D38257AC9A5 /* ProviderPresetSheet.swift in Sources */,
 				724E3F5CE384436B3C2BD020 /* ProviderRow.swift in Sources */,
+				37A764745FD0F207D9429DA4 /* RecommendationService.swift in Sources */,
 				0C8AE76378B0FCCF8957B3A0 /* SearchBar.swift in Sources */,
 				3AB7E32F2A2782D8EC61E146 /* SearchIndicatorView.swift in Sources */,
 				C950E8741D6C858B817F87B6 /* SettingsView.swift in Sources */,

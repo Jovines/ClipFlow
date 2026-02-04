@@ -84,6 +84,7 @@ extension Color {
     static let tagRed = flexokiRed600
     static let tagOrange = flexokiOrange600
     static let tagYellow = flexokiYellow600
+    static let flexokiYellow = flexokiYellow600
     static let tagGreen = flexokiGreen600
     static let tagCyan = flexokiCyan600
     static let tagBlue = flexokiBlue600
