@@ -1,6 +1,6 @@
 ---
-name: release-project
-description: Release new versions of ClipFlow locally - build, create dmg, and push to GitHub
+name: release
+description: MUST USE when releasing, versioning, creating releases, git tags, changelog, version bump, or GitHub releases. Handles ClipFlow build, DMG creation, and release workflow.
 license: MIT
 compatibility: opencode
 metadata:

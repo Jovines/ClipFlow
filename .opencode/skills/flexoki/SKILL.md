@@ -1,6 +1,6 @@
 ---
-name: flexoki-color-scheme
-description: Integrate Flexoki color scheme into SwiftUI macOS applications. Defines complete color palette with semantic mappings for backgrounds, surfaces, borders, text, and accents. Automatically triggered when designing UI or making UI changes.
+name: flexoki
+description: MUST USE when user asks about colors, color scheme, Flexoki, SwiftUI styling, UI design, backgrounds, text colors, accents, borders, surfaces, or any UI appearance changes in macOS apps.
 license: MIT
 compatibility: opencode
 metadata:
