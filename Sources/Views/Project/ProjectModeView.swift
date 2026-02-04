@@ -466,7 +466,7 @@ struct ProjectModeHeader: View {
         HStack {
             HStack(spacing: 8) {
                 Image(systemName: "folder.fill")
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color.flexokiAccent)
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(project.name)
@@ -951,7 +951,7 @@ struct ExportProjectView: View {
                     .frame(height: 300)
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+                            .stroke(ThemeManager.shared.borderSubtle, lineWidth: 1)
                     )
             }
             

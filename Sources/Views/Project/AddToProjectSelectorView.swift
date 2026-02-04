@@ -49,7 +49,7 @@ struct AddToProjectSelectorView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(Color.secondary.opacity(0.1))
+            .background(ThemeManager.shared.borderSubtle)
             .cornerRadius(6)
             .padding(.horizontal)
 
@@ -64,7 +64,7 @@ struct AddToProjectSelectorView: View {
                     .textFieldStyle(.plain)
             }
             .padding(8)
-            .background(Color.secondary.opacity(0.1))
+            .background(ThemeManager.shared.borderSubtle)
             .cornerRadius(6)
             .padding(.horizontal)
             .padding(.top, 8)
@@ -151,7 +151,7 @@ struct AddToProjectRow: View {
                     .scaleEffect(0.6)
             } else {
                 Image(systemName: "plus.circle")
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color.flexokiAccent)
                     .font(.caption)
             }
         }

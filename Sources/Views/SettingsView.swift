@@ -251,15 +251,15 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
-                .background(Color.gray.opacity(0.2))
+                .background(Color.flexokiBase200.opacity(0.5))
                 .clipShape(Capsule())
         case .enabled:
             Text("Enabled")
                 .font(.system(size: 11))
-                .foregroundStyle(.green)
+                .foregroundStyle(Color.flexokiGreen600)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
-                .background(Color.green.opacity(0.15))
+                .background(Color.flexokiGreen400.opacity(0.2))
                 .clipShape(Capsule())
         case .disabled:
             Text("Disabled")
@@ -267,15 +267,15 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
-                .background(Color.gray.opacity(0.2))
+                .background(Color.flexokiBase200.opacity(0.5))
                 .clipShape(Capsule())
         case .error(let message):
             Text("Error")
                 .font(.system(size: 11))
-                .foregroundStyle(.red)
+                .foregroundStyle(Color.flexokiRed600)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
-                .background(Color.red.opacity(0.15))
+                .background(Color.flexokiRed400.opacity(0.2))
                 .clipShape(Capsule())
                 .help(message)
         }
@@ -322,6 +322,8 @@ struct SidebarTabButton: View {
     let isSelected: Bool
     let action: () -> Void
 
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 8) {
@@ -334,7 +336,7 @@ struct SidebarTabButton: View {
 
                 Spacer()
             }
-            .foregroundStyle(isSelected ? Color.flexokiPaper : Color.flexokiText)
+            .foregroundStyle(themeManager.text)
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
             .background(

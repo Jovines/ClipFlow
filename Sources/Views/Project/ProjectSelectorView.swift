@@ -43,7 +43,7 @@ struct ProjectSelectorView: View {
                     .textFieldStyle(.plain)
             }
             .padding(8)
-            .background(Color.secondary.opacity(0.1))
+            .background(ThemeManager.shared.borderSubtle)
             .cornerRadius(6)
             .padding(.horizontal)
             
@@ -111,7 +111,7 @@ struct ProjectRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: isActive ? "folder.fill" : "folder")
-                .foregroundStyle(isActive ? Color.accentColor : .secondary)
+                .foregroundStyle(isActive ? Color.flexokiAccent : ThemeManager.shared.textSecondary)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(project.name)
@@ -125,13 +125,13 @@ struct ProjectRow: View {
             
             if isActive {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color.flexokiAccent)
                     .font(.caption)
             }
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
-        .background(isActive ? Color.accentColor.opacity(0.1) : Color.clear)
+        .background(isActive ? Color.flexokiAccent.opacity(0.1) : Color.clear)
     }
 }
 
@@ -178,7 +178,7 @@ struct CreateProjectSheet: View {
                     .frame(height: 80)
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+                            .stroke(ThemeManager.shared.borderSubtle, lineWidth: 1)
                     )
             }
             

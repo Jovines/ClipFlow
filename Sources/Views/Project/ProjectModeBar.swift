@@ -15,7 +15,7 @@ struct ProjectModeBar: View {
                     HStack(spacing: 6) {
                         Image(systemName: "folder.fill")
                             .font(.system(size: 10))
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(Color.flexokiAccent)
                         
                         Text(project.name)
                             .font(.system(size: 11, weight: .medium))
@@ -45,7 +45,7 @@ struct ProjectModeBar: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.accentColor.opacity(0.1))
+                    .background(Color.flexokiAccent.opacity(0.1))
                     .cornerRadius(4)
                 } else {
                     // Has project but not in project mode - show enter button
@@ -69,7 +69,7 @@ struct ProjectModeBar: View {
                                 Text("进入")
                                     .font(.system(size: 10))
                             }
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(Color.flexokiAccent)
                         }
                         .buttonStyle(.borderless)
                         
@@ -84,7 +84,7 @@ struct ProjectModeBar: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.secondary.opacity(0.1))
+                    .background(ThemeManager.shared.surface)
                     .cornerRadius(4)
                 }
             } else {
@@ -192,7 +192,7 @@ struct ProjectQuickSelector: View {
             .padding(.bottom, 6)
         }
         .frame(width: 160)
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(ThemeManager.shared.surface)
         .cornerRadius(6)
         .shadow(radius: 4)
     }

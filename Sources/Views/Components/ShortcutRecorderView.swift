@@ -29,7 +29,7 @@ struct ShortcutRecorderView: View {
     private var recordingView: some View {
         HStack(spacing: 8) {
             Circle()
-                .fill(Color.red)
+                .fill(Color.flexokiRed600)
                 .frame(width: 8, height: 8)
             
             Text("Press any key...")

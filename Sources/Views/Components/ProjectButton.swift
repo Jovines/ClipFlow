@@ -49,7 +49,7 @@ struct ProjectButton: View {
             .background(
                 currentProject != nil
                     ? Color.flexokiAccent.opacity(0.1)
-                    : Color.secondary.opacity(0.1)
+                    : ThemeManager.shared.surface
             )
             .clipShape(RoundedRectangle(cornerRadius: 4))
         }

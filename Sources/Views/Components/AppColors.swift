@@ -38,4 +38,12 @@ extension View {
     func appSurface(_ color: AppSurfaceColor = .surface) -> some View {
         modifier(AppColorModifier(color: color))
     }
+
+    func appText(_ color: AppSurfaceColor = .text) -> some View {
+        modifier(AppColorModifier(color: color))
+    }
+
+    func appBorder(_ color: AppSurfaceColor = .border) -> some View {
+        modifier(AppColorModifier(color: color))
+    }
 }

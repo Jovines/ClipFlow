@@ -91,16 +91,16 @@ struct ProjectPromptSettingsView: View {
                                         .font(.caption)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
-                                        .background(Color.accentColor.opacity(0.1))
-                                        .foregroundStyle(Color.accentColor)
+                                        .background(Color.flexokiAccent.opacity(0.1))
+                                        .foregroundStyle(Color.flexokiAccent)
                                         .clipShape(RoundedRectangle(cornerRadius: 4))
                                 } else {
                                     Text("自定义")
                                         .font(.caption)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
-                                        .background(Color.green.opacity(0.1))
-                                        .foregroundStyle(.green)
+                                        .background(Color.flexokiGreen600.opacity(0.1))
+                                        .foregroundStyle(Color.flexokiGreen600)
                                         .clipShape(RoundedRectangle(cornerRadius: 4))
                                 }
 
@@ -339,12 +339,12 @@ struct TemplateRow: View {
                 if isSelected {
                     Image(systemName: "checkmark")
                         .font(.caption)
-                        .foregroundStyle(Color.accentColor)
+                        .foregroundStyle(Color.flexokiAccent)
                 }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
+            .background(isSelected ? Color.flexokiAccent.opacity(0.1) : Color.clear)
             .clipShape(RoundedRectangle(cornerRadius: 6))
         }
         .buttonStyle(.plain)
