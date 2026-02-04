@@ -11,6 +11,16 @@ struct TagSidebarView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            HStack(spacing: 4) {
+                Text("筛选")
+                    .font(.system(size: 11, weight: .medium))
+                Spacer()
+            }
+            .frame(height: 36)
+            .padding(.horizontal, 8)
+
+            Divider()
+
             ScrollView {
                 VStack(spacing: 4) {
                     RecommendationHistorySidebarItem(
@@ -45,8 +55,19 @@ struct TagSidebarView: View {
                 }
                 .buttonStyle(.plain)
                 .help("Create new tag")
+
+                Spacer()
+
+                Button(action: onManageTags) {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 9))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+                .help("Manage tags")
             }
             .frame(height: 28)
+            .padding(.horizontal, 6)
             .background(ThemeManager.shared.surface)
         }
         .frame(width: sidebarWidth)
