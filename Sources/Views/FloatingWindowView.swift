@@ -34,20 +34,21 @@ struct FloatingWindowView: View {
     }
 
     private var groupedItems: [(groupInfo: GroupInfo, items: [ClipboardItem])] {
-        let sourceItems = showRecommendationHistory ? recommendationHistoryItems : filterItemsByTags(clipboardMonitor.capturedItems)
-        let visibleItems = Array(sourceItems.prefix(maxVisibleItems))
-        let remainingItems = Array(sourceItems.dropFirst(maxVisibleItems))
+        let baseItems = showRecommendationHistory ? recommendationHistoryItems : clipboardMonitor.capturedItems
+        let filteredItems = filterItemsByTags(baseItems)
+        let visibleItems = Array(filteredItems.prefix(maxVisibleItems))
+        let remainingItems = Array(filteredItems.dropFirst(maxVisibleItems))
 
         var groups: [(groupInfo: GroupInfo, items: [ClipboardItem])] = []
 
         if !visibleItems.isEmpty {
-            groups.append((GroupInfo(startIndex: 1, endIndex: visibleItems.count, totalCount: sourceItems.count), visibleItems))
+            groups.append((GroupInfo(startIndex: 1, endIndex: visibleItems.count, totalCount: filteredItems.count), visibleItems))
         }
 
         for (index, chunk) in remainingItems.chunked(into: 15).enumerated() {
             let startIndex = maxVisibleItems + index * 15 + 1
-            let endIndex = min(startIndex + chunk.count - 1, sourceItems.count)
-            groups.append((GroupInfo(startIndex: startIndex, endIndex: endIndex, totalCount: sourceItems.count), Array(chunk)))
+            let endIndex = min(startIndex + chunk.count - 1, filteredItems.count)
+            groups.append((GroupInfo(startIndex: startIndex, endIndex: endIndex, totalCount: filteredItems.count), Array(chunk)))
         }
 
         return groups
@@ -124,7 +125,15 @@ struct FloatingWindowView: View {
                     selectedTagIds: $selectedTagIds,
                     onCreateTag: createNewTag,
                     onManageTags: openTagManagement,
-                    showRecommendationHistory: $showRecommendationHistory
+                    showRecommendationHistory: Binding(
+                        get: { showRecommendationHistory },
+                        set: { newValue in
+                            if newValue {
+                                selectedTagIds = []
+                            }
+                            showRecommendationHistory = newValue
+                        }
+                    )
                 )
                 .frame(height: 420)
 
