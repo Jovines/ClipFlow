@@ -32,6 +32,7 @@
 		5A685B205DDA229166C8F59A /* ImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8272FC6C30E6E5A33103EB5F /* ImageCacheManager.swift */; };
 		5FC7B2B68756A340589CF3E3 /* FloatingWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */; };
 		600791DBFC092610668FFB59 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A12D83C57164491EEDBE41 /* AboutView.swift */; };
+		618D78BA83DD0C1B2FE9CAD1 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3E77DA8D5ED93FE67E4AAD /* PermissionManager.swift */; };
 		693965C3F410A5655BF0EC01 /* TagPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D92728CAB3D845A3B855AC /* TagPickerView.swift */; };
 		6F45C76367DCDF0B874FD6E4 /* OpenAI in Frameworks */ = {isa = PBXBuildFile; productRef = 93DA6328C315427CBC5C5F7B /* OpenAI */; };
 		724E3F5CE384436B3C2BD020 /* ProviderRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD36C0393B6F4E7EC9E87F0A /* ProviderRow.swift */; };
@@ -58,6 +59,7 @@
 		C360348A1BA8CFCAC3BCD0C1 /* ProjectModeBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3A193662A798F38A905321 /* ProjectModeBar.swift */; };
 		C48C49737F662257A78682E6 /* ProviderEditSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E294A724BA19A3F6D69622 /* ProviderEditSheet.swift */; };
 		C950E8741D6C858B817F87B6 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93E6F611F5CEAB8D5193F057 /* SettingsView.swift */; };
+		CDD0DA5CC745C4D314981AEE /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00F9CB9B7F9EA75BFDDF841A /* WelcomeView.swift */; };
 		CDDE7CE0F1EC0D187B385A0D /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 570F8337E86D4F82253E5F25 /* Project.swift */; };
 		D02B3F67AB115455AE2F6B8C /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = FB5748915AE3BA482B05925F /* GRDB */; };
 		D09143B997DB472D354CFA05 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88188FA9FF589402AFC4C99A /* NotificationService.swift */; };
@@ -75,6 +77,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		00F9CB9B7F9EA75BFDDF841A /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		03A12D83C57164491EEDBE41 /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		03C1763E894D72D45EDB506E /* AddToProjectSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToProjectSelectorView.swift; sourceTree = "<group>"; };
 		0FACF06E664A88EAB8A90F48 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
@@ -134,6 +137,7 @@
 		E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowView.swift; sourceTree = "<group>"; };
 		EC3A193662A798F38A905321 /* ProjectModeBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectModeBar.swift; sourceTree = "<group>"; };
 		EEB25C362C23BB1353F84958 /* ModeIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeIndicatorView.swift; sourceTree = "<group>"; };
+		EF3E77DA8D5ED93FE67E4AAD /* PermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
 		F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardItem.swift; sourceTree = "<group>"; };
 		F9C4F37EBB147CEFC84AAB7D /* ClipboardContentDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardContentDetector.swift; sourceTree = "<group>"; };
 		F9F98039A60F8497CD28BF1C /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
@@ -163,6 +167,7 @@
 				DB7D34E47BB34B91999777F7 /* KeychainManager.swift */,
 				88188FA9FF589402AFC4C99A /* NotificationService.swift */,
 				79DA421858CFFE55FE1B1533 /* OpenAIService.swift */,
+				EF3E77DA8D5ED93FE67E4AAD /* PermissionManager.swift */,
 				CD7C7F3B1ED4D0330A17E0AA /* ProjectCognitionService.swift */,
 				AD2BEBCBDE3F8381B84FCD45 /* ProjectService.swift */,
 				65B1A4FBF5647B3D3F8D06AE /* PromptTemplateService.swift */,
@@ -318,6 +323,7 @@
 				E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */,
 				3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */,
 				93E6F611F5CEAB8D5193F057 /* SettingsView.swift */,
+				00F9CB9B7F9EA75BFDDF841A /* WelcomeView.swift */,
 				604E68001491B5DD68CEDA7C /* AIProviderSettings */,
 				E534313217E75EB58E2BB586 /* Components */,
 				A26629820A11BE5331CB27C8 /* FloatingWindow */,
@@ -453,6 +459,7 @@
 				19FB375D2E4FD12AE5385D78 /* ModeIndicatorView.swift in Sources */,
 				D09143B997DB472D354CFA05 /* NotificationService.swift in Sources */,
 				2524E6BB6091BEF55A67FC35 /* OpenAIService.swift in Sources */,
+				618D78BA83DD0C1B2FE9CAD1 /* PermissionManager.swift in Sources */,
 				DC537CD0D58974EE0D197D2A /* PresetRow.swift in Sources */,
 				CDDE7CE0F1EC0D187B385A0D /* Project.swift in Sources */,
 				5443AF1926B9AEEEA027FF15 /* ProjectButton.swift in Sources */,
@@ -480,6 +487,7 @@
 				18709452236C2E743240E16C /* TagService.swift in Sources */,
 				800CC0C13BD71E4B76EF6C47 /* TagSidebarView.swift in Sources */,
 				F0B73B669780E5250DFA112D /* ThemeManager.swift in Sources */,
+				CDD0DA5CC745C4D314981AEE /* WelcomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
