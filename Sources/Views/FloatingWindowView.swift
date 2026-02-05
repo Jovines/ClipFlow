@@ -341,7 +341,7 @@ struct FloatingWindowView: View {
     @ViewBuilder
     private var recommendationSection: some View {
         VStack(spacing: 4) {
-            LazyVStack(spacing: 4) {
+            VStack(spacing: 4) {
                 ForEach(Array(recommendedItems.enumerated()), id: \.element.id) { index, item in
                     CompactItemRow(
                         item: item,
