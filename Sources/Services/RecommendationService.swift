@@ -96,8 +96,10 @@ final class RecommendationService: ObservableObject, @unchecked Sendable {
         try dbManager.dbPool.read { db in
             let sql = """
                 SELECT * FROM clipboard_items
-                WHERE evictedAt IS NOT NULL
-                ORDER BY evictedAt DESC
+                WHERE recommendedAt IS NOT NULL
+                ORDER BY
+                    CASE WHEN evictedAt IS NOT NULL THEN 1 ELSE 0 END,
+                    COALESCE(evictedAt, recommendedAt) DESC
                 LIMIT 50
                 """
             return try ClipboardItem.fetchAll(db, sql: sql)

@@ -357,7 +357,7 @@ struct FloatingWindowView: View {
             .padding(.vertical, 4)
         }
         .padding(4)
-        .background(themeManager.surfaceElevated)
+        .background(Color.flexokiBase200)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .padding(.bottom, 8)
     }
