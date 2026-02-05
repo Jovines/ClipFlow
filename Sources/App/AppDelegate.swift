@@ -1,45 +1,17 @@
 import Cocoa
 import SwiftUI
 
-@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     private let windowManager = FloatingWindowManager.shared
+    private var hasCheckedPermission = false
     private var isFloatingWindowActive = false
-    private var welcomeWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        setupClipboardMonitor()
+        checkAndRequestAccessibilityPermission()
         setupWindowFocusMonitoring()
         setupWindowNotifications()
-
-        if PermissionManager.shared.isFirstLaunch {
-            showWelcomeWindow()
-        } else {
-            setupClipboardMonitor()
-            checkAndRequestAccessibilityPermission()
-        }
-    }
-
-    private func showWelcomeWindow() {
-        let welcomeView = WelcomeView(onComplete: { [weak self] in
-            self?.setupClipboardMonitor()
-            self?.checkAndRequestAccessibilityPermission()
-        })
-
-        let hostingController = NSHostingController(rootView: welcomeView)
-
-        welcomeWindow = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 420, height: 480),
-            styleMask: [.titled, .closable, .fullSizeContentView],
-            backing: .buffered,
-            defer: false
-        )
-        welcomeWindow?.contentViewController = hostingController
-        welcomeWindow?.title = "欢迎使用 ClipFlow"
-        welcomeWindow?.isReleasedWhenClosed = false
-        welcomeWindow?.center()
-        welcomeWindow?.orderFrontRegardless()
-        welcomeWindow?.makeKey()
     }
 
     private func setupWindowNotifications() {
@@ -62,28 +34,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func applicationDidBecomeActive(_ notification: Notification) {
-        if !PermissionManager.shared.isFirstLaunch {
-            if PermissionManager.shared.hasAccessibilityPermission {
-                let hasShortcut = HotKeyManager.shared.currentShortcut != nil
+        if hasCheckedPermission {
+            let trusted = AXIsProcessTrustedWithOptions(nil)
+            let hasShortcut = HotKeyManager.shared.currentShortcut != nil
 
-                if !hasShortcut {
-                    registerGlobalShortcut()
-                }
+            if trusted && !hasShortcut {
+                registerGlobalShortcut()
             }
         }
     }
 
     private func setupClipboardMonitor() {
-        if PermissionManager.shared.hasClipboardMonitoringConsent {
-            ClipboardMonitor.shared.start()
-        }
+        ClipboardMonitor.shared.start()
     }
-
+    
     private func checkAndRequestAccessibilityPermission() {
-        PermissionManager.shared.checkAccessibilityPermission()
-
-        if PermissionManager.shared.hasAccessibilityPermission {
+        hasCheckedPermission = true
+        
+        let trusted = AXIsProcessTrustedWithOptions(nil)
+        
+        if trusted {
             registerGlobalShortcut()
+        } else {
+            let promptKey = "AXTrustedCheckOptionPrompt"
+            let options: [String: Bool] = [promptKey: true]
+            AXIsProcessTrustedWithOptions(options as CFDictionary)
         }
     }
 
