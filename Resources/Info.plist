@@ -31,6 +31,8 @@
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>NSAccessibilityUsageDescription</key>
-    <string>ClipFlow needs accessibility access to register global keyboard shortcuts for quick clipboard access.</string>
+    <string>ClipFlow needs accessibility access to register global keyboard shortcuts (Command+Shift+V) for quick clipboard history access. This permission is only used for keyboard shortcuts and does not read screen content.</string>
+    <key>NSClipboardUsageDescription</key>
+    <string>ClipFlow saves your clipboard history to help you access previously copied items. All data is stored locally on your device. You can disable clipboard monitoring in settings.</string>
 </dict>
 </plist>
