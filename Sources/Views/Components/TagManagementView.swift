@@ -8,6 +8,14 @@ struct TagManagementView: View {
     @State private var editColorName: String = "blue"
     @State private var showDeleteConfirmation: Bool = false
     @State private var tagToDelete: Tag?
+    @State private var searchText: String = ""
+
+    private var filteredTags: [Tag] {
+        if searchText.isEmpty {
+            return tagService.allTags
+        }
+        return tagService.allTags.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -22,16 +30,42 @@ struct TagManagementView: View {
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.top, 12)
+
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                TextField("Search tags", text: $searchText)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 12))
+                if !searchText.isEmpty {
+                    Button(action: { searchText = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
+            .background(ThemeManager.shared.surfaceElevated)
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .padding(.horizontal, 12)
+            .padding(.top, 8)
 
             Divider()
+                .padding(.top, 8)
 
             if tagService.allTags.isEmpty {
                 emptyStateView
+            } else if filteredTags.isEmpty {
+                noResultsView
             } else {
                 ScrollView {
                     LazyVStack(spacing: 8) {
-                        ForEach(tagService.allTags) { tag in
+                        ForEach(filteredTags) { tag in
                             TagManagementRowView(
                                 tag: tag,
                                 onEdit: { startEdit(tag) },
@@ -81,8 +115,17 @@ struct TagManagementView: View {
                 }
 
                 Button(action: createTag) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 12, weight: .medium))
+                    HStack(spacing: 4) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 11, weight: .medium))
+                        Text("Add")
+                            .font(.system(size: 11, weight: .medium))
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .foregroundStyle(editName.isEmpty ? Color.secondary : Color.white)
+                    .background(editName.isEmpty ? Color.flexokiBase200 : Color.flexokiBlue600)
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
                 }
                 .buttonStyle(.plain)
                 .disabled(editName.isEmpty)
@@ -90,7 +133,7 @@ struct TagManagementView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
         }
-        .frame(width: 280, height: 360)
+        .frame(width: 280, height: 400)
         .background(ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .sheet(isPresented: .constant(editingTag != nil)) {
@@ -115,6 +158,23 @@ struct TagManagementView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Text("Create a tag to organize your clipboard items")
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+    }
+
+    private var noResultsView: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 24))
+                .foregroundStyle(.secondary)
+            Text("No tags found")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Text("Try a different search term")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)

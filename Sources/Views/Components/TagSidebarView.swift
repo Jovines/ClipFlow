@@ -3,7 +3,6 @@ import SwiftUI
 struct TagSidebarView: View {
     @ObservedObject var tagService: TagService
     @Binding var selectedTagIds: [UUID]
-    let onCreateTag: () -> Void
     let onManageTags: () -> Void
     @Binding var showRecommendationHistory: Bool
 
@@ -49,21 +48,11 @@ struct TagSidebarView: View {
             Divider()
 
             HStack(spacing: 4) {
-                Button(action: onCreateTag) {
-                    Image(systemName: "plus")
+                Button(action: onManageTags) {
+                    Image(systemName: "tag")
                         .font(.system(size: 11, weight: .medium))
                 }
                 .buttonStyle(.plain)
-                .help("Create new tag")
-
-                Spacer()
-
-                Button(action: onManageTags) {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 9))
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(ThemeManager.shared.textSecondary)
                 .help("Manage tags")
             }
             .frame(height: 28)

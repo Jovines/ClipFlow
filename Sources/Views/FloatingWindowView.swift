@@ -87,6 +87,7 @@ struct FloatingWindowView: View {
     @State private var showCreateTagSheet = false
     @State private var newTagName: String = ""
     @State private var newTagColorName: String = "blue"
+    @State private var tagPickerItem: ClipboardItem?
 
     @State private var showRecommendationHistory = false
     @State private var recommendationHistoryItems: [ClipboardItem] = []
@@ -123,7 +124,6 @@ struct FloatingWindowView: View {
                 TagSidebarView(
                     tagService: tagService,
                     selectedTagIds: $selectedTagIds,
-                    onCreateTag: createNewTag,
                     onManageTags: openTagManagement,
                     showRecommendationHistory: Binding(
                         get: { showRecommendationHistory },
@@ -136,6 +136,9 @@ struct FloatingWindowView: View {
                     )
                 )
                 .frame(height: 460)
+
+                Divider()
+                    .background(ThemeManager.shared.borderSubtle)
 
                 VStack(spacing: 0) {
                     HeaderBar(
@@ -242,7 +245,7 @@ struct FloatingWindowView: View {
                 )
             }
         }
-        .sheet(item: $editingItem) { item in
+        .sheet(item: $tagPickerItem) { item in
             TagPickerView(item: item, tagService: tagService)
         }
         .sheet(isPresented: $showTagManagement) {
@@ -357,7 +360,7 @@ struct FloatingWindowView: View {
             .padding(.vertical, 4)
         }
         .padding(4)
-        .background(Color.flexokiBase200)
+        .background(themeManager.colorScheme == .dark ? Color.flexokiBase200Dark : Color.flexokiBase100)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .padding(.bottom, 8)
     }
@@ -537,8 +540,8 @@ struct FloatingWindowView: View {
 
     private func showTagPicker(for item: ClipboardItem) {
         ClipFlowLogger.info("🎯 showTagPicker called for item: \(item.id)")
-        editingItem = item
-        ClipFlowLogger.info("🎯 editingItem set to: \(String(describing: editingItem))")
+        tagPickerItem = item
+        ClipFlowLogger.info("🎯 tagPickerItem set to: \(String(describing: tagPickerItem))")
     }
 
     private func createNewTag() {

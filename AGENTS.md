@@ -1,6 +1,6 @@
 # Agent Guidelines for ClipFlow
 
-ClipFlow is a macOS menu bar clipboard manager built with Swift 5.9, SwiftUI, and XcodeGen.
+ClipFlow is a macOS menu bar clipboard manager built with Swift 6.0, SwiftUI, and XcodeGen.
 
 ## Build Commands
 

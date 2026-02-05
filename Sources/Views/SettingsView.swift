@@ -74,6 +74,7 @@ struct SettingsView: View {
     @AppStorage("maxHistoryItems") private var maxHistoryItems = 100
     @AppStorage("saveImages") private var saveImages = true
     @AppStorage("autoStart") private var autoStart = false
+    @AppStorage("recommendationDecayHours") private var recommendationDecayHours = 6.0
 
     @State private var shortcut = HotKeyManager.Shortcut.defaultShortcut
     @State private var showConflictAlert = false
@@ -97,7 +98,7 @@ struct SettingsView: View {
             contentView
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 560, height: 440)
+        .frame(width: 560, height: 500)
         .background(ThemeManager.shared.background)
         .alert("Shortcut Conflict", isPresented: $showConflictAlert) {
             Button("OK") {}
@@ -266,6 +267,36 @@ struct SettingsView: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Recommendations")
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    HStack {
+                        Text("Score Half-Life")
+                            .font(.system(size: 13))
+                        Spacer()
+                        Text(decayHoursText)
+                            .font(.system(size: 13, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+
+                    Slider(value: $recommendationDecayHours, in: 1...168, step: 1)
+                        .controlSize(.small)
+                }
+                .padding(12)
+                .background(ThemeManager.shared.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
                     Image(systemName: "power")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
@@ -337,6 +368,15 @@ struct SettingsView: View {
                 .background(Color.flexokiRed400.opacity(0.2))
                 .clipShape(Capsule())
                 .help(message)
+        }
+    }
+
+    private var decayHoursText: String {
+        if recommendationDecayHours >= 24 {
+            let days = recommendationDecayHours / 24.0
+            return String(format: "%.1f days", days)
+        } else {
+            return "\(Int(recommendationDecayHours)) hours"
         }
     }
 

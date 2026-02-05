@@ -84,8 +84,13 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
 }
 
 extension ClipboardItem {
-    static let recommendationDecayConstant: Double = 0.347
     static let minRecommendationScore: Double = 1.0
+
+    static var recommendationDecayConstant: Double {
+        let hours = UserDefaults.standard.double(forKey: "recommendationDecayHours")
+        let halfLifeInDays = max(0.041, hours) / 24.0
+        return log(2) / halfLifeInDays
+    }
 
     static func calculateScore(usageCount: Int, daysSinceLastUse: Double) -> Double {
         Double(usageCount) * exp(-recommendationDecayConstant * daysSinceLastUse)
