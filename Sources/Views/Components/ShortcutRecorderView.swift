@@ -1,15 +1,15 @@
 import SwiftUI
-
-// Import HotKeyManager to access Shortcut type
-@_exported import Foundation
+import AppKit
 
 struct ShortcutRecorderView: View {
-    @Binding var shortcut: Shortcut
-    
+    @Binding var shortcut: HotKeyManager.Shortcut
+
     @State private var isRecording = false
     @State private var conflictError = false
     @State private var eventMonitor: Any?
-    
+
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     var body: some View {
         HStack(spacing: 8) {
             if isRecording {
@@ -19,27 +19,27 @@ struct ShortcutRecorderView: View {
             }
         }
         .padding(10)
-        .background(Color.flexokiSurfaceElevated)
+        .background(themeManager.surfaceElevated)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .onTapGesture {
             startRecording()
         }
     }
-    
+
     private var recordingView: some View {
         HStack(spacing: 8) {
             Circle()
-                .fill(Color.flexokiRed600)
+                .fill(themeManager.accent)
                 .frame(width: 8, height: 8)
-            
+
             Text("Press any key...")
-                .foregroundStyle(.secondary)
-            
+                .foregroundStyle(themeManager.textSecondary)
+
             Spacer()
-            
+
             Text("ESC to cancel")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(themeManager.textSecondary)
         }
         .onAppear {
             startEventMonitor()
@@ -48,20 +48,20 @@ struct ShortcutRecorderView: View {
             stopEventMonitor()
         }
     }
-    
+
     private var displayView: some View {
         HStack(spacing: 8) {
             Text(shortcut.displayString)
                 .font(.system(size: 14, weight: .medium))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)
-                .background(Color.flexokiSurface)
+                .background(themeManager.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 4))
-            
+
             Spacer()
-            
+
             Image(systemName: "pencil")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(themeManager.textSecondary)
                 .font(.system(size: 12))
         }
         .alert("Shortcut Conflict", isPresented: $conflictError) {
@@ -91,7 +91,7 @@ struct ShortcutRecorderView: View {
             }
             
             let modifiers = self.modifiersFromEvent(event)
-            let newShortcut = Shortcut(keyCode: event.keyCode, modifiers: modifiers)
+            let newShortcut = HotKeyManager.Shortcut(keyCode: event.keyCode, modifiers: modifiers)
             
             if self.validateShortcut(newShortcut) {
                 self.shortcut = newShortcut
@@ -122,7 +122,7 @@ struct ShortcutRecorderView: View {
         return modifiers
     }
     
-    private func validateShortcut(_ shortcut: Shortcut) -> Bool {
+    private func validateShortcut(_ shortcut: HotKeyManager.Shortcut) -> Bool {
         guard shortcut.isValid else { return false }
         
         // At least one modifier required
@@ -132,7 +132,7 @@ struct ShortcutRecorderView: View {
 }
 
 #Preview {
-    ShortcutRecorderView(shortcut: .constant(Shortcut(keyCode: kVK_ANSI_V, modifiers: [.command, .shift])))
+    ShortcutRecorderView(shortcut: .constant(HotKeyManager.Shortcut(keyCode: kVK_ANSI_V, modifiers: [.command, .shift])))
         .frame(width: 220)
         .padding()
 }

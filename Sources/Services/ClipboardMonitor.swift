@@ -95,6 +95,22 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
                 self.changeCount = self.pasteboard.changeCount
                 self.changeCountLock.unlock()
 
+                do {
+                    try self.database.incrementUsageCount(for: item.id)
+
+                    DispatchQueue.main.async {
+                        if let index = self.capturedItems.firstIndex(where: { $0.id == item.id }) {
+                            var updatedItem = self.capturedItems[index]
+                            updatedItem.usageCount += 1
+                            updatedItem.lastUsedAt = Date()
+                            self.capturedItems.remove(at: index)
+                            self.capturedItems.insert(updatedItem, at: 0)
+                        }
+                    }
+                } catch {
+                    ClipFlowLogger.error("Failed to update usage count: \(error)")
+                }
+
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                     guard let self = self, wasMonitoring else { return }
                     self.setupTimerPolling()
@@ -242,11 +258,31 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
         }
 
         if let item = readFromPasteboard() {
-            guard !isDuplicate(item) else {
-                ClipFlowLogger.info("Duplicate item skipped")
+            if let existingItem = findExistingItem(item) {
+                ClipFlowLogger.info("Duplicate item detected - updating timestamp and usage")
+                let newCreatedAt = Date()
+                do {
+                    try database.updateItemTimestamp(for: existingItem.id, newCreatedAt: newCreatedAt)
+                    try database.incrementUsageCount(for: existingItem.id)
+
+                    DispatchQueue.main.async { [weak self] in
+                        guard let self = self else { return }
+                        if let index = self.capturedItems.firstIndex(where: { $0.id == existingItem.id }) {
+                            var updatedItem = self.capturedItems[index]
+                            updatedItem.createdAt = newCreatedAt
+                            updatedItem.usageCount += 1
+                            updatedItem.lastUsedAt = Date()
+                            self.capturedItems.remove(at: index)
+                            self.capturedItems.insert(updatedItem, at: 0)
+                        }
+                        ClipFlowLogger.info("Updated existing item - id: \(existingItem.id)")
+                    }
+                } catch {
+                    ClipFlowLogger.error("Failed to update existing item: \(error)")
+                }
                 return
             }
-            
+
             let savedItem = saveToDatabase(item)
             addToHashCache(item.contentHash)
 
@@ -417,18 +453,22 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
         }
     }
 
-    private func isDuplicate(_ item: ClipboardItem) -> Bool {
+    private func findExistingItem(_ item: ClipboardItem) -> ClipboardItem? {
         hashCacheLock.lock()
         let inMemoryCache = recentHashes.contains(item.contentHash)
         hashCacheLock.unlock()
 
-        if inMemoryCache { return true }
+        if inMemoryCache {
+            if let cached = capturedItems.first(where: { $0.contentHash == item.contentHash }) {
+                return cached
+            }
+        }
 
         do {
-            return try database.existsItem(withHash: item.contentHash)
+            return try database.fetchItem(withHash: item.contentHash)
         } catch {
-            ClipFlowLogger.error("Failed to check duplicate: \(error)")
-            return false
+            ClipFlowLogger.error("Failed to find existing item: \(error)")
+            return nil
         }
     }
 

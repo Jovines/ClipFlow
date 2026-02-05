@@ -2,6 +2,31 @@ import SwiftUI
 import ServiceManagement
 import AppKit
 
+enum ThemeOption: String, CaseIterable, Identifiable {
+    case system = "System"
+    case light = "Light"
+    case dark = "Dark"
+
+    var id: String { rawValue }
+
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+
+    static func from(_ colorScheme: ColorScheme?) -> ThemeOption {
+        switch colorScheme {
+        case .light: return .light
+        case .dark: return .dark
+        case .none: return .system
+        @unknown default: return .system
+        }
+    }
+}
+
 struct TitleBarConfigurator: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
@@ -50,7 +75,7 @@ struct SettingsView: View {
     @AppStorage("saveImages") private var saveImages = true
     @AppStorage("autoStart") private var autoStart = false
 
-    @State private var shortcut = Shortcut.defaultShortcut
+    @State private var shortcut = HotKeyManager.Shortcut.defaultShortcut
     @State private var showConflictAlert = false
     @State private var conflictMessage = ""
     @State private var autoStartStatus: AutoStartStatus = .unknown
@@ -88,6 +113,7 @@ struct SettingsView: View {
         .background(
             TitleBarConfigurator()
         )
+        .themeAware()
     }
 
     private var sidebar: some View {
@@ -176,14 +202,15 @@ struct SettingsView: View {
                             .font(.system(size: 13))
                         Spacer()
                         Picker("Theme", selection: Binding(
-                            get: { ThemeManager.shared.colorScheme },
-                            set: { ThemeManager.shared.setColorScheme($0) }
+                            get: { ThemeOption.from(ThemeManager.shared.userPreference) },
+                            set: { ThemeManager.shared.setColorScheme($0.colorScheme) }
                         )) {
-                            Text("Light").tag(ColorScheme.light)
-                            Text("Dark").tag(ColorScheme.dark)
+                            Text("System").tag(ThemeOption.system)
+                            Text("Light").tag(ThemeOption.light)
+                            Text("Dark").tag(ThemeOption.dark)
                         }
                         .pickerStyle(.segmented)
-                        .frame(width: 140)
+                        .frame(width: 180)
                     }
                 }
                 .padding(12)
@@ -336,7 +363,7 @@ struct SettingsView: View {
         }
     }
 
-    private func applyShortcut(_ newShortcut: Shortcut) {
+    private func applyShortcut(_ newShortcut: HotKeyManager.Shortcut) {
         if newShortcut.isValid && !newShortcut.modifiers.isEmpty {
             if !HotKeyManager.shared.register(newShortcut) {
                 conflictMessage = "Unable to register this shortcut. It may be in use by another application."

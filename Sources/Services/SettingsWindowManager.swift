@@ -2,15 +2,28 @@ import AppKit
 import SwiftUI
 import Combine
 
+@MainActor
 final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
     static let shared = SettingsWindowManager()
     
-    private(set) var window: NSWindow?
+    @Published private(set) var window: NSWindow?
     private var hostingController: NSHostingController<SettingsView>?
     private var cancellables = Set<AnyCancellable>()
+    private var themeObservation: NSKeyValueObservation?
     
     private init() {
         setupWindowNotifications()
+        setupThemeObserver()
+    }
+    
+    private func setupThemeObserver() {
+        themeObservation = NSApp.observe(\.effectiveAppearance) { [weak self] _, _ in
+            self?.updateWindowBackgroundColor()
+        }
+    }
+    
+    private func updateWindowBackgroundColor() {
+        window?.backgroundColor = NSColor(ThemeManager.shared.background)
     }
     
     private func setupWindowNotifications() {
@@ -34,9 +47,7 @@ final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         
-        DispatchQueue.main.async {
-            window.makeFirstResponder(self.hostingController?.view)
-        }
+        window.makeFirstResponder(hostingController?.view)
     }
     
     private func createWindow() {
@@ -54,9 +65,7 @@ final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
         window.title = NSLocalizedString("Settings", comment: "")
         window.isReleasedWhenClosed = false
         window.isOpaque = false
-        Task { @MainActor in
-            window.backgroundColor = NSColor(ThemeManager.shared.background)
-        }
+        window.backgroundColor = NSColor(ThemeManager.shared.background)
         
         window.titlebarAppearsTransparent = false
         window.titleVisibility = .visible

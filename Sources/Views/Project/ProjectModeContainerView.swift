@@ -17,5 +17,6 @@ struct ProjectModeContainerView: View {
         .background(ThemeManager.shared.surface.opacity(0.95))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.15), radius: 15, x: 0, y: 5)
+        .themeAware()
     }
 }

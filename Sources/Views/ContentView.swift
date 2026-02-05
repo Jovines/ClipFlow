@@ -8,11 +8,9 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Search bar
                 SearchBar(text: $searchText)
                     .padding()
 
-                // History list
                 if filteredItems.isEmpty {
                     EmptyStateView()
                 } else {
@@ -37,6 +35,7 @@ struct ContentView: View {
                 }
             }
         }
+        .themeAware()
         .onAppear {
             clipboardMonitor.refresh()
         }

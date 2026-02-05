@@ -63,7 +63,7 @@ struct TagSidebarView: View {
                         .font(.system(size: 9))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(ThemeManager.shared.textSecondary)
                 .help("Manage tags")
             }
             .frame(height: 28)

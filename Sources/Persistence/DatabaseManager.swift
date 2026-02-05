@@ -364,6 +364,33 @@ final class DatabaseManager: @unchecked Sendable {
         }
     }
 
+    func fetchItem(withHash hash: Int) throws -> ClipboardItem? {
+        try dbPool.read { db in
+            try ClipboardItem.filter(Column("contentHash") == hash)
+                .order(Column("createdAt").desc)
+                .fetchOne(db)
+        }
+    }
+
+    func updateItemTimestamp(for id: UUID, newCreatedAt: Date) throws {
+        try dbPool.write { db in
+            try db.execute(sql: """
+                UPDATE clipboard_items SET createdAt = ? WHERE id = ?
+            """, arguments: [newCreatedAt, id.uuidString])
+        }
+    }
+
+    func incrementUsageCount(for id: UUID) throws {
+        try dbPool.write { db in
+            try db.execute(sql: """
+                UPDATE clipboard_items SET
+                    usageCount = usageCount + 1,
+                    lastUsedAt = ?
+                WHERE id = ?
+            """, arguments: [Date(), id.uuidString])
+        }
+    }
+
     func createTag(name: String, color: String) throws -> Tag {
         let tag = Tag(name: name, color: color)
         try dbPool.write { db in

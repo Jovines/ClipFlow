@@ -2,87 +2,88 @@ import Foundation
 import AppKit
 import CoreGraphics
 
-struct Shortcut: Equatable, Codable {
-    var keyCode: UInt16
-    var modifierFlags: UInt
-
-    static let defaultShortcut = Shortcut(keyCode: kVK_ANSI_V, modifiers: [.command, .shift])
-
-    init(keyCode: UInt16, modifiers: NSEvent.ModifierFlags) {
-        self.keyCode = keyCode
-        self.modifierFlags = modifiers.rawValue
-    }
-
-    init(keyCode: UInt16, modifierFlags: UInt) {
-        self.keyCode = keyCode
-        self.modifierFlags = modifierFlags
-    }
-
-    var modifiers: NSEvent.ModifierFlags {
-        get { NSEvent.ModifierFlags(rawValue: modifierFlags) }
-        set { modifierFlags = newValue.rawValue }
-    }
-
-    var displayString: String {
-        var parts: [String] = []
-
-        if modifiers.contains(.command) { parts.append("⌘") }
-        if modifiers.contains(.shift) { parts.append("⇧") }
-        if modifiers.contains(.control) { parts.append("⌃") }
-        if modifiers.contains(.option) { parts.append("⌥") }
-
-        let keyString = keyStringFromKeyCode(keyCode)
-        return parts.joined() + keyString
-    }
-
-    var isValid: Bool {
-        keyCode != 0 && !modifiers.isEmpty
-    }
-
-    var carbonModifiers: UInt32 {
-        var carbonMods: UInt32 = 0
-        if modifiers.contains(.command) { carbonMods |= cmdKey }
-        if modifiers.contains(.shift) { carbonMods |= shiftKey }
-        if modifiers.contains(.control) { carbonMods |= controlKey }
-        if modifiers.contains(.option) { carbonMods |= optionKey }
-        return carbonMods
-    }
-
-    private func keyStringFromKeyCode(_ code: UInt16) -> String {
-        let keyMap: [UInt16: String] = [
-            kVK_ANSI_A: "A", kVK_ANSI_B: "B", kVK_ANSI_C: "C", kVK_ANSI_D: "D",
-            kVK_ANSI_E: "E", kVK_ANSI_F: "F", kVK_ANSI_G: "G", kVK_ANSI_H: "H",
-            kVK_ANSI_I: "I", kVK_ANSI_J: "J", kVK_ANSI_K: "K", kVK_ANSI_L: "L",
-            kVK_ANSI_M: "M", kVK_ANSI_N: "N", kVK_ANSI_O: "O", kVK_ANSI_P: "P",
-            kVK_ANSI_Q: "Q", kVK_ANSI_R: "R", kVK_ANSI_S: "S", kVK_ANSI_T: "T",
-            kVK_ANSI_U: "U", kVK_ANSI_V: "V", kVK_ANSI_W: "W", kVK_ANSI_X: "X",
-            kVK_ANSI_Y: "Y", kVK_ANSI_Z: "Z",
-            kVK_ANSI_0: "0", kVK_ANSI_1: "1", kVK_ANSI_2: "2", kVK_ANSI_3: "3",
-            kVK_ANSI_4: "4", kVK_ANSI_5: "5", kVK_ANSI_6: "6", kVK_ANSI_7: "7",
-            kVK_ANSI_8: "8", kVK_ANSI_9: "9",
-            kVK_ANSI_Minus: "-", kVK_ANSI_Equal: "=", kVK_ANSI_Semicolon: ";",
-            kVK_ANSI_Quote: "'", kVK_ANSI_Backslash: "\\", kVK_ANSI_Comma: ",",
-            kVK_ANSI_Period: ".", kVK_ANSI_Slash: "/",
-            kVK_Space: "Space", kVK_Return: "Return", kVK_Delete: "Delete",
-            kVK_Escape: "Escape", kVK_Tab: "Tab",
-            kVK_UpArrow: "↑", kVK_DownArrow: "↓", kVK_LeftArrow: "←", kVK_RightArrow: "→",
-            kVK_F1: "F1", kVK_F2: "F2", kVK_F3: "F3", kVK_F4: "F4",
-            kVK_F5: "F5", kVK_F6: "F6", kVK_F7: "F7", kVK_F8: "F8",
-            kVK_F9: "F9", kVK_F10: "F10", kVK_F11: "F11", kVK_F12: "F12"
-        ]
-        return keyMap[code] ?? ""
-    }
-
-    static func == (lhs: Shortcut, rhs: Shortcut) -> Bool {
-        lhs.keyCode == rhs.keyCode && lhs.modifiers == rhs.modifiers
-    }
-}
-
 final class HotKeyManager: @unchecked Sendable {
+    struct Shortcut: Equatable, Codable {
+        var keyCode: UInt16
+        var modifierFlags: UInt
+
+        static let defaultShortcut = Shortcut(keyCode: kVK_ANSI_V, modifiers: [.command, .shift])
+
+        init(keyCode: UInt16, modifiers: NSEvent.ModifierFlags) {
+            self.keyCode = keyCode
+            self.modifierFlags = modifiers.rawValue
+        }
+
+        init(keyCode: UInt16, modifierFlags: UInt) {
+            self.keyCode = keyCode
+            self.modifierFlags = modifierFlags
+        }
+
+        var modifiers: NSEvent.ModifierFlags {
+            get { NSEvent.ModifierFlags(rawValue: modifierFlags) }
+            set { modifierFlags = newValue.rawValue }
+        }
+
+        var displayString: String {
+            var parts: [String] = []
+
+            if modifiers.contains(.command) { parts.append("⌘") }
+            if modifiers.contains(.shift) { parts.append("⇧") }
+            if modifiers.contains(.control) { parts.append("⌃") }
+            if modifiers.contains(.option) { parts.append("⌥") }
+
+            let keyString = keyStringFromKeyCode(keyCode)
+            return parts.joined() + keyString
+        }
+
+        var isValid: Bool {
+            keyCode != 0 && !modifiers.isEmpty
+        }
+
+        var carbonModifiers: UInt32 {
+            var carbonMods: UInt32 = 0
+            if modifiers.contains(.command) { carbonMods |= cmdKey }
+            if modifiers.contains(.shift) { carbonMods |= shiftKey }
+            if modifiers.contains(.control) { carbonMods |= controlKey }
+            if modifiers.contains(.option) { carbonMods |= optionKey }
+            return carbonMods
+        }
+
+        private func keyStringFromKeyCode(_ code: UInt16) -> String {
+            let keyMap: [UInt16: String] = [
+                kVK_ANSI_A: "A", kVK_ANSI_B: "B", kVK_ANSI_C: "C", kVK_ANSI_D: "D",
+                kVK_ANSI_E: "E", kVK_ANSI_F: "F", kVK_ANSI_G: "G", kVK_ANSI_H: "H",
+                kVK_ANSI_I: "I", kVK_ANSI_J: "J", kVK_ANSI_K: "K", kVK_ANSI_L: "L",
+                kVK_ANSI_M: "M", kVK_ANSI_N: "N", kVK_ANSI_O: "O", kVK_ANSI_P: "P",
+                kVK_ANSI_Q: "Q", kVK_ANSI_R: "R", kVK_ANSI_S: "S", kVK_ANSI_T: "T",
+                kVK_ANSI_U: "U", kVK_ANSI_V: "V", kVK_ANSI_W: "W", kVK_ANSI_X: "X",
+                kVK_ANSI_Y: "Y", kVK_ANSI_Z: "Z",
+                kVK_ANSI_0: "0", kVK_ANSI_1: "1", kVK_ANSI_2: "2", kVK_ANSI_3: "3",
+                kVK_ANSI_4: "4", kVK_ANSI_5: "5", kVK_ANSI_6: "6", kVK_ANSI_7: "7",
+                kVK_ANSI_8: "8", kVK_ANSI_9: "9",
+                kVK_ANSI_Minus: "-", kVK_ANSI_Equal: "=", kVK_ANSI_Semicolon: ";",
+                kVK_ANSI_Quote: "'", kVK_ANSI_Backslash: "\\", kVK_ANSI_Comma: ",",
+                kVK_ANSI_Period: ".", kVK_ANSI_Slash: "/",
+                kVK_Space: "Space", kVK_Return: "Return", kVK_Delete: "Delete",
+                kVK_Escape: "Escape", kVK_Tab: "Tab",
+                kVK_UpArrow: "↑", kVK_DownArrow: "↓", kVK_LeftArrow: "←", kVK_RightArrow: "→",
+                kVK_F1: "F1", kVK_F2: "F2", kVK_F3: "F3", kVK_F4: "F4",
+                kVK_F5: "F5", kVK_F6: "F6", kVK_F7: "F7", kVK_F8: "F8",
+                kVK_F9: "F9", kVK_F10: "F10", kVK_F11: "F11", kVK_F12: "F12"
+            ]
+            return keyMap[code] ?? ""
+        }
+
+        static func == (lhs: Shortcut, rhs: Shortcut) -> Bool {
+            lhs.keyCode == rhs.keyCode && lhs.modifiers == rhs.modifiers
+        }
+    }
+
     static let shared = HotKeyManager()
 
     private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
+    private var currentUserInfo: AnyObject?
 
     var onHotKeyPressed: (() -> Void)?
 
@@ -153,6 +154,7 @@ final class HotKeyManager: @unchecked Sendable {
 
         let userInfo = UserInfo(manager: self, shortcut: shortcut)
         let userInfoPtr = Unmanaged.passRetained(userInfo).toOpaque()
+        currentUserInfo = userInfo as AnyObject
 
         guard let eventTap = CGEvent.tapCreate(
             tap: .cgSessionEventTap,
@@ -160,8 +162,10 @@ final class HotKeyManager: @unchecked Sendable {
             options: .defaultTap,
             eventsOfInterest: eventMask,
             callback: { (proxy, type, event, refcon) -> Unmanaged<CGEvent>? in
-                guard let refcon = refcon else { return Unmanaged.passRetained(event).autorelease() }
-                let userInfo = Unmanaged<UserInfo>.fromOpaque(refcon).takeRetainedValue()
+                guard let refcon = refcon else {
+                    return Unmanaged.passUnretained(event)
+                }
+                let userInfo = Unmanaged<UserInfo>.fromOpaque(refcon).takeUnretainedValue()
 
                 if type == .keyDown {
                     let eventKeyCode = event.getIntegerValueField(.keyboardEventKeycode)
@@ -202,6 +206,8 @@ final class HotKeyManager: @unchecked Sendable {
             CFMachPortInvalidate(tap)
             eventTap = nil
         }
+
+        currentUserInfo = nil
     }
 
     private func checkForConflicts(_ shortcut: Shortcut) -> String? {

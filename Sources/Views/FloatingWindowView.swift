@@ -135,7 +135,7 @@ struct FloatingWindowView: View {
                         }
                     )
                 )
-                .frame(height: 420)
+                .frame(height: 460)
 
                 VStack(spacing: 0) {
                     HeaderBar(

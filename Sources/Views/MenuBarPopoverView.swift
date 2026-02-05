@@ -29,6 +29,7 @@ struct MenuBarPopoverView: View {
         }
         .padding(.vertical, 4)
         .frame(width: 160)
+        .themeAware()
     }
 }
 

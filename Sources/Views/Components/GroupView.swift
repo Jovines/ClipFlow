@@ -103,9 +103,8 @@ struct CompactItemRow: View {
             }
 
             if isRecommended {
-                Image(systemName: "sparkle")
+                Text("✨")
                     .font(.system(size: 10))
-                    .foregroundStyle(themeManager.textSecondary)
             }
 
             if isHovered {

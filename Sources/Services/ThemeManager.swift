@@ -5,6 +5,15 @@ import Combine
 final class ThemeManager: ObservableObject {
     static let shared = ThemeManager()
 
+    private static let userPreferenceKey = "themeUserPreference"
+
+    @Published var userPreference: ColorScheme? {
+        didSet {
+            savePreference()
+            updateColorScheme()
+        }
+    }
+
     @Published var colorScheme: ColorScheme = .light
 
     var background: Color {
@@ -41,8 +50,32 @@ final class ThemeManager: ObservableObject {
     private var observation: NSKeyValueObservation?
 
     private init() {
+        loadPreference()
         updateFromSystemAppearance()
         setupAppearanceObserver()
+    }
+
+    private func loadPreference() {
+        guard let rawValue = UserDefaults.standard.string(forKey: Self.userPreferenceKey) else {
+            userPreference = nil
+            return
+        }
+        switch rawValue {
+        case "light":
+            userPreference = .light
+        case "dark":
+            userPreference = .dark
+        default:
+            userPreference = nil
+        }
+    }
+
+    private func savePreference() {
+        if let preference = userPreference {
+            UserDefaults.standard.set(preference == .dark ? "dark" : "light", forKey: Self.userPreferenceKey)
+        } else {
+            UserDefaults.standard.removeObject(forKey: Self.userPreferenceKey)
+        }
     }
 
     private func setupAppearanceObserver() {
@@ -54,6 +87,7 @@ final class ThemeManager: ObservableObject {
     }
 
     private func updateFromSystemAppearance() {
+        guard userPreference == nil else { return }
         let appearance = NSApp.effectiveAppearance
         if appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua {
             colorScheme = .dark
@@ -62,12 +96,16 @@ final class ThemeManager: ObservableObject {
         }
     }
 
-    func toggle() {
-        colorScheme = colorScheme == .dark ? .light : .dark
+    private func updateColorScheme() {
+        if let preference = userPreference {
+            colorScheme = preference
+        } else {
+            updateFromSystemAppearance()
+        }
     }
 
-    func setColorScheme(_ scheme: ColorScheme) {
-        colorScheme = scheme
+    func setColorScheme(_ scheme: ColorScheme?) {
+        userPreference = scheme
     }
 }
 
