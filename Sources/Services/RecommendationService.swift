@@ -62,7 +62,7 @@ final class RecommendationService: ObservableObject, @unchecked Sendable {
                             """, arguments: [Date(), evicted.item.id.uuidString])
                     }
 
-                    let slotsAvailable = maxRecommendations - (currentRecommended.count - toEvict.count)
+                    let slotsAvailable = max(0, maxRecommendations - (currentRecommended.count - toEvict.count))
 
                     for candidate in candidates.prefix(slotsAvailable) {
                         try db.execute(sql: """
