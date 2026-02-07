@@ -24,8 +24,12 @@ settings:
   base:
     MARKETING_VERSION: "1.0.8"
     CURRENT_PROJECT_VERSION: "9"
-    DEVELOPMENT_TEAM: ""
-    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: "7437GDF3XU"
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "Developer ID Application: Deqiao Ding (7437GDF3XU)"
+    CODE_SIGNING_REQUIRED: YES
+    CODE_SIGNING_ALLOWED: YES
+    CODE_SIGN_TIMESTAMP_SERVER: "timestamp.apple.com"
     SWIFT_VERSION: "6.0"
 
 targets:

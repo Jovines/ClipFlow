@@ -102,4 +102,53 @@ For specialized workflows, load the appropriate skill:
 - Keep description concise and clear
 - Before committing, always verify the commit message is in English
 
+## Code Signing & Notarization
 
+### Developer ID Signing
+
+For direct distribution (outside Mac App Store), the app must be signed with a Developer ID certificate:
+
+```bash
+# Verify certificates
+security find-identity -v -p codesigning
+
+# Build Release with signing
+xcodebuild -project ClipFlow.xcodeproj -scheme ClipFlow -configuration Release build
+```
+
+### Notarization (Required for Gatekeeper)
+
+**Without notarization**: Users will see a Gatekeeper warning and must manually approve the app in System Settings > Privacy & Security.
+
+**With notarization**: Users can run the app directly with no warnings.
+
+#### Setup App Store Connect API Key
+
+1. Go to https://appstoreconnect.apple.com/access/api
+2. Click "+" to generate a new API key
+3. Role: Admin
+4. Download the .p8 file (can only be downloaded once)
+5. Note the Key ID and Issuer ID
+
+#### Notarization Workflow
+
+```bash
+# 1. Build and sign Release
+xcodegen generate
+xcodebuild -project ClipFlow.xcodeproj -scheme ClipFlow -configuration Release build
+
+# 2. Create DMG
+APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow.app" -path "*/Release/ClipFlow.app" -type d | head -1)
+hdiutil create -srcfolder "$APP_PATH" -volname "ClipFlow" ClipFlow.dmg
+
+# 3. Submit for notarization
+./scripts/notarize.sh ClipFlow.dmg AuthKey_ABC123.p8 ABC123DEF456 12345678-1234-1234-1234-123456789012
+
+# 4. Verify
+spctl -a -vvv ClipFlow.dmg
+```
+
+The notarization script (`scripts/notarize.sh`) handles:
+- Submitting the DMG to Apple for security verification
+- Waiting for approval (typically 1-5 minutes)
+- Stapling the notarization ticket to the DMG

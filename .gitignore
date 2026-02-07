@@ -68,6 +68,12 @@ coverage/
 !Info.plist
 *.dmg
 
+# API Keys and Certificates
+*.p8
+*.cer
+*.p12
+scripts/AuthKey*
+
 # Sisyphus
 .sisyphus/
 
