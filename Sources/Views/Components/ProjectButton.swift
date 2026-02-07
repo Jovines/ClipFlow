@@ -24,6 +24,7 @@ struct ProjectButton: View {
     @Binding var showProjectSelector: Bool
     let currentProject: Project?
     @Binding var isProjectMode: Bool
+    @StateObject private var themeManager = ThemeManager.shared
 
     var body: some View {
         Button {

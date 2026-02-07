@@ -81,6 +81,8 @@ struct SettingsView: View {
     @State private var conflictMessage = ""
     @State private var autoStartStatus: AutoStartStatus = .unknown
     @State private var selectedTab: SettingsTab = .general
+    
+    @StateObject private var themeManager = ThemeManager.shared
 
     enum AutoStartStatus {
         case unknown
@@ -93,13 +95,13 @@ struct SettingsView: View {
         HStack(spacing: 0) {
             sidebar
                 .frame(width: 140)
-                .background(ThemeManager.shared.surface)
+                .background(themeManager.surface)
 
             contentView
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: 560, height: 500)
-        .background(ThemeManager.shared.background)
+        .background(themeManager.background)
         .alert("Shortcut Conflict", isPresented: $showConflictAlert) {
             Button("OK") {}
         } message: {
@@ -154,7 +156,7 @@ struct SettingsView: View {
             .padding(.top, 12)
             .padding(.bottom, 20)
         }
-        .background(ThemeManager.shared.background)
+        .background(themeManager.background)
     }
 
     private var generalSettingsContent: some View {
@@ -182,7 +184,7 @@ struct SettingsView: View {
                     ))
                 }
                 .padding(12)
-                .background(ThemeManager.shared.surface)
+                .background(themeManager.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -203,8 +205,8 @@ struct SettingsView: View {
                             .font(.system(size: 13))
                         Spacer()
                         Picker("Theme", selection: Binding(
-                            get: { ThemeOption.from(ThemeManager.shared.userPreference) },
-                            set: { ThemeManager.shared.setColorScheme($0.colorScheme) }
+                            get: { ThemeOption.from(themeManager.userPreference) },
+                            set: { themeManager.setColorScheme($0.colorScheme) }
                         )) {
                             Text("System").tag(ThemeOption.system)
                             Text("Light").tag(ThemeOption.light)
@@ -215,7 +217,7 @@ struct SettingsView: View {
                     }
                 }
                 .padding(12)
-                .background(ThemeManager.shared.surface)
+                .background(themeManager.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -259,7 +261,7 @@ struct SettingsView: View {
                     .toggleStyle(.checkbox)
                 }
                 .padding(12)
-                .background(ThemeManager.shared.surface)
+                .background(themeManager.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -289,7 +291,7 @@ struct SettingsView: View {
                         .controlSize(.small)
                 }
                 .padding(12)
-                .background(ThemeManager.shared.surface)
+                .background(themeManager.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -324,7 +326,7 @@ struct SettingsView: View {
                     }
                 }
                 .padding(12)
-                .background(ThemeManager.shared.surface)
+                .background(themeManager.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 

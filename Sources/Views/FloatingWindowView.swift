@@ -95,7 +95,7 @@ struct FloatingWindowView: View {
 
     private let recommendationService = RecommendationService.shared
 
-    private var themeManager: ThemeManager { ThemeManager.shared }
+    @StateObject private var themeManager = ThemeManager.shared
 
     var body: some View {
         let content = contentBuilder
@@ -138,7 +138,7 @@ struct FloatingWindowView: View {
                 .frame(height: 480)
 
                 Divider()
-                    .background(ThemeManager.shared.borderSubtle)
+                    .background(themeManager.borderSubtle)
 
                 VStack(spacing: 0) {
                     HeaderBar(
@@ -183,7 +183,7 @@ struct FloatingWindowView: View {
                 .frame(width: groupPanelWidth, height: 480)
             }
         }
-        .background(ThemeManager.shared.surface.opacity(0.95))
+        .background(themeManager.surface.opacity(0.95))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.15), radius: 15, x: 0, y: 5)
         .onAppear {
@@ -360,8 +360,12 @@ struct FloatingWindowView: View {
             .padding(.vertical, 4)
         }
         .padding(4)
-        .background(themeManager.colorScheme == .dark ? Color.flexokiBase200Dark : Color.flexokiBase100)
+        .background(themeManager.colorScheme == .dark ? Color.flexokiBase200Dark : Color.flexokiBase150)
         .clipShape(RoundedRectangle(cornerRadius: 6))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(themeManager.borderSubtle, lineWidth: 1)
+        )
         .padding(.bottom, 8)
     }
 
@@ -576,7 +580,7 @@ struct FloatingWindowView: View {
                 .font(.system(size: 14))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(ThemeManager.shared.borderSubtle)
+                .background(themeManager.borderSubtle)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .padding(.horizontal, 12)
 
@@ -624,7 +628,7 @@ struct FloatingWindowView: View {
             .padding(.bottom, 12)
         }
         .frame(width: 260, height: 200)
-        .background(ThemeManager.shared.surface)
+        .background(themeManager.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 
