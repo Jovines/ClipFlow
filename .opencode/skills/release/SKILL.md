@@ -17,11 +17,13 @@ This skill guides you through the complete release process for ClipFlow:
 3. Build Release configuration (using `build` instead of `archive` to avoid SwiftLint blocking)
 4. Sign with Developer ID certificate
 5. Create DMG disk image
-6. Submit to Apple Notarization
-7. Staple notarization ticket
-8. Generate release notes from commits (feat/fix)
-9. Create git tag and push
-10. Upload to GitHub Release
+6. **Sign DMG with Sparkle EdDSA** (for automatic updates)
+7. Submit to Apple Notarization
+8. Staple notarization ticket
+9. Generate release notes from commits (feat/fix)
+10. Create git tag and push
+11. Upload to GitHub Release
+12. **Update appcast.xml** (for automatic updates)
 
 ## When to use me
 
@@ -113,11 +115,29 @@ hdiutil create -srcfolder "$APP_PATH" -volname "ClipFlow" ClipFlow.dmg
 
 ### 6. Sign DMG
 
+Sign with Apple Developer ID:
 ```bash
 codesign --force --sign "Developer ID Application: Your Name (TEAM_ID)" --timestamp ClipFlow.dmg
 ```
 
-### 7. Notarize (REQUIRED)
+### 7. Sign DMG with Sparkle EdDSA
+
+**Important**: Do this BEFORE notarization, as notarization modifies the DMG.
+
+```bash
+# Download Sparkle tools (if not already available)
+SPARKLE_VERSION="2.8.1"
+curl -L -o /tmp/sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
+tar -xf /tmp/sparkle.tar.xz -C /tmp
+
+# Sign the DMG and save signature
+/tmp/bin/sign_update ClipFlow.dmg > /tmp/sparkle_sig.txt
+cat /tmp/sparkle_sig.txt
+```
+
+Save the output - you'll need the `sparkle:edSignature` and `length` values for the appcast.
+
+### 8. Notarize (REQUIRED)
 
 Using the notarization script:
 ```bash
@@ -176,7 +196,49 @@ gh release create v<x.y.z> \
   ClipFlow.dmg
 ```
 
-### 11. Verify Release
+### 11. Update Appcast
+
+Update `appcast.xml` so existing users receive the update:
+
+```bash
+# Get values from step 7
+SIGNATURE=$(cat /tmp/sparkle_sig.txt | grep -o 'sparkle:edSignature="[^"]*"' | cut -d'"' -f2)
+LENGTH=$(cat /tmp/sparkle_sig.txt | grep -o 'length="[^"]*"' | cut -d'"' -f2)
+
+# Clone gh-pages branch
+git fetch origin gh-pages
+git checkout gh-pages
+
+# Update appcast.xml with new release item
+# Add this item at the top (after <!-- Add new release items here at the top -->):
+cat > /tmp/new_item.txt << EOF
+        <item>
+            <title>Version x.y.z</title>
+            <sparkle:version>BUILD_NUMBER</sparkle:version>
+            <sparkle:shortVersionString>x.y.z</sparkle:shortVersionString>
+            <pubDate>$(date -u +"%a, %d %b %Y %H:%M:%S +0000")</pubDate>
+            <enclosure url="https://github.com/jovines/ClipFlow/releases/download/vx.y.z/ClipFlow.dmg"
+                       sparkle:edSignature="${SIGNATURE}"
+                       length="${LENGTH}"
+                       type="application/octet-stream" />
+        </item>
+EOF
+
+cat /tmp/new_item.txt
+# Now manually edit appcast.xml to add this item
+
+# Commit and push
+git add appcast.xml
+git commit -m "chore: update appcast for vx.y.z"
+git push origin gh-pages
+
+# Switch back to main
+git checkout main
+```
+
+**Appcast URL**: `https://jovines.github.io/ClipFlow/appcast.xml`
+
+### 12. Verify Release
 
 Check the release on GitHub:
 ```bash
@@ -212,3 +274,10 @@ Ensure you stapled the notarization ticket:
 ```bash
 xcrun stapler staple ClipFlow.dmg
 ```
+
+### Automatic updates not working
+
+1. **Check appcast URL**: Verify `SUFeedURL` in `Info.plist` matches `https://jovines.github.io/ClipFlow/appcast.xml`
+2. **Check signature**: Ensure the signature in appcast.xml matches the output from step 7
+3. **Check version numbers**: `sparkle:version` must use build number (integer), not marketing version
+4. **Test manually**: Use "Check for Updates Now" in Settings → Update
