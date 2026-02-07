@@ -51,7 +51,6 @@
 		9743788D4E2160656F7BBE32 /* Color+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = E614E0B350221DC20564FFE6 /* Color+Hex.swift */; };
 		979907B6767D38B84F61B428 /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49493FC09DDDFB3A81EF6D61 /* DatabaseManager.swift */; };
 		9B47F3D3CFBB0910547AE774 /* AIProviderConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77BE29F8D89D216AF58F99DF /* AIProviderConfig.swift */; };
-		A0F2873D9D188EF0D5F0722D /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 68831CD9967B1E3EE37739AF /* Sparkle */; };
 		AAD345510434854B5AFEC8AA /* AddToProjectSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1763E894D72D45EDB506E /* AddToProjectSelectorView.swift */; };
 		B7BCC43E5C0AFCA8E4B7BE77 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9F98039A60F8497CD28BF1C /* AppColors.swift */; };
 		BA1A80337592269E200B975F /* ProjectCognitionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD7C7F3B1ED4D0330A17E0AA /* ProjectCognitionService.swift */; };
@@ -153,7 +152,6 @@
 				6F45C76367DCDF0B874FD6E4 /* OpenAI in Frameworks */,
 				7D14FB63ABC308A8499DCC12 /* KeychainAccess in Frameworks */,
 				F1737443DB483156AD58601F /* MarkdownView in Frameworks */,
-				A0F2873D9D188EF0D5F0722D /* Sparkle in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -355,7 +353,6 @@
 				93DA6328C315427CBC5C5F7B /* OpenAI */,
 				F09E4ED7C74796759763D9FC /* KeychainAccess */,
 				DC599C3C9FFA7EAAC7EC63E9 /* MarkdownView */,
-				68831CD9967B1E3EE37739AF /* Sparkle */,
 			);
 			productName = ClipFlow;
 			productReference = D5EB1FAFD466C4B3D85F8658 /* ClipFlow.app */;
@@ -391,7 +388,6 @@
 				5F41585E1C0E572ABAC23937 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				DE7643C841E68A7DEEB64703 /* XCRemoteSwiftPackageReference "MarkdownView" */,
 				4483FB88A7B1AF3E02188299 /* XCRemoteSwiftPackageReference "OpenAI" */,
-				4B13B58C0E1BA7EB4F2EF965 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
@@ -701,14 +697,6 @@
 				minimumVersion = 0.4.7;
 			};
 		};
-		4B13B58C0E1BA7EB4F2EF965 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparkle-project/Sparkle";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.6.0;
-			};
-		};
 		5F41585E1C0E572ABAC23937 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
@@ -728,11 +716,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		68831CD9967B1E3EE37739AF /* Sparkle */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4B13B58C0E1BA7EB4F2EF965 /* XCRemoteSwiftPackageReference "Sparkle" */;
-			productName = Sparkle;
-		};
 		93DA6328C315427CBC5C5F7B /* OpenAI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4483FB88A7B1AF3E02188299 /* XCRemoteSwiftPackageReference "OpenAI" */;
