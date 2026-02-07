@@ -34,5 +34,17 @@
     <string>ClipFlow needs accessibility access to register global keyboard shortcuts (Command+Shift+V) for quick clipboard history access. This permission is only used for keyboard shortcuts and does not read screen content.</string>
     <key>NSClipboardUsageDescription</key>
     <string>ClipFlow saves your clipboard history to help you access previously copied items. All data is stored locally on your device. You can disable clipboard monitoring in settings.</string>
+    <key>SUFeedURL</key>
+    <string>https://jovines.github.io/ClipFlow/appcast.xml</string>
+    <key>SUEnableAutomaticChecks</key>
+    <true/>
+    <key>SUScheduledCheckInterval</key>
+    <integer>86400</integer>
+    <key>SUAutomaticallyUpdate</key>
+    <false/>
+    <key>SUEnableSystemProfiling</key>
+    <false/>
+    <key>SUPublicEDKey</key>
+    <string>wzvkUsH+UPVPH+FD8gx3bkKR9bwvqbL7c+GoTkC4r9Y=</string>
 </dict>
 </plist>

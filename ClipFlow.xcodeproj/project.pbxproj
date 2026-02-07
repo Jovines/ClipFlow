@@ -20,11 +20,13 @@
 		2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */; };
 		37743BE3D096EDF86BBDD238 /* SettingsWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */; };
 		37A764745FD0F207D9429DA4 /* RecommendationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 739BC23603618562A2000E0B /* RecommendationService.swift */; };
+		3AB760669D54A8F0E9755B20 /* UpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70D8BE02A903A8FAF8ED112 /* UpdateService.swift */; };
 		3AB7E32F2A2782D8EC61E146 /* SearchIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5C68D15CA5FE443AF36F99 /* SearchIndicatorView.swift */; };
 		3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */; };
 		3E3307C5175AD0F1D57F5FCC /* ProjectModeContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF9EE54435FAA70FA993FA3 /* ProjectModeContainerView.swift */; };
 		423891FB4C39BA5FDF08B1BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B153DF2BA49164525C42A0 /* AppDelegate.swift */; };
 		42F280A7B1380E2C3746779C /* FloatingItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47801E615928703BA4682AD /* FloatingItemRow.swift */; };
+		4308E39B375DD7E384D359D6 /* UpdateSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19FBE5F6BD171CEB03DB6724 /* UpdateSettingsView.swift */; };
 		43EE20D3F90FECAB647081D2 /* AIProviderSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1206792A0BBBC771B2B8F597 /* AIProviderSettingsView.swift */; };
 		5443AF1926B9AEEEA027FF15 /* ProjectButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3991C8C49F3C6C3A9AA0EDCA /* ProjectButton.swift */; };
 		558BE8AA87AC02DF13B09F68 /* EditorPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC18090E3D1989DB7938BC3D /* EditorPanelView.swift */; };
@@ -79,6 +81,7 @@
 		03C1763E894D72D45EDB506E /* AddToProjectSelectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddToProjectSelectorView.swift; sourceTree = "<group>"; };
 		0FACF06E664A88EAB8A90F48 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		1206792A0BBBC771B2B8F597 /* AIProviderSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIProviderSettingsView.swift; sourceTree = "<group>"; };
+		19FBE5F6BD171CEB03DB6724 /* UpdateSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSettingsView.swift; sourceTree = "<group>"; };
 		1CE72248AB11DA260D0367CA /* FloatingWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowManager.swift; sourceTree = "<group>"; };
 		1EAB4DFF745C159D542E8DB9 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		1F1CE7A750424560DC41C72F /* TagManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagManagementView.swift; sourceTree = "<group>"; };
@@ -112,6 +115,7 @@
 		9E5C68D15CA5FE443AF36F99 /* SearchIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchIndicatorView.swift; sourceTree = "<group>"; };
 		A19822AF54BE8A77A60D78D5 /* FloatingWindow+NSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FloatingWindow+NSUI.swift"; sourceTree = "<group>"; };
 		A4AC65C65E8D9EF183514721 /* ClipFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipFlowApp.swift; sourceTree = "<group>"; };
+		A70D8BE02A903A8FAF8ED112 /* UpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateService.swift; sourceTree = "<group>"; };
 		AC18090E3D1989DB7938BC3D /* EditorPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorPanelView.swift; sourceTree = "<group>"; };
 		AD2BEBCBDE3F8381B84FCD45 /* ProjectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectService.swift; sourceTree = "<group>"; };
 		B47801E615928703BA4682AD /* FloatingItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingItemRow.swift; sourceTree = "<group>"; };
@@ -170,6 +174,7 @@
 				D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */,
 				9B6AD15DA34582BEE329A65B /* TagService.swift */,
 				0FACF06E664A88EAB8A90F48 /* ThemeManager.swift */,
+				A70D8BE02A903A8FAF8ED112 /* UpdateService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -318,6 +323,7 @@
 				E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */,
 				3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */,
 				93E6F611F5CEAB8D5193F057 /* SettingsView.swift */,
+				19FBE5F6BD171CEB03DB6724 /* UpdateSettingsView.swift */,
 				604E68001491B5DD68CEDA7C /* AIProviderSettings */,
 				E534313217E75EB58E2BB586 /* Components */,
 				A26629820A11BE5331CB27C8 /* FloatingWindow */,
@@ -480,6 +486,8 @@
 				18709452236C2E743240E16C /* TagService.swift in Sources */,
 				800CC0C13BD71E4B76EF6C47 /* TagSidebarView.swift in Sources */,
 				F0B73B669780E5250DFA112D /* ThemeManager.swift in Sources */,
+				3AB760669D54A8F0E9755B20 /* UpdateService.swift in Sources */,
+				4308E39B375DD7E384D359D6 /* UpdateSettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
