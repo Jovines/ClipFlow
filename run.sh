@@ -27,8 +27,13 @@ xcodebuild -project ClipFlow.xcodeproj -scheme ClipFlow -resolvePackageDependenc
 echo "🔨 Building ClipFlow..."
 xcodebuild -project ClipFlow.xcodeproj -scheme ClipFlow build
 
-# Find the built app
-APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow.app" -path "*/Debug/ClipFlow.app" -type d | head -1)
+# Find the built app (prefer Debug, exclude empty Index.noindex bundles)
+DEBUG_PATH=$(find ~/Library/Developer/Xcode/DerivedData -path "*/Debug/ClipFlow.app" -type d | grep -v "Index.noindex" | head -1)
+if [ -n "$DEBUG_PATH" ]; then
+    APP_PATH="$DEBUG_PATH"
+else
+    APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow.app" -type d | grep -v "Index.noindex" | head -1)
+fi
 
 if [ -z "$APP_PATH" ]; then
     echo "❌ Could not find built app"
