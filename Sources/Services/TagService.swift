@@ -6,6 +6,7 @@ final class TagService: ObservableObject, @unchecked Sendable {
 
     @Published private(set) var allTags: [Tag] = []
     @Published private(set) var recommendationHistoryCount: Int = 0
+    @Published private(set) var itemTagAssociationsChanged: UUID = UUID()
 
     private let db = DatabaseManager.shared
     private let recommendationService = RecommendationService.shared
@@ -50,10 +51,12 @@ final class TagService: ObservableObject, @unchecked Sendable {
 
     func addTagToItem(itemId: UUID, tagId: UUID) throws {
         try db.addTagToItem(itemId: itemId, tagId: tagId)
+        itemTagAssociationsChanged = UUID()
     }
 
     func removeTagFromItem(itemId: UUID, tagId: UUID) throws {
         try db.removeTagFromItem(itemId: itemId, tagId: tagId)
+        itemTagAssociationsChanged = UUID()
     }
 
     func toggleTagOnItem(itemId: UUID, tagId: UUID) throws {

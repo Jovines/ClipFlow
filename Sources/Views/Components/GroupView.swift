@@ -78,6 +78,8 @@ struct CompactItemRow: View {
     let isRecommended: Bool
     @ObservedObject var panelCoordinator: GroupPanelCoordinator
     @State private var isHovered = false
+    @StateObject private var tagService = TagService.shared
+    @State private var itemTagsData: [Tag] = []
 
     private var themeManager: ThemeManager { ThemeManager.shared }
 
@@ -167,9 +169,13 @@ struct CompactItemRow: View {
             }
         }
         .onAppear { loadItemTags() }
+        .onChange(of: tagService.allTags) { _, _ in
+            loadItemTags()
+        }
+        .onChange(of: tagService.itemTagAssociationsChanged) { _, _ in
+            loadItemTags()
+        }
     }
-
-    @State private var itemTagsData: [Tag] = []
 
     private var itemTags: [Tag] {
         itemTagsData
@@ -177,7 +183,7 @@ struct CompactItemRow: View {
 
     private func loadItemTags() {
         do {
-            itemTagsData = try TagService.shared.getTagsForItem(itemId: item.id)
+            itemTagsData = try tagService.getTagsForItem(itemId: item.id)
         } catch {
             itemTagsData = []
         }
