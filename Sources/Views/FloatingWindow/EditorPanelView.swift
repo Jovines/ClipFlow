@@ -25,7 +25,7 @@ struct EditorPanelView: View {
             Divider()
             editorFooter
         }
-        .frame(width: editorWidth, height: 420)
+        .frame(width: editorWidth, height: 480)
         .background(ThemeManager.shared.surface.opacity(0.95))
     }
 
@@ -41,8 +41,8 @@ struct EditorPanelView: View {
             }
             .buttonStyle(.plain)
         }
+        .frame(height: 32)
         .padding(.horizontal, 12)
-        .padding(.vertical, 10)
     }
 
     private var editorContent: some View {

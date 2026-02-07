@@ -135,7 +135,7 @@ struct FloatingWindowView: View {
                         }
                     )
                 )
-                .frame(height: 460)
+                .frame(height: 480)
 
                 Divider()
                     .background(ThemeManager.shared.borderSubtle)
@@ -150,7 +150,7 @@ struct FloatingWindowView: View {
                     Divider()
                     contentView
                 }
-                .frame(width: tagService.allTags.isEmpty ? 360 : 280, height: 460)
+                .frame(width: tagService.allTags.isEmpty ? 360 : 280, height: 480)
             }
 
             if isEditing {
@@ -162,7 +162,7 @@ struct FloatingWindowView: View {
                     onCancel: cancelEdit,
                     onReset: resetEdit
                 )
-                .frame(width: editorWidth, height: 420)
+                .frame(width: editorWidth, height: 480)
             }
 
             if groupPanelCoordinator.isShowingPanel {
@@ -180,7 +180,7 @@ struct FloatingWindowView: View {
                     onAddToProject: { showAddToProject(for: $0) },
                     onHide: { groupPanelCoordinator.hidePanel() }
                 )
-                .frame(width: groupPanelWidth, height: 420)
+                .frame(width: groupPanelWidth, height: 480)
             }
         }
         .background(ThemeManager.shared.surface.opacity(0.95))
