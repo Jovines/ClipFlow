@@ -21,7 +21,8 @@ struct GroupPanelView: View {
     var body: some View {
         VStack(spacing: 0) {
             groupPanelHeader
-                .frame(height: 36)
+                .frame(height: 28)
+                .frame(maxHeight: .infinity)
             Divider()
             groupPanelContent
             Divider()
@@ -43,7 +44,7 @@ struct GroupPanelView: View {
                 .foregroundStyle(ThemeManager.shared.textSecondary)
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 10)
+        .padding(.vertical, 6)
     }
 
     private var groupPanelContent: some View {

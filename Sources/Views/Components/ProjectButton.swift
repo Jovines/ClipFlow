@@ -15,7 +15,8 @@ struct HeaderBar: View {
 
             Spacer()
         }
-        .frame(height: 36)
+        .frame(height: 28)
+        .frame(maxHeight: .infinity)
         .padding(.horizontal, 8)
     }
 }

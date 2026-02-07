@@ -28,8 +28,8 @@ struct GroupView: View {
 
     var body: some View {
         groupHeader
-            .padding(.vertical, 2)
-            .frame(height: 36)
+            .frame(height: 28)
+            .frame(maxHeight: .infinity)
             .contentShape(Rectangle())
             .onHover { hovering in
                 isHovered = hovering
@@ -60,7 +60,7 @@ struct GroupView: View {
             }
         }
         .padding(.horizontal, 8)
-        .padding(.vertical, 6)
+        .padding(.vertical, 4)
         .background(isHovered ? themeManager.surface.opacity(0.5) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())

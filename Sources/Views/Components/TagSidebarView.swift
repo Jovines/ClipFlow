@@ -15,7 +15,8 @@ struct TagSidebarView: View {
                     .font(.system(size: 11, weight: .medium))
                 Spacer()
             }
-            .frame(height: 36)
+            .frame(height: 28)
+            .frame(maxHeight: .infinity)
             .padding(.horizontal, 8)
 
             Divider()
@@ -56,6 +57,7 @@ struct TagSidebarView: View {
                 .help("Manage tags")
             }
             .frame(height: 28)
+            .frame(maxHeight: .infinity)
             .padding(.horizontal, 6)
             .background(ThemeManager.shared.surface)
         }
