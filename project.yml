@@ -19,11 +19,14 @@ packages:
   MarkdownView:
     url: https://github.com/LiYanan2004/MarkdownView.git
     from: "2.4.0"
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.6.0"
 
 settings:
   base:
-    MARKETING_VERSION: "1.0.9"
-    CURRENT_PROJECT_VERSION: "10"
+    MARKETING_VERSION: "1.0.10"
+    CURRENT_PROJECT_VERSION: "11"
     DEVELOPMENT_TEAM: "7437GDF3XU"
     CODE_SIGN_STYLE: Manual
     CODE_SIGN_IDENTITY: "Developer ID Application: Deqiao Ding (7437GDF3XU)"
@@ -44,6 +47,7 @@ targets:
       - package: OpenAI
       - package: KeychainAccess
       - package: MarkdownView
+      - package: Sparkle
     resources:
       - path: Resources/Assets.xcassets
       - path: Resources/en.lproj
