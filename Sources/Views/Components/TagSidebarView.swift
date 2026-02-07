@@ -5,6 +5,10 @@ struct TagSidebarView: View {
     @Binding var selectedTagIds: [UUID]
     let onManageTags: () -> Void
     @Binding var showRecommendationHistory: Bool
+    @State private var editingTag: Tag?
+    @State private var editName: String = ""
+    @State private var showDeleteConfirmation: Bool = false
+    @State private var tagToDelete: Tag?
 
     private let sidebarWidth: CGFloat = 80
 
@@ -37,7 +41,9 @@ struct TagSidebarView: View {
                         TagSidebarRowView(
                             tag: tag,
                             isSelected: selectedTagIds.contains(tag.id),
-                            onTap: { toggleTag(tag.id) }
+                            onTap: { toggleTag(tag.id) },
+                            onEdit: { startEdit(tag) },
+                            onDelete: { confirmDelete(tag) }
                         )
                     }
                 }
@@ -62,6 +68,17 @@ struct TagSidebarView: View {
         .frame(width: sidebarWidth)
         .background(ThemeManager.shared.surface.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .sheet(isPresented: .constant(editingTag != nil)) {
+            editTagSheet
+        }
+        .alert("Delete Tag", isPresented: $showDeleteConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) { deleteTag() }
+        } message: {
+            if let tag = tagToDelete {
+                Text("Are you sure you want to delete \"\(tag.name)\"? This will remove the tag from all clipboard items.")
+            }
+        }
     }
 
     private var allTags: [Tag] {
@@ -74,6 +91,88 @@ struct TagSidebarView: View {
         } else {
             selectedTagIds.append(tagId)
         }
+    }
+
+    private func startEdit(_ tag: Tag) {
+        editingTag = tag
+        editName = tag.name
+    }
+
+    private func saveEdit() {
+        guard let tag = editingTag else { return }
+        do {
+            try tagService.updateTag(id: tag.id, name: editName, color: tag.color)
+            editingTag = nil
+            editName = ""
+        } catch {
+            print("[TagSidebarView] Failed to update tag: \(error)")
+        }
+    }
+
+    private func confirmDelete(_ tag: Tag) {
+        tagToDelete = tag
+        showDeleteConfirmation = true
+    }
+
+    private func deleteTag() {
+        guard let tag = tagToDelete else { return }
+        do {
+            try tagService.deleteTag(id: tag.id)
+            selectedTagIds.removeAll { $0 == tag.id }
+            tagToDelete = nil
+        } catch {
+            print("[TagSidebarView] Failed to delete tag: \(error)")
+        }
+    }
+
+    private var editTagSheet: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("Rename Tag")
+                    .font(.headline)
+                Spacer()
+                Button(action: { editingTag = nil }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 12)
+
+            Divider()
+
+            TextField("Tag name", text: $editName)
+                .textFieldStyle(.plain)
+                .font(.system(size: 14))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(ThemeManager.shared.surfaceElevated)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+                .padding(.horizontal, 12)
+
+            Spacer()
+
+            HStack(spacing: 8) {
+                Button(action: { editingTag = nil }) {
+                    Text("Cancel")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+
+                Button(action: saveEdit) {
+                    Text("Save")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+                .disabled(editName.isEmpty)
+            }
+            .padding(.horizontal, 12)
+            .padding(.bottom, 12)
+        }
+        .frame(width: 260, height: 160)
+        .background(ThemeManager.shared.surface)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
@@ -110,6 +209,8 @@ struct TagSidebarRowView: View {
     let tag: Tag
     let isSelected: Bool
     let onTap: () -> Void
+    let onEdit: () -> Void
+    let onDelete: () -> Void
 
     var body: some View {
         Button(action: onTap) {
@@ -131,5 +232,13 @@ struct TagSidebarRowView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            Button(action: onEdit) {
+                Label("Rename", systemImage: "pencil")
+            }
+            Button(role: .destructive, action: onDelete) {
+                Label("Delete", systemImage: "trash")
+            }
+        }
     }
 }
