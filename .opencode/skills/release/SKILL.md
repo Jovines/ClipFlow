@@ -41,6 +41,10 @@ Before releasing, ensure you have:
 3. **Sparkle EdDSA Key**: Generated during auto-update setup
    - Public key is in `Info.plist` as `SUPublicEDKey`
    - Private key is stored at `scripts/sparkle_private_key.txt` (not in git, see `.gitignore`)
+4. **create-dmg**: Install via Homebrew for user-friendly DMG with Applications link
+   ```bash
+   brew install create-dmg
+   ```
 
 ## Important Notes
 
@@ -113,10 +117,33 @@ codesign --force --sign "Developer ID Application: Your Name (TEAM_ID)" --timest
 
 ### 5. Create DMG
 
+Use `create-dmg` to create a user-friendly DMG with an Applications folder link for easy drag-and-drop installation:
+
 ```bash
+# Check if create-dmg is installed
+if ! command -v create-dmg &> /dev/null; then
+    echo "Error: create-dmg is not installed."
+    echo "Install it with: brew install create-dmg"
+    exit 1
+fi
+
 APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow.app" -path "*/Release/ClipFlow.app" -type d | head -1)
-hdiutil create -srcfolder "$APP_PATH" -volname "ClipFlow" ClipFlow.dmg
+create-dmg \
+  --volname "ClipFlow" \
+  --window-pos 200 120 \
+  --window-size 800 400 \
+  --icon-size 100 \
+  --icon "ClipFlow.app" 200 190 \
+  --hide-extension "ClipFlow.app" \
+  --app-drop-link 600 185 \
+  --no-internet-enable \
+  ClipFlow.dmg \
+  "$APP_PATH"
 ```
+
+The DMG will include:
+- `ClipFlow.app` - The application
+- `Applications` link - Drag apps here to install (standard macOS convention)
 
 ### 6. Sign DMG
 
