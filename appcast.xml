@@ -2,23 +2,21 @@
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
     <channel>
         <title>ClipFlow Changelog</title>
-        <link>https://qiao.github.io/ClipFlow/appcast.xml</link>
+        <link>https://jovines.github.io/ClipFlow/appcast.xml</link>
         <description>Most recent changes with links to updates.</description>
         <language>en</language>
         
         <!-- Add new release items here at the top -->
-        <!-- Example:
         <item>
-            <title>Version 1.1.0</title>
+            <title>Version 1.0.10</title>
             <sparkle:version>11</sparkle:version>
-            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
-            <pubDate>Mon, 08 Feb 2026 12:00:00 +0000</pubDate>
-            <enclosure url="https://github.com/qiao/ClipFlow/releases/download/v1.1.0/ClipFlow.dmg"
-                       sparkle:edSignature="SIGNATURE_HERE"
-                       length="FILE_SIZE_HERE"
+            <sparkle:shortVersionString>1.0.10</sparkle:shortVersionString>
+            <pubDate>Sat, 08 Feb 2026 02:00:00 +0000</pubDate>
+            <enclosure url="https://github.com/Jovines/ClipFlow/releases/download/v1.0.10/ClipFlow.dmg"
+                       sparkle:edSignature="t4x2jgHKdnne08a1TeX7AT4cas3ggdY4ulwXEmkxUe0NduxgYjVUUHsCULv4QF6vRwKJ7qdRcIsXJ/RexCW9Dw=="
+                       length="21865507"
                        type="application/octet-stream" />
         </item>
-        -->
         
     </channel>
 </rss>
