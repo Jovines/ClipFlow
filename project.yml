@@ -19,6 +19,9 @@ packages:
   MarkdownView:
     url: https://github.com/LiYanan2004/MarkdownView.git
     from: "2.4.0"
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.6.0"
 
 settings:
   base:
@@ -44,6 +47,7 @@ targets:
       - package: OpenAI
       - package: KeychainAccess
       - package: MarkdownView
+      - package: Sparkle
     resources:
       - path: Resources/Assets.xcassets
       - path: Resources/en.lproj
