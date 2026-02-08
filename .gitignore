@@ -74,8 +74,8 @@ coverage/
 *.p12
 scripts/AuthKey*
 
-# Sparkle Update Key
-scripts/sparkle_private_key.txt
+# API Credentials
+secrets/
 
 # Sisyphus
 .sisyphus/

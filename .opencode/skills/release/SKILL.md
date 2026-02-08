@@ -25,8 +25,9 @@ Releasing a new version of ClipFlow. Skill will prompt for version number if not
 
 1. **Developer ID Certificate**: Xcode → Settings → Accounts → Manage Certificates → "+" → Developer ID Application
 2. **App Store Connect API Key**: https://appstoreconnect.apple.com/access/api (role: Admin)
-   - Download .p8, store at `scripts/AuthKey.p8`
-3. **Sparkle EdDSA Key**: `scripts/sparkle_private_key.txt` (not in git)
+   - Download .p8, store at `secrets/AuthKey.p8`
+   - Add Key ID and Issuer ID to `secrets/api_credentials.sh`
+3. **Sparkle EdDSA Key**: `secrets/sparkle_private_key.txt` (not in git)
 4. **create-dmg**: `brew install create-dmg`
 
 ## Release Steps
@@ -77,6 +78,7 @@ create-dmg \
   --hide-extension "ClipFlow.app" \
   --app-drop-link 600 185 \
   --no-internet-enable \
+  --skip-jenkins \
   ClipFlow.dmg \
   "$APP_PATH"
 ```
@@ -93,14 +95,14 @@ codesign --force --sign "Developer ID Application: Your Name (TEAM_ID)" --timest
 SPARKLE_VERSION="2.8.1"
 curl -L -o /tmp/sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
 tar -xf /tmp/sparkle.tar.xz -C /tmp
-/tmp/bin/sign_update -f scripts/sparkle_private_key.txt ClipFlow.dmg > /tmp/sparkle_sig.txt
+/tmp/bin/sign_update -f secrets/sparkle_private_key.txt ClipFlow.dmg > /tmp/sparkle_sig.txt
 cat /tmp/sparkle_sig.txt
 ```
 
 ### 8. Notarize
 
 ```bash
-./scripts/notarize.sh ClipFlow.dmg scripts/AuthKey.p8 KEY_ID ISSUER_ID
+./scripts/notarize.sh ClipFlow.dmg
 ```
 
 ### 9. Verify

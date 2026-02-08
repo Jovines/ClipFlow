@@ -1,23 +1,32 @@
 #!/bin/bash
 
 # ClipFlow Notarization Script
-# Usage: ./notarize.sh <dmg-path> <api-key-path> <api-key-id> <api-issuer>
-# Example: ./notarize.sh ClipFlow.dmg scripts/AuthKey.p8 TZJ6FHT528 39497853-d795-468a-88a2-af5206568006
+# Usage: ./notarize.sh <dmg-path> [api-key-path]
+# Example: ./notarize.sh ClipFlow.dmg
 
 set -e
 
-if [ $# -ne 4 ]; then
-    echo "Usage: $0 <dmg-path> <api-key-path> <api-key-id> <api-issuer>"
+# Load API credentials from secrets file (not committed to git)
+if [ -f "secrets/api_credentials.sh" ]; then
+    source secrets/api_credentials.sh
+fi
+
+# Default values
+API_KEY_PATH="${1:-secrets/AuthKey.p8}"
+API_KEY_ID="${2:-${API_KEY_ID}}"
+API_ISSUER="${3:-${API_ISSUER_ID}}"
+
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <dmg-path> [api-key-path]"
     echo ""
     echo "Example:"
-    echo "  $0 ClipFlow.dmg scripts/AuthKey.p8 TZJ6FHT528 39497853-d795-468a-88a2-af5206568006"
+    echo "  $0 ClipFlow.dmg"
+    echo ""
+    echo "Note: API credentials should be stored in secrets/api_credentials.sh"
     exit 1
 fi
 
 DMG_PATH="$1"
-API_KEY_PATH="$2"
-API_KEY_ID="$3"
-API_ISSUER="$4"
 
 # Check if DMG exists
 if [ ! -f "$DMG_PATH" ]; then
@@ -35,8 +44,6 @@ if [ ! -f "$API_KEY_PATH" ]; then
     echo "   2. Create an API key with Admin role"
     echo "   3. Download the .p8 file"
     echo "   4. Save it to: $API_KEY_PATH"
-    echo ""
-    echo "📖 See skill:release for full setup instructions."
     exit 1
 fi
 
