@@ -47,6 +47,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
     case aiService = "AIService"
     case cache = "Cache"
+    case update = "Update"
     case about = "About"
 
     var id: String { rawValue }
@@ -56,6 +57,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .general: return "gear"
         case .aiService: return "brain"
         case .cache: return "internaldrive"
+        case .update: return "arrow.clockwise.circle"
         case .about: return "info.circle"
         }
     }
@@ -65,6 +67,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         case .general: return NSLocalizedString("General", comment: "")
         case .aiService: return NSLocalizedString("AI 服务", comment: "")
         case .cache: return NSLocalizedString("Cache", comment: "")
+        case .update: return NSLocalizedString("Update", comment: "")
         case .about: return NSLocalizedString("About", comment: "")
         }
     }
@@ -148,6 +151,8 @@ struct SettingsView: View {
                     AIProviderSettingsView()
                 case .cache:
                     CacheManagementView()
+                case .update:
+                    UpdateSettingsView()
                 case .about:
                     AboutView()
                 }
