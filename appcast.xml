@@ -8,13 +8,13 @@
         
         <!-- Add new release items here at the top -->
         <item>
-            <title>Version 1.0.10</title>
-            <sparkle:version>11</sparkle:version>
-            <sparkle:shortVersionString>1.0.10</sparkle:shortVersionString>
-            <pubDate>Sat, 08 Feb 2026 02:00:00 +0000</pubDate>
-            <enclosure url="https://github.com/Jovines/ClipFlow/releases/download/v1.0.10/ClipFlow.dmg"
-                       sparkle:edSignature="t4x2jgHKdnne08a1TeX7AT4cas3ggdY4ulwXEmkxUe0NduxgYjVUUHsCULv4QF6vRwKJ7qdRcIsXJ/RexCW9Dw=="
-                       length="21865507"
+            <title>Version 1.0.11</title>
+            <sparkle:version>12</sparkle:version>
+            <sparkle:shortVersionString>1.0.11</sparkle:shortVersionString>
+            <pubDate>Sat, 08 Feb 2026 03:00:00 +0000</pubDate>
+            <enclosure url="https://github.com/Jovines/ClipFlow/releases/download/v1.0.11/ClipFlow.dmg"
+                       sparkle:edSignature="NaCOr19kIAx84NhcIgfKoJ7MYMNHHkrPTzSSo9B6cHtU1cCJs9vfIxyH5GjHQ/eX6mWx04XE0Xs8OhEAmaQAAA=="
+                       length="21864854"
                        type="application/octet-stream" />
         </item>
         
