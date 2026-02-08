@@ -20,6 +20,8 @@ struct FloatingWindowView: View {
     @State private var editingItem: ClipboardItem?
     @State private var editContent: String = ""
     @State private var originalContent: String = ""
+    @State private var editNote: String = ""
+    @State private var originalNote: String = ""
     @State private var editorPosition: EditorPosition = .right
     @State private var editorWidth: CGFloat = 280
     @State private var expandedGroups: Set<Int> = []
@@ -156,8 +158,10 @@ struct FloatingWindowView: View {
             if isEditing {
                 EditorPanelView(
                     editContent: $editContent,
+                    editNote: $editNote,
                     editingItem: $editingItem,
                     originalContent: originalContent,
+                    originalNote: originalNote,
                     onSave: saveEdit,
                     onCancel: cancelEdit,
                     onReset: resetEdit
@@ -458,6 +462,8 @@ struct FloatingWindowView: View {
         editingItem = item
         editContent = item.content
         originalContent = item.content
+        editNote = item.note ?? ""
+        originalNote = item.note ?? ""
         determineEditorPosition()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -472,20 +478,27 @@ struct FloatingWindowView: View {
     private func saveEdit() {
         guard let item = editingItem else { return }
         clipboardMonitor.updateItemContent(id: item.id, newContent: editContent)
+        let noteToSave = editNote.isEmpty ? nil : editNote
+        clipboardMonitor.updateItemNote(id: item.id, note: noteToSave)
         clipboardMonitor.moveItemToTop(id: item.id)
         editingItem = nil
         editContent = ""
         originalContent = ""
+        editNote = ""
+        originalNote = ""
     }
 
     private func cancelEdit() {
         editingItem = nil
         editContent = ""
         originalContent = ""
+        editNote = ""
+        originalNote = ""
     }
 
     private func resetEdit() {
         editContent = originalContent
+        editNote = originalNote
     }
 
     private func determineEditorPosition() {

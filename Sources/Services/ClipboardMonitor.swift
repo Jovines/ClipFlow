@@ -179,6 +179,17 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
         }
     }
 
+    func updateItemNote(id: UUID, note: String?) {
+        if let index = capturedItems.firstIndex(where: { $0.id == id }) {
+            do {
+                try database.updateItemNote(id: id, note: note)
+                capturedItems[index].note = note
+            } catch {
+                ClipFlowLogger.error("Failed to update item note: \(error)")
+            }
+        }
+    }
+
     func moveItemToTop(id: UUID) {
         if let index = capturedItems.firstIndex(where: { $0.id == id }) {
             let item = capturedItems[index]

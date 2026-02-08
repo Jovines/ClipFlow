@@ -4,8 +4,10 @@ import Foundation
 
 struct EditorPanelView: View {
     @Binding var editContent: String
+    @Binding var editNote: String
     @Binding var editingItem: ClipboardItem?
     let originalContent: String
+    let originalNote: String
     let onSave: () -> Void
     let onCancel: () -> Void
     let onReset: () -> Void
@@ -14,10 +16,26 @@ struct EditorPanelView: View {
     @State private var itemTags: [Tag] = []
 
     private let editorWidth: CGFloat = 280
+    private let fixedHeight: CGFloat = 480
     private let maxCharacterCount = 10000
+    private let maxNoteCharacterCount = 200
 
     private var characterCount: Int {
         editContent.count
+    }
+
+    private var noteCharacterCount: Int {
+        editNote.count
+    }
+
+    private var hasChanges: Bool {
+        editContent != originalContent || editNote != originalNote
+    }
+
+    private var availableTags: [Tag] {
+        tagService.allTags.filter { tag in
+            !itemTags.contains(where: { $0.id == tag.id })
+        }
     }
 
     var body: some View {
@@ -25,11 +43,12 @@ struct EditorPanelView: View {
             editorHeader
             Divider()
             editorContent
+            noteSection
             tagSection
             Divider()
             editorFooter
         }
-        .frame(width: editorWidth, height: 480)
+        .frame(width: editorWidth, height: fixedHeight)
         .background(ThemeManager.shared.surface.opacity(0.95))
         .onAppear {
             loadItemTags()
@@ -68,91 +87,113 @@ struct EditorPanelView: View {
     }
 
     private var editorContent: some View {
-        VStack(spacing: 0) {
-            TextEditor(text: $editContent)
-                .font(.system(size: 13))
-                .padding(8)
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                TextEditor(text: $editContent)
+                    .font(.system(size: 13))
+                    .padding(8)
+                    .frame(minHeight: 80)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.clear)
 
+                HStack {
+                    Text("\(characterCount)/\(maxCharacterCount)")
+                        .font(.caption)
+                        .foregroundStyle(ThemeManager.shared.textSecondary)
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+            }
+        }
+        .frame(maxHeight: .infinity)
+    }
+
+    private var noteSection: some View {
+        VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text("\(characterCount)/\(maxCharacterCount)")
-                    .font(.caption)
+                Image(systemName: "note.text")
+                    .font(.system(size: 11))
+                    .foregroundStyle(ThemeManager.shared.textSecondary)
+                Text("备注")
+                    .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(ThemeManager.shared.textSecondary)
                 Spacer()
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 4)
+
+            TextField("添加备注", text: $editNote, axis: .vertical)
+                .font(.system(size: 12))
+                .lineLimit(1...3)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+
+            if noteCharacterCount > 0 {
+                Text("\(noteCharacterCount)/\(maxNoteCharacterCount)")
+                    .font(.caption2)
+                    .foregroundStyle(ThemeManager.shared.textSecondary.opacity(0.6))
+            }
         }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
     }
 
     private var tagSection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Divider()
+        Group {
+            if tagService.allTags.isEmpty {
+                EmptyView()
+            } else {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Image(systemName: "tag")
+                            .font(.system(size: 11))
+                            .foregroundStyle(ThemeManager.shared.textSecondary)
+                        Text("标签")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(ThemeManager.shared.textSecondary)
+                        Spacer()
+                    }
 
-            Text("标签")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(ThemeManager.shared.textSecondary)
-                .padding(.horizontal, 12)
-                .padding(.top, 8)
-                .padding(.bottom, 6)
+                    if !itemTags.isEmpty {
+                        FlowLayout(spacing: 6) {
+                            ForEach(itemTags) { tag in
+                                TagChip(tag: tag, onRemove: { removeTag(tag) })
+                            }
+                        }
+                        .padding(.bottom, 4)
+                    }
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 4) {
                     let availableTags = tagService.allTags.filter { tag in
                         !itemTags.contains(where: { $0.id == tag.id })
                     }
 
-                    if availableTags.isEmpty {
-                        Text("所有标签已添加")
-                            .font(.system(size: 11))
-                            .foregroundStyle(ThemeManager.shared.textSecondary.opacity(0.6))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                    } else {
-                        ForEach(Array(availableTags.enumerated()), id: \.element.id) { _, tag in
-                            Button(action: { addTag(tag) }) {
-                                HStack(spacing: 6) {
-                                    Circle()
-                                        .fill(Color.hex(tag.color))
-                                        .frame(width: 8, height: 8)
-                                    Text(tag.name)
-                                        .font(.system(size: 12))
-                                        .foregroundStyle(ThemeManager.shared.text)
-                                    Spacer()
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 10))
-                                        .foregroundStyle(ThemeManager.shared.textSecondary)
+                    if !availableTags.isEmpty {
+                        FlowLayout(spacing: 6) {
+                            ForEach(availableTags) { tag in
+                                Button(action: { addTag(tag) }) {
+                                    HStack(spacing: 4) {
+                                        Circle()
+                                            .fill(Color.hex(tag.color))
+                                            .frame(width: 8, height: 8)
+                                        Text(tag.name)
+                                            .font(.system(size: 11))
+                                    }
+                                    .foregroundStyle(ThemeManager.shared.textSecondary)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .stroke(ThemeManager.shared.textSecondary.opacity(0.3), lineWidth: 1)
+                                    )
                                 }
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 6)
-                                .contentShape(Rectangle())
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
-                            .background(ThemeManager.shared.surfaceElevated.opacity(0.5))
-                            .clipShape(RoundedRectangle(cornerRadius: 4))
                         }
                     }
                 }
                 .padding(.horizontal, 12)
-            }
-            .frame(height: 120)
-
-            if !itemTags.isEmpty {
-                Divider()
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-
-                FlowLayout(spacing: 6) {
-                    ForEach(itemTags) { tag in
-                        TagChip(tag: tag, onRemove: { removeTag(tag) })
-                    }
-                }
-                .padding(.horizontal, 12)
-                .padding(.bottom, 8)
+                .padding(.vertical, 6)
             }
         }
-        .frame(maxHeight: 200)
     }
 
     private func addTag(_ tag: Tag) {
@@ -184,7 +225,7 @@ struct EditorPanelView: View {
                     .font(.system(size: 12))
             }
             .buttonStyle(.bordered)
-            .disabled(editContent == originalContent)
+            .disabled(!hasChanges)
 
             Spacer()
 
@@ -199,7 +240,7 @@ struct EditorPanelView: View {
                     .font(.system(size: 12, weight: .medium))
             }
             .buttonStyle(.borderedProminent)
-            .disabled(editContent.isEmpty || editContent == originalContent)
+            .disabled(editContent.isEmpty || !hasChanges)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)

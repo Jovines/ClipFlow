@@ -136,6 +136,7 @@ final class DatabaseManager: @unchecked Sendable {
         try migratePromptTemplates(db: db)
         try migrateTags(db: db)
         try migrateRecommendationFields(db: db)
+        try migrateNoteField(db: db)
     }
 
     private static func migrateRecommendationFields(db: Database) throws {
@@ -150,6 +151,17 @@ final class DatabaseManager: @unchecked Sendable {
             try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN recommendedAt DATETIME")
             try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN evictedAt DATETIME")
             print("[Database] Migration: Added recommendation columns to clipboard_items table")
+        }
+    }
+
+    private static func migrateNoteField(db: Database) throws {
+        let noteColumnExists = try Int.fetchOne(db, sql: """
+            SELECT COUNT(*) FROM pragma_table_info('clipboard_items') WHERE name = 'note'
+            """) ?? 0
+
+        if noteColumnExists == 0 {
+            try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN note TEXT")
+            print("[Database] Migration: Added note column to clipboard_items table")
         }
     }
 
@@ -322,6 +334,14 @@ final class DatabaseManager: @unchecked Sendable {
         try dbPool.write { db in
             guard var item = try ClipboardItem.fetchOne(db, key: ["id": id.uuidString]) else { return }
             item.content = content
+            try item.update(db)
+        }
+    }
+
+    func updateItemNote(id: UUID, note: String?) throws {
+        try dbPool.write { db in
+            guard var item = try ClipboardItem.fetchOne(db, key: ["id": id.uuidString]) else { return }
+            item.note = note
             try item.update(db)
         }
     }

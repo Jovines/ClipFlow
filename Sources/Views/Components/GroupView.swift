@@ -104,6 +104,17 @@ struct CompactItemRow: View {
                 }
             }
 
+            if let note = item.note, !note.isEmpty {
+                HStack(spacing: 2) {
+                    Image(systemName: "note.text")
+                        .font(.system(size: 9))
+                    Text(note)
+                        .font(.system(size: 9))
+                        .lineLimit(1)
+                }
+                .foregroundStyle(.secondary)
+            }
+
             if isRecommended {
                 Text("✨")
                     .font(.system(size: 10))

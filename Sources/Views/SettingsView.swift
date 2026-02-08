@@ -106,6 +106,7 @@ struct SettingsView: View {
     @AppStorage("saveImages") private var saveImages = true
     @AppStorage("autoStart") private var autoStart = false
     @AppStorage("recommendationDecayHours") private var recommendationDecayHours = 6.0
+    @AppStorage("minUsageCountForRecommendation") private var minUsageCountForRecommendation = 2
 
     @State private var shortcut = HotKeyManager.Shortcut.defaultShortcut
     @State private var showConflictAlert = false
@@ -326,6 +327,24 @@ struct SettingsView: View {
                 VStack(spacing: 12) {
                     HStack {
                         SettingLabelWithInfo(
+                            label: "Min Usage Count",
+                            description: "Number of uses before an item appears in recommendations"
+                        )
+                        Spacer()
+                        Text("\(minUsageCountForRecommendation)")
+                            .font(.system(size: 13, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+
+                    Slider(value: Binding(
+                        get: { Double(minUsageCountForRecommendation) },
+                        set: { minUsageCountForRecommendation = Int($0) }
+                    ), in: 1...10, step: 1)
+                    .controlSize(.small)
+
+                    HStack {
+                        SettingLabelWithInfo(
                             label: "Score Half-Life",
                             description: "How quickly recommendation scores decay over time"
                         )
@@ -370,122 +389,6 @@ struct SettingsView: View {
                         Text("Status")
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
-                        Spacer()
-                        statusBadge
-                    }
-                }
-                .padding(12)
-                .background(themeManager.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-
-            Divider()
-
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("History")
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
-                VStack(spacing: 12) {
-                    HStack {
-                        Text("Max Items")
-                            .font(.system(size: 13))
-                            .help("Maximum number of clipboard items to store")
-                        Spacer()
-                        Text("\(maxHistoryItems)")
-                            .font(.system(size: 13, design: .rounded))
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                            .frame(width: 40, alignment: .trailing)
-                    }
-
-                    Slider(value: Binding(
-                        get: { Double(maxHistoryItems) },
-                        set: { maxHistoryItems = Int($0) }
-                    ), in: 10...1000, step: 10)
-                    .controlSize(.small)
-                    .help("Adjust the maximum number of clipboard items to store")
-
-                    Toggle(isOn: $saveImages) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "photo")
-                                .font(.system(size: 12))
-                            Text("Save Images")
-                                .font(.system(size: 13))
-                        }
-                    }
-                    .toggleStyle(.checkbox)
-                    .help("Save copied images to history (increases storage usage)")
-                }
-                .padding(12)
-                .background(themeManager.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-
-            Divider()
-
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "sparkles")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("Recommendations")
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
-                VStack(spacing: 12) {
-                    HStack {
-                        Text("Score Half-Life")
-                            .font(.system(size: 13))
-                            .help("How quickly recommendation scores decay over time")
-                        Spacer()
-                        Text(decayHoursText)
-                            .font(.system(size: 13, design: .rounded))
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                    }
-
-                    Slider(value: $recommendationDecayHours, in: 1...168, step: 1)
-                        .controlSize(.small)
-                        .help("Lower values make recent items more important")
-                }
-                .padding(12)
-                .background(themeManager.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
-
-            Divider()
-
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "power")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("Launch")
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
-                VStack(spacing: 12) {
-                    Toggle(isOn: $autoStart) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "arrow.forward.circle")
-                                .font(.system(size: 12))
-                            Text("Start at Login")
-                                .font(.system(size: 13))
-                        }
-                    }
-                    .toggleStyle(.checkbox)
-                    .help("Automatically start ClipFlow when you log in")
-
-                    HStack {
-                        Text("Status")
-                            .font(.system(size: 13))
-                            .foregroundStyle(.secondary)
-                            .help("Current auto-start permission status")
                         Spacer()
                         statusBadge
                     }

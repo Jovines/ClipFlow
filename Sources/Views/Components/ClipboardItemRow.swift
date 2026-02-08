@@ -22,6 +22,16 @@ struct ClipboardItemRow: View {
                     Text(formatTimeAgo(from: item.createdAt))
                         .font(.caption)
                         .foregroundStyle(.secondary)
+
+                    if let note = item.note, !note.isEmpty {
+                        Text("•")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(note)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
                 }
             }
 

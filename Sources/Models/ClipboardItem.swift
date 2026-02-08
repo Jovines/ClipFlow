@@ -14,11 +14,12 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
     var recommendationScore: Double
     var recommendedAt: Date?
     var evictedAt: Date?
+    var note: String?
 
     enum CodingKeys: String, CodingKey {
         case id, content, contentType, imagePath, thumbnailPath
         case createdAt, contentHash, usageCount, lastUsedAt
-        case recommendationScore, recommendedAt, evictedAt
+        case recommendationScore, recommendedAt, evictedAt, note
     }
 
     init(from decoder: Decoder) throws {
@@ -35,6 +36,7 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
         recommendationScore = try container.decodeIfPresent(Double.self, forKey: .recommendationScore) ?? 0
         recommendedAt = try container.decodeIfPresent(Date.self, forKey: .recommendedAt)
         evictedAt = try container.decodeIfPresent(Date.self, forKey: .evictedAt)
+        note = try container.decodeIfPresent(String.self, forKey: .note)
     }
 
     enum ContentType: String, Codable {
@@ -54,7 +56,8 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
         lastUsedAt: Date? = nil,
         recommendationScore: Double = 0,
         recommendedAt: Date? = nil,
-        evictedAt: Date? = nil
+        evictedAt: Date? = nil,
+        note: String? = nil
     ) {
         self.id = id
         self.content = content
@@ -68,6 +71,7 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
         self.recommendationScore = recommendationScore
         self.recommendedAt = recommendedAt
         self.evictedAt = evictedAt
+        self.note = note
     }
 
     var hasImage: Bool {
@@ -107,7 +111,8 @@ extension ClipboardItem {
     }
 
     var shouldBeRecommended: Bool {
-        currentScore >= Self.minRecommendationScore
+        let minUsage = UserDefaults.standard.integer(forKey: "minUsageCountForRecommendation")
+        return usageCount >= max(1, minUsage) && currentScore >= Self.minRecommendationScore
     }
 
     var recommendationPriority: Double {
@@ -151,6 +156,7 @@ extension ClipboardItem: FetchableRecord, PersistableRecord {
         static let recommendationScore = Column(CodingKeys.recommendationScore)
         static let recommendedAt = Column(CodingKeys.recommendedAt)
         static let evictedAt = Column(CodingKeys.evictedAt)
+        static let note = Column(CodingKeys.note)
     }
 
     func encode(to container: inout PersistenceContainer) throws {
@@ -166,6 +172,7 @@ extension ClipboardItem: FetchableRecord, PersistableRecord {
         container[Columns.recommendationScore] = recommendationScore
         container[Columns.recommendedAt] = recommendedAt
         container[Columns.evictedAt] = evictedAt
+        container[Columns.note] = note
     }
 }
 
