@@ -38,6 +38,9 @@ Before releasing, ensure you have:
    - Download .p8 file
    - Note Key ID and Issuer ID
    - Store API key at `scripts/AuthKey.p8`
+3. **Sparkle EdDSA Key**: Generated during auto-update setup
+   - Public key is in `Info.plist` as `SUPublicEDKey`
+   - Private key is stored at `scripts/sparkle_private_key.txt` (not in git, see `.gitignore`)
 
 ## Important Notes
 
@@ -103,8 +106,10 @@ The Release build will be at:
 Resign the app with a secure timestamp (required for notarization):
 ```bash
 APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow.app" -path "*/Release/ClipFlow.app" -type d | head -1)
-codesign --force --sign "Developer ID Application: Your Name (TEAM_ID)" --timestamp --entitlements Resources/ClipFlow.entitlements --options=runtime "$APP_PATH"
+codesign --force --sign "Developer ID Application: Your Name (TEAM_ID)" --timestamp --entitlements Resources/ClipFlow.entitlements --options=runtime --deep "$APP_PATH"
 ```
+
+**Important**: Use `--deep` to sign all nested binaries inside Sparkle.framework (Autoupdate, Updater, Downloader, Installer).
 
 ### 5. Create DMG
 
@@ -130,8 +135,8 @@ SPARKLE_VERSION="2.8.1"
 curl -L -o /tmp/sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
 tar -xf /tmp/sparkle.tar.xz -C /tmp
 
-# Sign the DMG and save signature
-/tmp/bin/sign_update ClipFlow.dmg > /tmp/sparkle_sig.txt
+# Sign the DMG using private key file
+/tmp/bin/sign_update -f scripts/sparkle_private_key.txt ClipFlow.dmg > /tmp/sparkle_sig.txt
 cat /tmp/sparkle_sig.txt
 ```
 
@@ -158,7 +163,7 @@ xcrun notarytool submit ClipFlow.dmg -k scripts/AuthKey.p8 -d KEY_ID -i ISSUER_I
 xcrun stapler staple ClipFlow.dmg
 ```
 
-### 8. Verify
+### 9. Verify
 
 ```bash
 # Check signature
@@ -168,7 +173,7 @@ codesign -dv --verbose=4 ClipFlow.app
 spctl -a -vvv ClipFlow.dmg
 ```
 
-### 9. Generate Release Notes
+### 10. Generate Release Notes
 
 Ask OpenCode to review commits since the last release and summarize:
 - New features (commits with "feat:")
@@ -180,7 +185,7 @@ Example prompt:
 Review commits since v<x.y> and summarize the changes for release notes. List new features, bug fixes, and other changes.
 ```
 
-### 10. Create Release
+### 11. Create Release
 
 ```bash
 # Create and push tag
@@ -196,7 +201,7 @@ gh release create v<x.y.z> \
   ClipFlow.dmg
 ```
 
-### 11. Update Appcast
+### 12. Update Appcast
 
 Update `appcast.xml` so existing users receive the update:
 
@@ -238,7 +243,7 @@ git checkout main
 
 **Appcast URL**: `https://jovines.github.io/ClipFlow/appcast.xml`
 
-### 12. Verify Release
+### 13. Verify Release
 
 Check the release on GitHub:
 ```bash
