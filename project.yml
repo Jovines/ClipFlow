@@ -25,8 +25,8 @@ packages:
 
 settings:
   base:
-    MARKETING_VERSION: "1.1.0"
-    CURRENT_PROJECT_VERSION: "14"
+    MARKETING_VERSION: "1.1.1"
+    CURRENT_PROJECT_VERSION: "15"
     DEVELOPMENT_TEAM: "7437GDF3XU"
     CODE_SIGN_STYLE: Manual
     CODE_SIGN_IDENTITY: "Developer ID Application: Deqiao Ding (7437GDF3XU)"
