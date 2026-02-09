@@ -14,14 +14,24 @@ final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
     private init() {
         setupWindowNotifications()
         setupThemeObserver()
+        setupColorSchemeObserver()
     }
-    
+
     private func setupThemeObserver() {
         themeObservation = NSApp.observe(\.effectiveAppearance) { [weak self] _, _ in
             self?.updateWindowBackgroundColor()
         }
     }
-    
+
+    private func setupColorSchemeObserver() {
+        NotificationCenter.default.publisher(for: ThemeManager.colorSchemeDidChangeNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateWindowBackgroundColor()
+            }
+            .store(in: &cancellables)
+    }
+
     private func updateWindowBackgroundColor() {
         window?.backgroundColor = NSColor(ThemeManager.shared.background)
     }

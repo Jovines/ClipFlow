@@ -3,6 +3,7 @@ import SwiftUI
 struct MenuBarPopoverView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var themeManager = ThemeManager.shared
 
     var body: some View {
         VStack(spacing: 0) {
@@ -18,6 +19,7 @@ struct MenuBarPopoverView: View {
 
             Divider()
                 .padding(.horizontal, 8)
+                .background(themeManager.borderSubtle)
 
             MenuButton(
                 icon: "power",
@@ -29,7 +31,7 @@ struct MenuBarPopoverView: View {
         }
         .padding(.vertical, 4)
         .frame(width: 160)
-        .themeAware()
+        .preferredColorScheme(themeManager.colorScheme)
     }
 }
 
@@ -38,6 +40,7 @@ struct MenuButton: View {
     let label: String
     let action: () -> Void
     @State private var isHovered = false
+    @StateObject private var themeManager = ThemeManager.shared
 
     var body: some View {
         Button(action: action) {
@@ -52,7 +55,7 @@ struct MenuButton: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
-        .background(isHovered ? ThemeManager.shared.surface : Color.clear)
+        .background(isHovered ? themeManager.surfaceElevated : Color.clear)
         .onHover { hovering in
             isHovered = hovering
         }

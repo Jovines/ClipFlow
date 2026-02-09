@@ -5,15 +5,15 @@ final class TagService: ObservableObject, @unchecked Sendable {
     static let shared = TagService()
 
     @Published private(set) var allTags: [Tag] = []
-    @Published private(set) var recommendationHistoryCount: Int = 0
+    @Published private(set) var topRecentHistoryCount: Int = 0
     @Published private(set) var itemTagAssociationsChanged: UUID = UUID()
 
     private let db = DatabaseManager.shared
-    private let recommendationService = RecommendationService.shared
+    private let topRecentService = TopRecentService.shared
 
     private init() {
         refreshTags()
-        refreshRecommendationHistoryCount()
+        refreshTopRecentHistoryCount()
     }
 
     func refreshTags() {
@@ -24,12 +24,12 @@ final class TagService: ObservableObject, @unchecked Sendable {
         }
     }
 
-    func refreshRecommendationHistoryCount() {
+    func refreshTopRecentHistoryCount() {
         do {
-            let history = try recommendationService.fetchRecommendationHistory()
-            recommendationHistoryCount = history.count
+            let history = try topRecentService.fetchTopRecentHistory()
+            topRecentHistoryCount = history.count
         } catch {
-            recommendationHistoryCount = 0
+            topRecentHistoryCount = 0
         }
     }
 

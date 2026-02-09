@@ -4,7 +4,7 @@ struct TagSidebarView: View {
     @ObservedObject var tagService: TagService
     @Binding var selectedTagIds: [UUID]
     let onManageTags: () -> Void
-    @Binding var showRecommendationHistory: Bool
+    @Binding var showTopRecentHistory: Bool
     @State private var editingTag: Tag?
     @State private var editName: String = ""
     @State private var showDeleteConfirmation: Bool = false
@@ -26,12 +26,12 @@ struct TagSidebarView: View {
 
             ScrollView {
                 VStack(spacing: 4) {
-                    RecommendationHistorySidebarItem(
-                        isSelected: $showRecommendationHistory,
-                        count: tagService.recommendationHistoryCount
+                    TopRecentHistorySidebarItem(
+                        isSelected: $showTopRecentHistory,
+                        count: tagService.topRecentHistoryCount
                     )
                     .onTapGesture {
-                        showRecommendationHistory.toggle()
+                        showTopRecentHistory.toggle()
                     }
 
                     Divider()
@@ -176,7 +176,7 @@ struct TagSidebarView: View {
     }
 }
 
-struct RecommendationHistorySidebarItem: View {
+struct TopRecentHistorySidebarItem: View {
     @Binding var isSelected: Bool
     let count: Int
 
@@ -189,13 +189,14 @@ struct RecommendationHistorySidebarItem: View {
                     .font(.system(size: 10))
                     .foregroundStyle(isSelected ? Color.flexokiYellow : .secondary)
 
-                Text("推荐历史")
+                Text("Recent History")
                     .font(.system(size: 10))
                     .lineLimit(1)
             }
             .padding(.horizontal, 6)
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.clear)
             .background(isSelected ? Color.flexokiYellow.opacity(0.15) : Color.clear)
             .foregroundStyle(isSelected ? Color.flexokiYellow : .secondary)
             .clipShape(RoundedRectangle(cornerRadius: 4))
@@ -226,6 +227,7 @@ struct TagSidebarRowView: View {
             .padding(.horizontal, 6)
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color.clear)
             .background(isSelected ? Color.hex(tag.color).opacity(0.15) : Color.clear)
             .foregroundStyle(isSelected ? Color.hex(tag.color) : .secondary)
             .clipShape(RoundedRectangle(cornerRadius: 4))

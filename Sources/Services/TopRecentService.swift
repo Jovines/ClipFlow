@@ -1,8 +1,8 @@
 import Foundation
 import GRDB
 
-final class RecommendationService: ObservableObject, @unchecked Sendable {
-    static let shared = RecommendationService()
+final class TopRecentService: ObservableObject, @unchecked Sendable {
+    static let shared = TopRecentService()
 
     private let dbManager = DatabaseManager.shared
     private let maxRecommendations = 5
@@ -80,7 +80,7 @@ final class RecommendationService: ObservableObject, @unchecked Sendable {
         }
     }
 
-    func fetchRecommendedItems() throws -> [ClipboardItem] {
+    func fetchTopRecentItems() throws -> [ClipboardItem] {
         try dbManager.dbPool.read { db in
             let sql = """
                 SELECT * FROM clipboard_items
@@ -92,7 +92,7 @@ final class RecommendationService: ObservableObject, @unchecked Sendable {
         }
     }
 
-    func fetchRecommendationHistory() throws -> [ClipboardItem] {
+    func fetchTopRecentHistory() throws -> [ClipboardItem] {
         try dbManager.dbPool.read { db in
             let sql = """
                 SELECT * FROM clipboard_items

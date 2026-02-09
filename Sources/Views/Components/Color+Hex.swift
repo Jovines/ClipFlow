@@ -104,6 +104,42 @@ extension Color {
         default: return tagBlue
         }
     }
+
+    static let nord0 = Color.hex("#2e3440")
+    static let nord1 = Color.hex("#3b4252")
+    static let nord2 = Color.hex("#434c5e")
+    static let nord3 = Color.hex("#4c566a")
+    static let nord4 = Color.hex("#d8dee9")
+    static let nord5 = Color.hex("#e5e9f0")
+    static let nord6 = Color.hex("#eceff4")
+    static let nord7 = Color.hex("#8fbcbb")
+    static let nord8 = Color.hex("#88c0d0")
+    static let nord9 = Color.hex("#81a1c1")
+    static let nord10 = Color.hex("#5e81ac")
+    static let nord11 = Color.hex("#bf616a")
+    static let nord12 = Color.hex("#d08770")
+    static let nord13 = Color.hex("#ebcb8b")
+    static let nord14 = Color.hex("#a3be8c")
+    static let nord15 = Color.hex("#b48ead")
+
+    static let nordBackground = nord0
+    static let nordBackgroundLight = nord6
+    static let nordSurface = nord1
+    static let nordSurfaceLight = nord5
+    static let nordSurfaceElevated = nord2
+    static let nordSurfaceElevatedLight = nord4
+    static let nordBorder = nord3
+    static let nordBorderLight = nord3
+    static let nordBorderSubtle = nord2
+    static let nordBorderSubtleLight = nord4
+    static let nordText = nord4
+    static let nordTextLight = nord0
+    static let nordTextSecondary = nord3
+    static let nordTextSecondaryLight = nord2
+    static let nordTextTertiary = nord3
+    static let nordTextTertiaryLight = nord3
+    static let nordAccent = nord8
+    static let nordAccentLight = nord9
 }
 
 extension Color {

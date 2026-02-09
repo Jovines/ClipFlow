@@ -75,7 +75,7 @@ struct CompactItemRow: View {
     let onDelete: () -> Void
     let onAddToProject: () -> Void
     let onManageTags: () -> Void
-    let isRecommended: Bool
+    let isTopRecent: Bool
     @ObservedObject var panelCoordinator: GroupPanelCoordinator
     @State private var isHovered = false
     @StateObject private var tagService = TagService.shared
@@ -115,9 +115,10 @@ struct CompactItemRow: View {
                 .foregroundStyle(.secondary)
             }
 
-            if isRecommended {
-                Text("✨")
-                    .font(.system(size: 10))
+            if isTopRecent {
+                Image(systemName: "clock")
+                    .font(.system(size: 9))
+                    .foregroundStyle(Color.orange.opacity(0.8))
             }
 
             if isHovered {

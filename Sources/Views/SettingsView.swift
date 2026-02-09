@@ -27,6 +27,13 @@ enum ThemeOption: String, CaseIterable, Identifiable {
     }
 }
 
+enum ColorSchemeOption: String, CaseIterable, Identifiable {
+    case flexoki = "Flexoki"
+    case nord = "Nord"
+
+    var id: String { rawValue }
+}
+
 struct TitleBarConfigurator: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
@@ -225,39 +232,57 @@ struct SettingsView: View {
 
             Divider()
 
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "paintbrush")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("Appearance")
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
-                VStack(spacing: 12) {
-                    HStack {
-                        SettingLabelWithInfo(
-                            label: "Theme",
-                            description: "Choose the app theme appearance"
-                        )
-                        Spacer()
-                        Picker("", selection: Binding(
-                            get: { ThemeOption.from(themeManager.userPreference) },
-                            set: { themeManager.setColorScheme($0.colorScheme) }
-                        )) {
-                            Text("System").tag(ThemeOption.system)
-                            Text("Light").tag(ThemeOption.light)
-                            Text("Dark").tag(ThemeOption.dark)
-                        }
-                        .pickerStyle(.segmented)
-                        .labelsHidden()
-                        .frame(width: 180)
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "paintbrush")
+                            .foregroundStyle(.secondary)
+                            .font(.system(size: 14))
+                        Text("Appearance")
+                            .font(.system(size: 14, weight: .semibold))
                     }
+
+                    VStack(spacing: 12) {
+                        HStack {
+                            SettingLabelWithInfo(
+                                label: "Color Scheme",
+                                description: "Choose the color scheme for the app"
+                            )
+                            Spacer()
+                            Picker("", selection: Binding(
+                                get: { themeManager.appTheme },
+                                set: { themeManager.setAppTheme($0) }
+                            )) {
+                                Text("Flexoki").tag(AppTheme.flexoki)
+                                Text("Nord").tag(AppTheme.nord)
+                            }
+                            .pickerStyle(.segmented)
+                            .labelsHidden()
+                            .frame(width: 140)
+                        }
+
+                        HStack {
+                            SettingLabelWithInfo(
+                                label: "Theme",
+                                description: "Choose between light and dark mode"
+                            )
+                            Spacer()
+                            Picker("", selection: Binding(
+                                get: { ThemeOption.from(themeManager.userPreference) },
+                                set: { themeManager.setColorScheme($0.colorScheme) }
+                            )) {
+                                Text("System").tag(ThemeOption.system)
+                                Text("Light").tag(ThemeOption.light)
+                                Text("Dark").tag(ThemeOption.dark)
+                            }
+                            .pickerStyle(.segmented)
+                            .labelsHidden()
+                            .frame(width: 180)
+                        }
+                    }
+                    .padding(12)
+                    .background(themeManager.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
-                .padding(12)
-                .background(themeManager.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-            }
 
             Divider()
 
@@ -317,10 +342,10 @@ struct SettingsView: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
-                    Image(systemName: "sparkles")
+                    Image(systemName: "clock")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
-                    Text("Recommendations")
+                    Text("Top Recent")
                         .font(.system(size: 14, weight: .semibold))
                 }
 
@@ -328,7 +353,7 @@ struct SettingsView: View {
                     HStack {
                         SettingLabelWithInfo(
                             label: "Min Usage Count",
-                            description: "Number of uses before an item appears in recommendations"
+                            description: "Number of uses before an item appears in Top Recent"
                         )
                         Spacer()
                         Text("\(minUsageCountForRecommendation)")
@@ -346,7 +371,7 @@ struct SettingsView: View {
                     HStack {
                         SettingLabelWithInfo(
                             label: "Score Half-Life",
-                            description: "How quickly recommendation scores decay over time"
+                            description: "How quickly Top Recent scores decay over time"
                         )
                         Spacer()
                         Text(decayHoursText)

@@ -1,11 +1,20 @@
 import SwiftUI
 import Combine
 
+enum AppTheme: String, CaseIterable, Identifiable {
+    case flexoki = "Flexoki"
+    case nord = "Nord"
+
+    var id: String { rawValue }
+}
+
 @MainActor
 final class ThemeManager: ObservableObject {
     static let shared = ThemeManager()
+    static let colorSchemeDidChangeNotification = Notification.Name("ThemeManagerColorSchemeDidChange")
 
     private static let userPreferenceKey = "themeUserPreference"
+    private static let themeTypeKey = "themeType"
 
     @Published var userPreference: ColorScheme? {
         didSet {
@@ -14,37 +23,94 @@ final class ThemeManager: ObservableObject {
         }
     }
 
+    @Published var appTheme: AppTheme = .flexoki {
+        didSet {
+            saveTheme()
+            updateColorScheme()
+        }
+    }
+
     @Published var colorScheme: ColorScheme = .light
 
     var background: Color {
-        colorScheme == .dark ? Color.flexokiBackgroundDark : Color.flexokiBackground
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiBackgroundDark : Color.flexokiBackground
+        case .nord:
+            colorScheme == .dark ? Color.nordBackground : Color.nordBackgroundLight
+        }
     }
     var surface: Color {
-        colorScheme == .dark ? Color.flexokiSurfaceDark : Color.flexokiSurface
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiSurfaceDark : Color.flexokiSurface
+        case .nord:
+            colorScheme == .dark ? Color.nordSurface : Color.nordSurfaceLight
+        }
     }
     var surfaceElevated: Color {
-        colorScheme == .dark ? Color.flexokiSurfaceElevatedDark : Color.flexokiSurfaceElevated
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiSurfaceElevatedDark : Color.flexokiSurfaceElevated
+        case .nord:
+            colorScheme == .dark ? Color.nordSurfaceElevated : Color.nordSurfaceElevatedLight
+        }
     }
     var border: Color {
-        colorScheme == .dark ? Color.flexokiBorderDark : Color.flexokiBorder
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiBorderDark : Color.flexokiBorder
+        case .nord:
+            colorScheme == .dark ? Color.nordBorder : Color.nordBorderLight
+        }
     }
     var borderSubtle: Color {
-        colorScheme == .dark ? Color.flexokiBorderSubtleDark : Color.flexokiBorderSubtle
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiBorderSubtleDark : Color.flexokiBorderSubtle
+        case .nord:
+            colorScheme == .dark ? Color.nordBorderSubtle : Color.nordBorderSubtleLight
+        }
     }
     var text: Color {
-        colorScheme == .dark ? Color.flexokiTextDark : Color.flexokiText
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiTextDark : Color.flexokiText
+        case .nord:
+            colorScheme == .dark ? Color.nordText : Color.nordTextLight
+        }
     }
     var textSecondary: Color {
-        colorScheme == .dark ? Color.flexokiTextSecondaryDark : Color.flexokiTextSecondary
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiTextSecondaryDark : Color.flexokiTextSecondary
+        case .nord:
+            colorScheme == .dark ? Color.nordTextSecondary : Color.nordTextSecondaryLight
+        }
     }
     var textTertiary: Color {
-        colorScheme == .dark ? Color.flexokiTextTertiaryDark : Color.flexokiTextTertiary
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiTextTertiaryDark : Color.flexokiTextTertiary
+        case .nord:
+            colorScheme == .dark ? Color.nordTextTertiary : Color.nordTextTertiaryLight
+        }
     }
     var accent: Color {
-        Color.flexokiAccent
+        switch appTheme {
+        case .flexoki:
+            Color.flexokiAccent
+        case .nord:
+            Color.nordAccent
+        }
     }
     var accentLight: Color {
-        Color.flexokiAccentLight
+        switch appTheme {
+        case .flexoki:
+            Color.flexokiAccentLight
+        case .nord:
+            Color.nordAccentLight
+        }
     }
 
     private var observation: NSKeyValueObservation?
@@ -56,6 +122,10 @@ final class ThemeManager: ObservableObject {
     }
 
     private func loadPreference() {
+        if let rawValue = UserDefaults.standard.string(forKey: Self.themeTypeKey) {
+            appTheme = AppTheme(rawValue: rawValue) ?? .flexoki
+        }
+
         guard let rawValue = UserDefaults.standard.string(forKey: Self.userPreferenceKey) else {
             userPreference = nil
             return
@@ -76,6 +146,10 @@ final class ThemeManager: ObservableObject {
         } else {
             UserDefaults.standard.removeObject(forKey: Self.userPreferenceKey)
         }
+    }
+
+    private func saveTheme() {
+        UserDefaults.standard.set(appTheme.rawValue, forKey: Self.themeTypeKey)
     }
 
     private func setupAppearanceObserver() {
@@ -102,10 +176,15 @@ final class ThemeManager: ObservableObject {
         } else {
             updateFromSystemAppearance()
         }
+        NotificationCenter.default.post(name: Self.colorSchemeDidChangeNotification, object: nil)
     }
 
     func setColorScheme(_ scheme: ColorScheme?) {
         userPreference = scheme
+    }
+
+    func setAppTheme(_ theme: AppTheme) {
+        appTheme = theme
     }
 }
 

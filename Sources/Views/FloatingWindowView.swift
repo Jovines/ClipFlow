@@ -2,6 +2,8 @@ import AppKit
 import Combine
 import SwiftUI
 
+private let dbManager = DatabaseManager.shared
+
 struct FloatingWindowView: View {
     let onClose: () -> Void
     let onItemSelected: (ClipboardItem) -> Void
@@ -36,7 +38,7 @@ struct FloatingWindowView: View {
     }
 
     private var groupedItems: [(groupInfo: GroupInfo, items: [ClipboardItem])] {
-        let baseItems = showRecommendationHistory ? recommendationHistoryItems : clipboardMonitor.capturedItems
+        let baseItems = showTopRecentHistory ? topRecentHistoryItems : clipboardMonitor.capturedItems
         let filteredItems = filterItemsByTags(baseItems)
         let visibleItems = Array(filteredItems.prefix(maxVisibleItems))
         let remainingItems = Array(filteredItems.dropFirst(maxVisibleItems))
@@ -91,11 +93,10 @@ struct FloatingWindowView: View {
     @State private var newTagColorName: String = "blue"
     @State private var tagPickerItem: ClipboardItem?
 
-    @State private var showRecommendationHistory = false
-    @State private var recommendationHistoryItems: [ClipboardItem] = []
-    @State private var recommendedItems: [ClipboardItem] = []
-
-    private let recommendationService = RecommendationService.shared
+    @State private var showTopRecentHistory = false
+    @State private var topRecentHistoryItems: [ClipboardItem] = []
+    @State private var topRecentItems: [ClipboardItem] = []
+    private let topRecentService = TopRecentService.shared
 
     @StateObject private var themeManager = ThemeManager.shared
 
@@ -127,13 +128,13 @@ struct FloatingWindowView: View {
                     tagService: tagService,
                     selectedTagIds: $selectedTagIds,
                     onManageTags: openTagManagement,
-                    showRecommendationHistory: Binding(
-                        get: { showRecommendationHistory },
+                    showTopRecentHistory: Binding(
+                        get: { showTopRecentHistory },
                         set: { newValue in
                             if newValue {
                                 selectedTagIds = []
                             }
-                            showRecommendationHistory = newValue
+                            showTopRecentHistory = newValue
                         }
                     )
                 )
@@ -194,8 +195,8 @@ struct FloatingWindowView: View {
             clipboardMonitor.refresh()
             groupPanelCoordinator.startTracking()
             tagService.refreshTags()
-            loadRecommendations()
-            loadRecommendationHistory()
+            loadTopRecentItems()
+            loadTopRecentHistory()
         }
         .onDisappear {
             groupPanelCoordinator.stopTracking()
@@ -224,7 +225,9 @@ struct FloatingWindowView: View {
                     try? ProjectService.shared.activateProject(id: project.id)
                 },
                 onCreateProject: {
-                    showCreateProjectSheet = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        showCreateProjectSheet = true
+                    }
                 }
             )
         }
@@ -260,23 +263,23 @@ struct FloatingWindowView: View {
         }
     }
 
-    private func loadRecommendations() {
+    private func loadTopRecentItems() {
         Task {
             do {
-                recommendedItems = try recommendationService.fetchRecommendedItems()
+                topRecentItems = try topRecentService.fetchTopRecentItems()
             } catch {
-                ClipFlowLogger.error("Failed to load recommendations: \(error)")
+                ClipFlowLogger.error("Failed to load Top Recent items: \(error)")
             }
         }
     }
 
-    private func loadRecommendationHistory() {
+    private func loadTopRecentHistory() {
         Task {
             do {
-                recommendationHistoryItems = try recommendationService.fetchRecommendationHistory()
-                tagService.refreshRecommendationHistoryCount()
+                topRecentHistoryItems = try topRecentService.fetchTopRecentHistory()
+                tagService.refreshTopRecentHistoryCount()
             } catch {
-                ClipFlowLogger.error("Failed to load recommendation history: \(error)")
+                ClipFlowLogger.error("Failed to load Top Recent history: \(error)")
             }
         }
     }
@@ -312,15 +315,15 @@ struct FloatingWindowView: View {
 
     @ViewBuilder
     private var contentView: some View {
-        let displayItems = showRecommendationHistory ? recommendationHistoryItems : filterItemsByTags(clipboardMonitor.capturedItems)
+        let displayItems = showTopRecentHistory ? topRecentHistoryItems : filterItemsByTags(clipboardMonitor.capturedItems)
 
-        if displayItems.isEmpty && recommendedItems.isEmpty {
+        if displayItems.isEmpty && topRecentItems.isEmpty {
             emptyStateView
         } else {
             ScrollView {
                 LazyVStack(spacing: 4) {
-                    if !showRecommendationHistory && !recommendedItems.isEmpty {
-                        recommendationSection
+                    if !showTopRecentHistory && !topRecentItems.isEmpty {
+                        topRecentSection
                     }
 
                     ForEach(Array(groupedItems.enumerated()), id: \.offset) { groupIndex, group in
@@ -343,25 +346,49 @@ struct FloatingWindowView: View {
     }
 
     @ViewBuilder
-    private var recommendationSection: some View {
+    private var topRecentSection: some View {
         VStack(spacing: 4) {
+            HStack(spacing: 4) {
+                Image(systemName: "clock")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.secondary)
+                Text("Top Recent")
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(.secondary)
+                Spacer()
+            }
+            .padding(.horizontal, 4)
+            .padding(.vertical, 4)
+
             VStack(spacing: 4) {
-                ForEach(Array(recommendedItems.enumerated()), id: \.element.id) { index, item in
+                ForEach(Array(topRecentItems.enumerated()), id: \.element.id) { index, item in
                     CompactItemRow(
                         item: item,
                         clipboardMonitor: clipboardMonitor,
                         onSelect: { handleItemSelection(item) },
                         onEdit: { startEdit(item) },
-                        onDelete: { clipboardMonitor.deleteItem(item) },
+                        onDelete: {
+                            ClipFlowLogger.info("[FloatingWindowView] TopRecent 删除: item=\(item.id.uuidString)")
+                            do {
+                                try dbManager.deleteClipboardItem(id: item.id)
+                                ClipFlowLogger.info("[FloatingWindowView] 数据库删除成功")
+                            } catch {
+                                ClipFlowLogger.error("[FloatingWindowView] 数据库删除失败: \(error)")
+                            }
+                            loadTopRecentItems()
+                            if showTopRecentHistory {
+                                loadTopRecentHistory()
+                            }
+                        },
                         onAddToProject: { showAddToProject(for: item) },
                         onManageTags: { showTagPicker(for: item) },
-                        isRecommended: true,
+                        isTopRecent: true,
                         panelCoordinator: groupPanelCoordinator
                     )
                 }
             }
             .padding(.horizontal, 4)
-            .padding(.vertical, 4)
+            .padding(.bottom, 4)
         }
         .padding(4)
         .background(themeManager.colorScheme == .dark ? Color.flexokiBase200Dark : Color.flexokiBase150)
@@ -385,7 +412,7 @@ struct FloatingWindowView: View {
                     onDelete: { clipboardMonitor.deleteItem(item) },
                     onAddToProject: { showAddToProject(for: item) },
                     onManageTags: { showTagPicker(for: item) },
-                    isRecommended: false,
+                        isTopRecent: false,
                     panelCoordinator: groupPanelCoordinator
                 )
             }
@@ -428,11 +455,11 @@ struct FloatingWindowView: View {
 
         Task {
             do {
-                try recommendationService.updateUsage(itemId: item.id)
+                try topRecentService.updateUsage(itemId: item.id)
                 ClipFlowLogger.info("✅ Updated usage for item: \(item.id)")
-                try await recommendationService.recalculateRecommendations()
+                try await topRecentService.recalculateRecommendations()
                 await MainActor.run {
-                    loadRecommendations()
+                    loadTopRecentItems()
                 }
             } catch {
                 ClipFlowLogger.error("❌ Failed to update usage: \(error)")
@@ -446,11 +473,11 @@ struct FloatingWindowView: View {
                 .font(.system(size: 36))
                 .foregroundStyle(Color.flexokiTextSecondary)
 
-            Text(showRecommendationHistory ? "暂无推荐历史" : "No clipboard history")
+            Text(showTopRecentHistory ? "No Recent History" : "No clipboard history")
                 .font(.subheadline)
                 .foregroundStyle(Color.flexokiTextSecondary)
 
-            Text(showRecommendationHistory ? "使用频率高的项目会出现在这里" : "Copy something to see it here")
+            Text(showTopRecentHistory ? "Frequently used items appear here" : "Copy something to see it here")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }

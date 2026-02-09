@@ -361,8 +361,10 @@ final class DatabaseManager: @unchecked Sendable {
     func cleanupExcessItems(keepCount: Int) throws {
         try dbPool.write { db in
             let idsToDelete = try String.fetchAll(db, sql: """
-                SELECT id FROM clipboard_items
-                ORDER BY createdAt DESC
+                SELECT ci.id FROM clipboard_items ci
+                LEFT JOIN clipboard_items_tags cit ON ci.id = cit.clipboardItemId
+                WHERE cit.clipboardItemId IS NULL
+                ORDER BY ci.createdAt DESC
                 LIMIT -1 OFFSET ?
             """, arguments: [keepCount])
 
@@ -495,6 +497,14 @@ final class DatabaseManager: @unchecked Sendable {
                 SELECT * FROM tags WHERE name LIKE ? ORDER BY createdAt DESC
             """
             return try Tag.fetchAll(db, sql: sql, arguments: ["%\(query)%"])
+        }
+    }
+
+    func fetchAllTaggedItemIds() throws -> Set<UUID> {
+        try dbPool.read { db in
+            let sql = "SELECT DISTINCT clipboardItemId FROM clipboard_items_tags"
+            let strings = try String.fetchAll(db, sql: sql)
+            return Set(strings.compactMap { UUID(uuidString: $0) })
         }
     }
 

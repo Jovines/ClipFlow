@@ -71,12 +71,12 @@ codesign --force --sign "Developer ID Application: Your Name (TEAM_ID)" --timest
 APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "ClipFlow.app" -path "*/Release/ClipFlow.app" -type d | head -1)
 create-dmg \
   --volname "ClipFlow" \
-  --window-pos 200 120 \
-  --window-size 800 400 \
-  --icon-size 100 \
-  --icon "ClipFlow.app" 200 190 \
+  --window-pos 400 250 \
+  --window-size 540 300 \
+  --icon-size 80 \
+  --icon "ClipFlow.app" 270 125 \
   --hide-extension "ClipFlow.app" \
-  --app-drop-link 600 185 \
+  --app-drop-link 270 205 \
   --no-internet-enable \
   --skip-jenkins \
   ClipFlow.dmg \

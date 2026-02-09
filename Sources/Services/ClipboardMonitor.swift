@@ -136,19 +136,26 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
     }
 
     func deleteItem(_ item: ClipboardItem) {
+        ClipFlowLogger.info("[deleteItem] 开始删除 item: id=\(item.id.uuidString), content=\(item.content.prefix(50))")
         if let index = capturedItems.firstIndex(where: { $0.id == item.id }) {
+            ClipFlowLogger.info("[deleteItem] 在 capturedItems 中找到 index=\(index)")
             if let imagePath = item.imagePath {
                 ImageCacheManager.shared.deleteImage(forKey: imagePath)
+                ClipFlowLogger.info("[deleteItem] 删除图片: \(imagePath)")
             }
             if let thumbnailPath = item.thumbnailPath {
                 ImageCacheManager.shared.deleteImage(forKey: thumbnailPath)
+                ClipFlowLogger.info("[deleteItem] 删除缩略图: \(thumbnailPath)")
             }
             do {
                 try database.deleteClipboardItem(id: item.id)
                 capturedItems.remove(at: index)
+                ClipFlowLogger.info("[deleteItem] 删除成功")
             } catch {
                 ClipFlowLogger.error("Failed to delete item: \(error)")
             }
+        } else {
+            ClipFlowLogger.warning("[deleteItem] item 不在 capturedItems 中")
         }
     }
 
@@ -498,19 +505,22 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
         let effectiveMaxItems = maxItems > 0 ? maxItems : 100
 
         if capturedItems.count > effectiveMaxItems {
-            let itemsToRemove = Array(capturedItems.suffix(from: effectiveMaxItems))
-
-            for item in itemsToRemove where item.contentType == .image {
-                if let imagePath = item.imagePath {
-                    ImageCacheManager.shared.deleteImage(forKey: imagePath)
-                }
-                if let thumbnailPath = item.thumbnailPath {
-                    ImageCacheManager.shared.deleteImage(forKey: thumbnailPath)
-                }
-            }
-
-            capturedItems = Array(capturedItems.prefix(effectiveMaxItems))
             do {
+                let taggedItemIds = try database.fetchAllTaggedItemIds()
+                let untaggedItems = capturedItems.filter { !taggedItemIds.contains($0.id) }
+                let itemsToRemove = Array(untaggedItems.suffix(from: min(effectiveMaxItems, untaggedItems.count)))
+
+                for item in itemsToRemove where item.contentType == .image {
+                    if let imagePath = item.imagePath {
+                        ImageCacheManager.shared.deleteImage(forKey: imagePath)
+                    }
+                    if let thumbnailPath = item.thumbnailPath {
+                        ImageCacheManager.shared.deleteImage(forKey: thumbnailPath)
+                    }
+                }
+
+                let removedIds = Set(itemsToRemove.map { $0.id })
+                capturedItems.removeAll { removedIds.contains($0.id) }
                 try database.cleanupExcessItems(keepCount: effectiveMaxItems)
             } catch {
                 ClipFlowLogger.error("Failed to cleanup excess items: \(error)")
