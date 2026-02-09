@@ -166,7 +166,7 @@ struct FloatingItemRow: View {
         if isEditing {
             return themeManager.accent.opacity(0.15)
         }
-        return isHovered ? (themeManager.colorScheme == .dark ? Color.flexokiBase600Dark : Color.flexokiBase200).opacity(0.5) : .clear
+        return isHovered ? themeManager.hoverBackground.opacity(0.5) : .clear
     }
 
     private var accessibilityLabel: String {

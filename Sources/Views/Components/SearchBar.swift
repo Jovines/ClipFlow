@@ -70,7 +70,7 @@ struct HighlightedText: View {
                 NSRange(range, in: fullText),
                 in: attributedString
             ) {
-                attributedString[attributedRange].backgroundColor = .yellow.opacity(0.3)
+                attributedString[attributedRange].backgroundColor = Color.accentColor.opacity(0.2)
             }
             let nextStart = range.upperBound
             if nextStart < lowercasedFull.endIndex {

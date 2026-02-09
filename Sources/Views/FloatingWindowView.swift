@@ -391,7 +391,7 @@ struct FloatingWindowView: View {
             .padding(.bottom, 4)
         }
         .padding(4)
-        .background(themeManager.colorScheme == .dark ? Color.flexokiBase200Dark : Color.flexokiBase150)
+        .background(themeManager.surfaceElevated)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .overlay(
             RoundedRectangle(cornerRadius: 6)
@@ -471,15 +471,15 @@ struct FloatingWindowView: View {
         VStack(spacing: 12) {
             Image(systemName: "doc.on.clipboard")
                 .font(.system(size: 36))
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(themeManager.textSecondary)
 
             Text(showTopRecentHistory ? "No Recent History" : "No clipboard history")
                 .font(.subheadline)
-                .foregroundStyle(Color.flexokiTextSecondary)
+                .foregroundStyle(themeManager.textSecondary)
 
             Text(showTopRecentHistory ? "Frequently used items appear here" : "Copy something to see it here")
                 .font(.caption)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(themeManager.textTertiary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

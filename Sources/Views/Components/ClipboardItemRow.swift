@@ -48,7 +48,7 @@ struct ClipboardItemRow: View {
         .frame(maxWidth: .infinity)
         .contentShape(Rectangle())
         .padding(12)
-        .background(isHovered ? themeManager.accent.opacity(0.15) : Color.clear)
+        .background(isHovered ? themeManager.hoverBackground.opacity(0.5) : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .onHover { hovering in
             isHovered = hovering

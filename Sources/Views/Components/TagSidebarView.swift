@@ -180,6 +180,8 @@ struct TopRecentHistorySidebarItem: View {
     @Binding var isSelected: Bool
     let count: Int
 
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     var body: some View {
         Button {
             isSelected.toggle()
@@ -187,7 +189,7 @@ struct TopRecentHistorySidebarItem: View {
             HStack(spacing: 4) {
                 Image(systemName: "clock.arrow.circlepath")
                     .font(.system(size: 10))
-                    .foregroundStyle(isSelected ? Color.flexokiYellow : .secondary)
+                    .foregroundStyle(isSelected ? themeManager.accent : themeManager.textSecondary)
 
                 Text("Recent History")
                     .font(.system(size: 10))
@@ -197,8 +199,8 @@ struct TopRecentHistorySidebarItem: View {
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.clear)
-            .background(isSelected ? Color.flexokiYellow.opacity(0.15) : Color.clear)
-            .foregroundStyle(isSelected ? Color.flexokiYellow : .secondary)
+            .background(isSelected ? themeManager.activeBackground : Color.clear)
+            .foregroundStyle(isSelected ? themeManager.accent : themeManager.textSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 4))
             .contentShape(Rectangle())
         }

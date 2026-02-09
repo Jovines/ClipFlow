@@ -113,6 +113,55 @@ final class ThemeManager: ObservableObject {
         }
     }
 
+    var hoverBackground: Color {
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiHoverBackgroundDark : Color.flexokiHoverBackground
+        case .nord:
+            colorScheme == .dark ? Color.nord2 : Color.nord5
+        }
+    }
+
+    var selectedBackground: Color {
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiSelectedBackgroundDark : Color.flexokiSelectedBackground
+        case .nord:
+            colorScheme == .dark ? Color.nord1 : Color.nord6
+        }
+    }
+
+    var activeBackground: Color {
+        colorScheme == .dark ? accent.opacity(0.15) : accent.opacity(0.10)
+    }
+
+    var success: Color {
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiSuccessDark : Color.flexokiSuccess
+        case .nord:
+            Color.nord14
+        }
+    }
+
+    var error: Color {
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiErrorDark : Color.flexokiError
+        case .nord:
+            Color.nord11
+        }
+    }
+
+    var warning: Color {
+        switch appTheme {
+        case .flexoki:
+            colorScheme == .dark ? Color.flexokiWarningDark : Color.flexokiWarning
+        case .nord:
+            Color.nord12
+        }
+    }
+
     private var observation: NSKeyValueObservation?
 
     private init() {

@@ -138,8 +138,24 @@ extension Color {
     static let nordTextSecondaryLight = nord2
     static let nordTextTertiary = nord3
     static let nordTextTertiaryLight = nord3
-    static let nordAccent = nord8
-    static let nordAccentLight = nord9
+    static let nordAccent = nord9
+    static let nordAccentLight = nord10
+    static let nordCold = nord8
+    static let nordFrost = nord7
+
+    static let flexokiHoverBackground = Color.hex("#E6E4D9")
+    static let flexokiHoverBackgroundDark = Color.hex("#6F6E69")
+    static let flexokiSelectedBackground = Color.hex("#DAD8CE")
+    static let flexokiSelectedBackgroundDark = Color.hex("#575653")
+    static let flexokiActiveBackground = Color.hex("#205EA6").opacity(0.10)
+    static let flexokiActiveBackgroundDark = Color.hex("#4385BE").opacity(0.15)
+
+    static let flexokiSuccess = Color.hex("#66800B")
+    static let flexokiSuccessDark = Color.hex("#879A39")
+    static let flexokiError = Color.hex("#AF3029")
+    static let flexokiErrorDark = Color.hex("#D14D41")
+    static let flexokiWarning = Color.hex("#BC5215")
+    static let flexokiWarningDark = Color.hex("#DA702C")
 }
 
 extension Color {
@@ -180,23 +196,23 @@ extension View {
     func appBackground(_ colorScheme: ColorScheme) -> some View {
         self.background(Color.appBackground(for: colorScheme))
     }
-    
+
     func appSurface(_ colorScheme: ColorScheme) -> some View {
         self.background(Color.appSurface(for: colorScheme))
     }
-    
+
     func appSurfaceElevated(_ colorScheme: ColorScheme) -> some View {
         self.background(Color.appSurfaceElevated(for: colorScheme))
     }
-    
+
     func appBorder(_ colorScheme: ColorScheme) -> some View {
         self.overlay(Rectangle().fill(Color.appBorder(for: colorScheme)))
     }
-    
+
     func appText(_ colorScheme: ColorScheme) -> some View {
         self.foregroundColor(Color.appText(for: colorScheme))
     }
-    
+
     func appTextSecondary(_ colorScheme: ColorScheme) -> some View {
         self.foregroundColor(Color.appTextSecondary(for: colorScheme))
     }
