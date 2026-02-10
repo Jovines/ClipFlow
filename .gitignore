@@ -82,3 +82,7 @@ secrets/
 
 # OpenCode
 .opencode/plans/
+
+# Sparkle tools cache
+scripts/sparkle/
+sparkle/
