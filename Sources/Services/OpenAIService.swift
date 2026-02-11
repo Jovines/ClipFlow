@@ -177,11 +177,11 @@ enum OpenAIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notConfigured:
-            return NSLocalizedString("请先在设置中配置 AI 服务商", comment: "AI not configured error")
+            return "Please Configure AI Provider in Settings First".localized(comment: "AI not configured error")
         case .providerNotFound:
-            return NSLocalizedString("找不到指定的服务商配置", comment: "Provider not found error")
+            return "Provider Configuration Not Found".localized(comment: "Provider not found error")
         case .streamFailed(let error):
-            return NSLocalizedString("流式请求失败: \(error.localizedDescription)", comment: "Stream failed error")
+            return String(format: "Stream Request Failed: %1$@".localized(comment: "Stream failed error"), error.localizedDescription)
         }
     }
 }

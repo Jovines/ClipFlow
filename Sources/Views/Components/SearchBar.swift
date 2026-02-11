@@ -14,7 +14,7 @@ struct SearchBar: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(ThemeManager.shared.textSecondary)
 
-            TextField("Search...", text: $text)
+            TextField("Search...".localized(), text: $text)
                 .textFieldStyle(.plain)
                 .onChange(of: text) { _, newValue in
                     debounceText(newValue)
@@ -111,7 +111,7 @@ struct AdvancedSearchBar: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(ThemeManager.shared.textSecondary)
 
-                TextField("Search...", text: $text)
+TextField("Search...".localized(), text: $text)
                     .textFieldStyle(.plain)
 
                 if !text.isEmpty {

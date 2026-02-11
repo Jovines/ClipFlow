@@ -34,6 +34,7 @@ settings:
     CODE_SIGNING_ALLOWED: YES
     CODE_SIGN_TIMESTAMP_SERVER: "timestamp.apple.com"
     SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
 
 targets:
   ClipFlow:
@@ -50,10 +51,7 @@ targets:
       - package: Sparkle
     resources:
       - path: Resources/Assets.xcassets
-      - path: Resources/en.lproj
-        type: folder
-      - path: Resources/zh-Hans.lproj
-        type: folder
+      - path: Resources/Localizable.xcstrings
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.clipflow.app

@@ -21,33 +21,33 @@ struct ProviderEditSheet: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text(isNew ? "添加服务商" : "编辑服务商")
+            Text(isNew ? "Add Provider".localized() : "Edit Provider".localized())
                 .font(.headline)
 
             VStack(spacing: 12) {
-                TextField("名称 (如: OpenAI)", text: $name)
+                TextField("Name (e.g.: OpenAI)".localized(), text: $name)
                     .textFieldStyle(.roundedBorder)
 
-                TextField("Base URL (如: https://api.openai.com/v1)", text: $baseURL)
+                TextField("Base URL (e.g.: https://api.openai.com/v1)".localized(), text: $baseURL)
                     .textFieldStyle(.roundedBorder)
 
-                SecureField("API Key", text: $apiKey)
+                SecureField("API Key".localized(), text: $apiKey)
                     .textFieldStyle(.roundedBorder)
 
-                TextField("模型列表 (用逗号分隔)", text: $models)
+                TextField("Model List (comma-separated)".localized(), text: $models)
                     .textFieldStyle(.roundedBorder)
 
-                TextField("默认模型", text: $defaultModel)
+                TextField("Default Model".localized(), text: $defaultModel)
                     .textFieldStyle(.roundedBorder)
             }
 
             HStack(spacing: 12) {
-                Button("取消") {
+                Button("Cancel".localized()) {
                     dismiss()
                 }
                 .keyboardShortcut(.escape, modifiers: [])
 
-                Button("保存") {
+                Button("Save".localized()) {
                     saveProvider()
                 }
                 .keyboardShortcut(.return, modifiers: [])

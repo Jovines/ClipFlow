@@ -363,9 +363,9 @@ enum ProjectError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noCognitionFound:
-            return NSLocalizedString("项目暂无认知文档", comment: "No cognition found error")
+            return "No Cognition Document Found for Project".localized(comment: "No cognition found error")
         case .projectNotFound:
-            return NSLocalizedString("找不到指定项目", comment: "Project not found error")
+            return "Project Not Found".localized(comment: "Project not found error")
         }
     }
 }

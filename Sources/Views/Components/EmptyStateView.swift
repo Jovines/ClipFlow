@@ -7,10 +7,10 @@ struct EmptyStateView: View {
                 .font(.system(size: 48))
                 .foregroundStyle(.secondary)
 
-            Text("No Clipboard History")
+            Text("No Clipboard History".localized())
                 .font(.headline)
 
-            Text("Copy something to see it here")
+            Text("Copy something to see it here".localized())
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }

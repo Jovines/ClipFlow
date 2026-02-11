@@ -352,7 +352,7 @@ struct FloatingWindowView: View {
                 Image(systemName: "clock")
                     .font(.system(size: 9))
                     .foregroundStyle(.secondary)
-                Text("Top Recent")
+                Text("Top Recent".localized())
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -601,7 +601,7 @@ struct FloatingWindowView: View {
     private var createTagSheet: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("Create Tag")
+                Text("Create Tag".localized)
                     .font(.headline)
                 Spacer()
                 Button(action: { showCreateTagSheet = false }) {
@@ -625,7 +625,7 @@ struct FloatingWindowView: View {
                 .padding(.horizontal, 12)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Color")
+                Text("Color".localized)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 4)
@@ -652,13 +652,13 @@ struct FloatingWindowView: View {
 
             HStack(spacing: 8) {
                 Button(action: { showCreateTagSheet = false }) {
-                    Text("Cancel")
+                    Text("Cancel".localized)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
 
                 Button(action: saveNewTag) {
-                    Text("Create")
+                    Text("Create".localized)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)

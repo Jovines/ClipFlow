@@ -72,7 +72,7 @@ struct EditorPanelView: View {
 
     private var editorHeader: some View {
         HStack {
-            Text("编辑记录")
+            Text("Edit Record".localized())
                 .font(.system(size: 13, weight: .medium))
             Spacer()
             Button(action: onCancel) {
@@ -115,13 +115,13 @@ struct EditorPanelView: View {
                 Image(systemName: "note.text")
                     .font(.system(size: 11))
                     .foregroundStyle(ThemeManager.shared.textSecondary)
-                Text("备注")
+                Text("Note".localized())
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(ThemeManager.shared.textSecondary)
                 Spacer()
             }
 
-            TextField("添加备注", text: $editNote, axis: .vertical)
+            TextField("Add note".localized(), text: $editNote, axis: .vertical)
                 .font(.system(size: 12))
                 .lineLimit(1...3)
                 .scrollContentBackground(.hidden)
@@ -147,7 +147,7 @@ struct EditorPanelView: View {
                         Image(systemName: "tag")
                             .font(.system(size: 11))
                             .foregroundStyle(ThemeManager.shared.textSecondary)
-                        Text("标签")
+                        Text("Tags".localized())
                             .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(ThemeManager.shared.textSecondary)
                         Spacer()
@@ -221,7 +221,7 @@ struct EditorPanelView: View {
     private var editorFooter: some View {
         HStack(spacing: 8) {
             Button(action: onReset) {
-                Text("重置")
+                Text("Reset".localized())
                     .font(.system(size: 12))
             }
             .buttonStyle(.bordered)
@@ -230,13 +230,13 @@ struct EditorPanelView: View {
             Spacer()
 
             Button(action: onCancel) {
-                Text("取消")
+                Text("Cancel".localized())
                     .font(.system(size: 12))
             }
             .buttonStyle(.bordered)
 
             Button(action: onSave) {
-                Text("保存")
+                Text("Save".localized())
                     .font(.system(size: 12, weight: .medium))
             }
             .buttonStyle(.borderedProminent)

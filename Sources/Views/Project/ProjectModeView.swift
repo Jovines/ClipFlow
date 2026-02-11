@@ -84,14 +84,14 @@ struct ProjectModeView: View {
                         VStack(spacing: 0) {
                             // Header
                             HStack {
-                                Text("原始素材 (\(rawInputs.count))")
-                                    .font(.caption)
-                                    .foregroundStyle(ThemeManager.shared.textSecondary)
+                            Text("Raw Materials (%1$d)".localized(rawInputs.count))
+                                .font(.caption)
+                                .foregroundStyle(ThemeManager.shared.textSecondary)
                                 Spacer()
                                 if analyzedCount > 0 {
-                                    Text("\(analyzedCount) 已分析")
-                                        .font(.caption2)
-                                        .foregroundStyle(ThemeManager.shared.textTertiary)
+                                Text("%1$d Analyzed".localized(analyzedCount))
+                                    .font(.caption2)
+                                    .foregroundStyle(ThemeManager.shared.textTertiary)
                                 }
                             }
                             .padding(.horizontal, 12)
@@ -155,13 +155,13 @@ struct ProjectModeView: View {
                 checkAndTriggerAnalysis()
             }
         }
-        .alert("重新分析", isPresented: $showResetConfirmation) {
-            Button("取消", role: .cancel) { }
-            Button("继续分析", role: .destructive) {
+        .alert("Re-analyze".localized(), isPresented: $showResetConfirmation) {
+            Button("Cancel".localized(), role: .cancel) { }
+            Button("Continue Analysis".localized(), role: .destructive) {
                 performResetAnalysis()
             }
         } message: {
-            Text("此操作将重置所有素材的分析状态，并基于现有素材重新生成认知文档。旧版本认知将保留在历史记录中。")
+            Text("This will reset all materials' analysis status and regenerate the cognition document based on existing materials. Old versions will be preserved in history.".localized())
         }
     }
     
@@ -242,8 +242,8 @@ struct ProjectModeView: View {
     
     private func sendNotification(projectName: String) {
         let notification = NSUserNotification()
-        notification.title = "AI 分析完成"
-        notification.informativeText = "项目「\(projectName)」的 AI 分析已完成"
+        notification.title = "AI Analysis Complete".localized()
+        notification.informativeText = "AI analysis for project \"%1$@\" is complete".localized(projectName)
         notification.soundName = NSUserNotificationDefaultSoundName
         NSUserNotificationCenter.default.deliver(notification)
     }
@@ -251,25 +251,25 @@ struct ProjectModeView: View {
     private func formatErrorMessage(_ error: Error) -> String {
         let message = error.localizedDescription
         
-        if message.contains("API") || message.contains("APIKey") || message.contains("not configured") {
-            return "AI 服务未配置或配置无效。请在设置中检查 API Key 是否正确。"
-        }
-        
-        if message.contains("network") || message.contains("Connection") || message.contains("timeout") {
-            return "网络连接失败，请检查网络设置后重试。"
-        }
-        
-        if message.contains("rate limit") || message.contains("quota") {
-            return "API 调用次数已达上限，请稍后再试或升级配额。"
-        }
-        
-        if message.contains("invalid request") || message.contains("bad request") {
-            return "请求参数无效，请检查 AI 服务商设置。"
-        }
-        
-        if message.contains("model") || message.contains("model not found") {
-            return "AI 模型不存在，请检查设置中的模型名称是否正确。"
-        }
+            if message.contains("API") || message.contains("APIKey") || message.contains("not configured") {
+                return "AI service is not configured or invalid. Please check your API Key in settings.".localized()
+            }
+            
+            if message.contains("network") || message.contains("Connection") || message.contains("timeout") {
+                return "Network connection failed. Please check your network settings and try again.".localized()
+            }
+            
+            if message.contains("rate limit") || message.contains("quota") {
+                return "API rate limit reached. Please wait a moment or upgrade your quota.".localized()
+            }
+            
+            if message.contains("invalid request") || message.contains("bad request") {
+                return "Invalid request parameters. Please check your AI provider settings.".localized()
+            }
+            
+            if message.contains("model") || message.contains("model not found") {
+                return "AI model does not exist. Please check the model name in your settings.".localized()
+            }
         
         return message
     }
@@ -311,7 +311,7 @@ struct ProjectModeView: View {
                     print("[ProjectMode] ❌ No valid inputs to analyze")
                     await MainActor.run {
                         self.isAnalyzing = false
-                        self.analysisError = "没有可分析的内容"
+                        self.analysisError = "No content to analyze".localized()
                     }
                     return
                 }
@@ -336,7 +336,7 @@ struct ProjectModeView: View {
                         projectDescription: project.description,
                         initialInputs: newInputs
                     )
-                    changeDescription = "初始认知文档生成"
+                    changeDescription = "Initial cognition document generation".localized()
                 }
 
                 print("[ProjectMode] 💾 Saving cognition...")
@@ -406,7 +406,7 @@ struct ProjectModeView: View {
                 guard !allInputs.isEmpty else {
                     await MainActor.run {
                         self.isResettingAnalysis = false
-                        self.analysisError = "没有可分析的内容"
+                        self.analysisError = "No content to analyze".localized()
                     }
                     return
                 }
@@ -423,7 +423,7 @@ struct ProjectModeView: View {
                     projectId: project.id,
                     content: content,
                     addedInputIds: inputIds,
-                    changeDescription: "重新分析 - 基于所有素材生成新认知"
+                    changeDescription: "Re-analysis - Generate new cognition based on all materials".localized()
                 )
 
                 print("[ProjectMode] ✅ Reset cognition saved: \(savedCognition.id)")
@@ -487,11 +487,11 @@ struct ProjectModeHeader: View {
                                 ProgressView()
                                     .scaleEffect(0.6)
                                     .frame(width: 12, height: 12)
-                                Text("分析中...")
+                                Text("Analyzing...".localized())
                             } else {
                                 Image(systemName: "wand.and.stars")
                                     .font(.system(size: 10))
-                                Text("增量分析 (\(unanalyzedCount))")
+                                Text("Incremental Analysis (%1$d)".localized(unanalyzedCount))
                             }
                         }
                         .font(.caption)
@@ -507,7 +507,7 @@ struct ProjectModeHeader: View {
                         HStack(spacing: 4) {
                             Image(systemName: "arrow.counterclockwise")
                                 .font(.system(size: 10))
-                            Text("重新生成")
+                            Text("Regenerate".localized())
                         }
                         .font(.caption)
                     }
@@ -522,7 +522,7 @@ struct ProjectModeHeader: View {
                         ProgressView()
                             .scaleEffect(0.6)
                             .frame(width: 12, height: 12)
-                        Text("重置中...")
+                        Text("Resetting...".localized())
                     }
                     .font(.caption)
                     .foregroundStyle(Color.flexokiOrange600)
@@ -533,14 +533,14 @@ struct ProjectModeHeader: View {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.system(size: 10))
                         .foregroundStyle(Color.flexokiOrange600)
-                    Text("未配置AI")
+                    Text("AI Not Configured".localized())
                         .font(.caption)
                         .foregroundStyle(Color.flexokiOrange600)
                 } else if let error = errorMessage {
                     Image(systemName: "exclamationmark.circle")
                         .font(.system(size: 10))
                         .foregroundStyle(Color.flexokiRed600)
-                    Text("分析失败")
+                    Text("Analysis Failed".localized())
                         .font(.caption)
                         .foregroundStyle(Color.flexokiRed600)
                         .help(error)
@@ -548,7 +548,7 @@ struct ProjectModeHeader: View {
                     Image(systemName: "doc.text")
                         .font(.system(size: 10))
                         .foregroundStyle(ThemeManager.shared.textSecondary)
-                    Text("\(rawInputCount) 条素材")
+                    Text("%1$d Materials".localized(rawInputCount))
                         .font(.caption)
                         .foregroundStyle(ThemeManager.shared.textSecondary)
                 }
@@ -563,21 +563,21 @@ struct ProjectModeHeader: View {
                         .font(.system(size: 12))
                 }
                 .buttonStyle(.borderless)
-                .help("导出项目")
+                .help("Export Project".localized())
 
                 Button(action: onOpenPromptSettings) {
                     Image(systemName: "slider.horizontal.3")
                         .font(.system(size: 12))
                 }
                 .buttonStyle(.borderless)
-                .help("AI Prompt 设置")
+                .help("AI Prompt Settings".localized())
 
                 Divider()
                     .frame(height: 16)
                     .background(ThemeManager.shared.border)
 
                 Button(action: onExit) {
-                    Label("退出项目", systemImage: "xmark.circle")
+                    Label("Exit Project".localized(), systemImage: "xmark.circle")
                         .font(.system(size: 12))
                 }
                 .buttonStyle(.bordered)
@@ -661,10 +661,10 @@ struct RawInputRow: View {
                 VStack(alignment: .leading, spacing: 6) {
                     // Source Context Field
                     HStack {
-                        Text("来源:")
+                        Text("Source:".localized())
                             .font(.caption)
                             .foregroundStyle(ThemeManager.shared.textSecondary)
-                        TextField("如：张三、会议记录", text: $editedSourceContext)
+                        TextField("e.g., Zhang San, Meeting Notes".localized(), text: $editedSourceContext)
                             .font(.caption)
                             .textFieldStyle(.roundedBorder)
                     }
@@ -684,7 +684,7 @@ struct RawInputRow: View {
                     
                     // Action Buttons
                     HStack {
-                        Button("取消") {
+                        Button("Cancel".localized()) {
                             isEditing = false
                         }
                         .buttonStyle(.borderless)
@@ -694,7 +694,7 @@ struct RawInputRow: View {
                         
                         Spacer()
                         
-                        Button("保存") {
+                        Button("Save".localized()) {
                             let context = editedSourceContext.isEmpty ? nil : editedSourceContext
                             onEdit(editedContent, context)
                             isEditing = false
@@ -707,7 +707,7 @@ struct RawInputRow: View {
             } else {
                 // View Mode
                 HStack {
-                    Text(input.sourceContext ?? "未命名")
+                    Text(input.sourceContext ?? "Unnamed".localized())
                         .font(.caption)
                         .foregroundStyle(Color.flexokiAccent)
                         .lineLimit(1)
@@ -762,13 +762,13 @@ struct RawInputRow: View {
         .onHover { hovering in
             isHovered = hovering
         }
-        .alert("确认删除", isPresented: $showDeleteConfirm) {
-            Button("取消", role: .cancel) { }
-            Button("删除", role: .destructive) {
+        .alert("Confirm Delete".localized(), isPresented: $showDeleteConfirm) {
+            Button("Cancel".localized(), role: .cancel) { }
+            Button("Delete".localized(), role: .destructive) {
                 onDelete()
             }
         } message: {
-            Text("删除后将无法恢复，确定要删除这条素材吗？")
+            Text("This material will be permanently deleted and cannot be recovered. Are you sure?".localized())
         }
     }
 }
@@ -780,7 +780,7 @@ struct AnalyzingView: View {
         VStack(spacing: 8) {
             ProgressView()
                 .scaleEffect(0.8)
-            Text("AI分析中...")
+            Text("AI Analyzing...".localized())
                 .font(.caption)
                 .foregroundStyle(ThemeManager.shared.textSecondary)
             if !progress.isEmpty {
@@ -810,17 +810,17 @@ struct EmptyCognitionState: View {
                     .font(.system(size: 40))
                     .foregroundStyle(Color.flexokiOrange600)
                 
-                Text("AI服务未配置")
+                Text("AI Service Not Configured".localized)
                     .font(.headline)
                     .foregroundStyle(Color.flexokiOrange600)
                 
-                Text("请在设置中配置AI提供商（如 OpenAI、DeepSeek等）")
+                Text("Please configure AI provider in settings (OpenAI, DeepSeek, etc.)".localized)
                     .font(.caption)
                     .foregroundStyle(ThemeManager.shared.textSecondary)
                     .multilineTextAlignment(.center)
                 
                 if rawInputCount > 0 {
-                    Text("已收集 \(rawInputCount) 条素材，等待AI分析")
+                    Text("%1$d items collected, waiting for AI analysis".localized(rawInputCount))
                         .font(.caption2)
                         .foregroundStyle(ThemeManager.shared.textTertiary)
                         .padding(.top, 8)
@@ -832,7 +832,7 @@ struct EmptyCognitionState: View {
                     .font(.system(size: 40))
                     .foregroundStyle(Color.flexokiRed600)
                 
-                Text("AI分析失败")
+                Text("AI Analysis Failed".localized)
                     .font(.headline)
                     .foregroundStyle(Color.flexokiRed600)
                 
@@ -842,7 +842,7 @@ struct EmptyCognitionState: View {
                     .multilineTextAlignment(.center)
                 
                 if rawInputCount > 0 {
-                    Text("已收集 \(rawInputCount) 条素材")
+                    Text("%1$d items collected".localized(rawInputCount))
                         .font(.caption2)
                         .foregroundStyle(ThemeManager.shared.textTertiary)
                         .padding(.top, 8)
@@ -854,11 +854,11 @@ struct EmptyCognitionState: View {
                     .font(.system(size: 40))
                     .foregroundStyle(Color.flexokiAccent.opacity(0.6))
                 
-                Text("已收集 \(rawInputCount) 条素材")
+                Text("%1$d items collected".localized(rawInputCount))
                     .font(.headline)
                     .foregroundStyle(Color.flexokiText)
                 
-                Text("AI正在分析中，请稍等片刻...")
+                Text("AI is analyzing, please wait...".localized)
                     .font(.caption)
                     .foregroundStyle(ThemeManager.shared.textSecondary)
                     .multilineTextAlignment(.center)
@@ -873,18 +873,18 @@ struct EmptyCognitionState: View {
                     .font(.system(size: 40))
                     .foregroundStyle(Color.flexokiAccent)
                 
-                Text("已收集 \(rawInputCount) 条素材")
+                Text("%1$d items collected".localized(rawInputCount))
                     .font(.headline)
                     .foregroundStyle(Color.flexokiText)
                 
                 if unanalyzedCount > 0 {
-                    Text("\(unanalyzedCount) 条素材待分析")
+                    Text("%1$d items pending analysis".localized(unanalyzedCount))
                         .font(.caption)
                         .foregroundStyle(ThemeManager.shared.textSecondary)
                         .multilineTextAlignment(.center)
                     
                     Button(action: onAnalyze) {
-                        Label("开始分析", systemImage: "wand.and.stars")
+                        Label("Start Analysis".localized, systemImage: "wand.and.stars")
                             .font(.system(size: 13, weight: .medium))
                     }
                     .buttonStyle(.borderedProminent)
@@ -898,11 +898,11 @@ struct EmptyCognitionState: View {
                     .font(.system(size: 40))
                     .foregroundStyle(ThemeManager.shared.textTertiary)
                 
-                Text("暂无素材")
+                Text("No Materials".localized)
                     .font(.headline)
                     .foregroundStyle(Color.flexokiText)
                 
-                Text("复制讨论内容到剪贴板，然后点击分析按钮")
+                Text("Copy discussion to clipboard, then tap analyze".localized)
                     .font(.caption)
                     .foregroundStyle(ThemeManager.shared.textSecondary)
                     .multilineTextAlignment(.center)
@@ -925,7 +925,7 @@ struct ExportProjectView: View {
         VStack(spacing: 16) {
             // Header
             HStack {
-                Text("导出项目")
+                Text("Export Project".localized)
                     .font(.headline)
                 Spacer()
                 Button(action: onDismiss) {
@@ -936,7 +936,7 @@ struct ExportProjectView: View {
             }
             
             // Options
-            Toggle("包含原始素材", isOn: $includeRawInputs)
+            Toggle("Include Raw Materials", isOn: $includeRawInputs)
                 .font(.system(size: 13))
                 .onChange(of: includeRawInputs) { _ in
                     generateExport()
@@ -957,7 +957,7 @@ struct ExportProjectView: View {
             
             // Buttons
             HStack {
-                Button("关闭") {
+                Button("Close".localized()) {
                     onDismiss()
                 }
                 .buttonStyle(.bordered)
@@ -970,7 +970,7 @@ struct ExportProjectView: View {
                         ProgressView()
                             .controlSize(.small)
                     } else {
-                        Label("复制到剪贴板", systemImage: "doc.on.doc")
+                        Label("Copy to Clipboard".localized(), systemImage: "doc.on.doc")
                     }
                 }
                 .buttonStyle(.borderedProminent)
@@ -992,7 +992,7 @@ struct ExportProjectView: View {
                 includeRawInputs: includeRawInputs
             )
         } catch {
-            exportContent = "导出失败: \(error.localizedDescription)"
+            exportContent = "Export failed: \(error.localizedDescription)"
         }
     }
     

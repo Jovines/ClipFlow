@@ -12,7 +12,7 @@ struct TagPickerView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Manage Tags")
+                Text("Manage Tags".localized())
                     .font(.headline)
                 Spacer()
                 Button(action: { dismiss() }) {
@@ -29,7 +29,7 @@ struct TagPickerView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
                     if !itemTags.isEmpty {
-                        Text("Attached")
+                        Text("Attached".localized())
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .padding(.horizontal, 4)
@@ -43,7 +43,7 @@ struct TagPickerView: View {
                         }
                     }
 
-                    Text("Available")
+                        Text("Available".localized())
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 4)
@@ -92,7 +92,7 @@ struct TagPickerView: View {
 
     private var createTagView: some View {
         VStack(spacing: 6) {
-                TextField("Tag name", text: $newTagName)
+                TextField("Tag name".localized(), text: $newTagName)
                     .textFieldStyle(.plain)
                     .font(.system(size: 12))
                     .padding(.horizontal, 8)

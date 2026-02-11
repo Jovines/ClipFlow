@@ -20,7 +20,7 @@ struct TagManagementView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Manage Tags")
+                Text("Manage Tags".localized())
                     .font(.headline)
                 Spacer()
                 Button(action: { dismiss() }) {
@@ -36,7 +36,7 @@ struct TagManagementView: View {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
-                TextField("Search tags", text: $searchText)
+                TextField("Search tags".localized(), text: $searchText)
                     .textFieldStyle(.plain)
                     .font(.system(size: 12))
                 if !searchText.isEmpty {
@@ -81,7 +81,7 @@ struct TagManagementView: View {
             Divider()
 
             HStack(spacing: 8) {
-                TextField("New tag name", text: $editName)
+                TextField("New tag name".localized(), text: $editName)
                     .textFieldStyle(.plain)
                     .font(.system(size: 12))
                     .padding(.horizontal, 10)
@@ -118,7 +118,7 @@ struct TagManagementView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "plus")
                             .font(.system(size: 11, weight: .medium))
-                        Text("Add")
+                        Text("Add".localized())
                             .font(.system(size: 11, weight: .medium))
                     }
                     .padding(.horizontal, 10)
@@ -139,9 +139,9 @@ struct TagManagementView: View {
         .sheet(isPresented: .constant(editingTag != nil)) {
             editTagSheet
         }
-        .alert("Delete Tag", isPresented: $showDeleteConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) { deleteTag() }
+        .alert("Delete Tag".localized(), isPresented: $showDeleteConfirmation) {
+            Button("Cancel".localized(), role: .cancel) {}
+            Button("Delete".localized(), role: .destructive) { deleteTag() }
         } message: {
             if let tag = tagToDelete {
                 Text("Are you sure you want to delete \"\(tag.name)\"? This will remove the tag from all clipboard items.")
@@ -154,10 +154,10 @@ struct TagManagementView: View {
             Image(systemName: "tag")
                 .font(.system(size: 24))
                 .foregroundStyle(.secondary)
-            Text("No tags yet")
+            Text("No tags yet".localized())
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            Text("Create a tag to organize your clipboard items")
+            Text("Create a tag to organize your clipboard items".localized())
                 .font(.caption)
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)
@@ -171,10 +171,10 @@ struct TagManagementView: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 24))
                 .foregroundStyle(.secondary)
-            Text("No tags found")
+            Text("No tags found".localized())
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            Text("Try a different search term")
+            Text("Try a different search term".localized())
                 .font(.caption)
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)
@@ -186,7 +186,7 @@ struct TagManagementView: View {
     private var editTagSheet: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("Edit Tag")
+                Text("Edit Tag".localized())
                     .font(.headline)
                 Spacer()
                 Button(action: { editingTag = nil }) {
@@ -200,7 +200,7 @@ struct TagManagementView: View {
 
             Divider()
 
-            TextField("Tag name", text: $editName)
+            TextField("Tag name".localized(), text: $editName)
                 .textFieldStyle(.plain)
                 .font(.system(size: 14))
                 .padding(.horizontal, 12)
@@ -210,7 +210,7 @@ struct TagManagementView: View {
                 .padding(.horizontal, 12)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Color")
+                Text("Color".localized())
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 4)
@@ -236,13 +236,13 @@ struct TagManagementView: View {
 
             HStack(spacing: 8) {
                 Button(action: { editingTag = nil }) {
-                    Text("Cancel")
+                    Text("Cancel".localized())
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
 
                 Button(action: saveEdit) {
-                    Text("Save")
+                    Text("Save".localized())
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)

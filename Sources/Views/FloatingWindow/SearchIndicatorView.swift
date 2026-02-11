@@ -16,7 +16,7 @@ struct SearchIndicatorView: View {
                 .font(.system(size: 13))
 
             if isSelectionMode {
-                Text("选择模式")
+                Text("Selection Mode".localized)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(themeManager.accent)
             } else {

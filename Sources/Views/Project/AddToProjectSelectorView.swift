@@ -24,7 +24,7 @@ struct AddToProjectSelectorView: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("添加到项目")
+                Text("Add to Project".localized)
                     .font(.headline)
                 Spacer()
                 Button(action: { isPresented = false }) {
@@ -60,7 +60,7 @@ struct AddToProjectSelectorView: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
-                TextField("搜索项目...", text: $searchText)
+                TextField("Search projects...".localized, text: $searchText)
                     .textFieldStyle(.plain)
             }
             .padding(8)
@@ -75,9 +75,9 @@ struct AddToProjectSelectorView: View {
                     Image(systemName: "folder.badge.plus")
                         .font(.largeTitle)
                         .foregroundStyle(.secondary)
-                    Text("暂无项目")
+                    Text("No projects".localized)
                         .foregroundStyle(.secondary)
-                    Text("请先在设置中创建项目")
+                    Text("Please create a project in settings first".localized)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

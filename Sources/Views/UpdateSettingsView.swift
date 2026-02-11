@@ -17,7 +17,7 @@ struct UpdateSettingsView: View {
                     Image(systemName: "arrow.clockwise.circle")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
-                    Text("Automatic Updates")
+                    Text("Automatic Updates".localized())
                         .font(.system(size: 14, weight: .semibold))
                 }
                 
@@ -26,7 +26,7 @@ struct UpdateSettingsView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "checkmark.shield")
                                 .font(.system(size: 12))
-                            Text("Check for updates automatically")
+                            Text("Check for updates automatically".localized())
                                 .font(.system(size: 13))
                         }
                     }
@@ -34,7 +34,7 @@ struct UpdateSettingsView: View {
                     
                     if updateService.automaticallyChecksForUpdates {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Check Frequency")
+                            Text("Check Frequency".localized())
                                 .font(.system(size: 12))
                                 .foregroundStyle(.secondary)
                             
@@ -57,7 +57,7 @@ struct UpdateSettingsView: View {
                             HStack(spacing: 6) {
                                 Image(systemName: "arrow.down.circle")
                                     .font(.system(size: 12))
-                                Text("Download updates automatically")
+                                Text("Download updates automatically".localized())
                                     .font(.system(size: 13))
                             }
                         }
@@ -76,13 +76,13 @@ struct UpdateSettingsView: View {
                     Image(systemName: "info.circle")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
-                    Text("Current Version")
+                    Text("Current Version".localized())
                         .font(.system(size: 14, weight: .semibold))
                 }
                 
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Text("Version")
+                        Text("Version".localized())
                             .font(.system(size: 13))
                         Spacer()
                         Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown")
@@ -93,7 +93,7 @@ struct UpdateSettingsView: View {
                     
                     if let lastCheck = updateService.lastUpdateCheckDate {
                         HStack {
-                            Text("Last Checked")
+                            Text("Last Checked".localized())
                                 .font(.system(size: 13))
                             Spacer()
                             Text(formatDate(lastCheck))
@@ -108,7 +108,7 @@ struct UpdateSettingsView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "magnifyingglass")
                                 .font(.system(size: 12))
-                            Text("Check for Updates Now")
+                            Text("Check for Updates Now".localized())
                                 .font(.system(size: 13))
                         }
                     }

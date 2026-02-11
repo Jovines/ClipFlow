@@ -66,7 +66,7 @@ struct ProjectModeBar: View {
                             HStack(spacing: 2) {
                                 Image(systemName: "arrow.right.circle")
                                     .font(.system(size: 10))
-                                Text("进入")
+                                Text("Enter".localized)
                                     .font(.system(size: 10))
                             }
                             .foregroundStyle(Color.flexokiAccent)
@@ -93,7 +93,7 @@ struct ProjectModeBar: View {
                     HStack(spacing: 4) {
                         Image(systemName: "folder.badge.plus")
                             .font(.system(size: 10))
-                        Text("项目")
+                        Text("Project".localized)
                             .font(.system(size: 11))
                     }
                     .foregroundStyle(.secondary)
@@ -120,7 +120,7 @@ struct ProjectQuickSelector: View {
         VStack(alignment: .leading, spacing: 0) {
             // Header
             HStack {
-                Text("快速选择")
+                Text("Quick Select".localized)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Spacer()
@@ -137,7 +137,7 @@ struct ProjectQuickSelector: View {
             
             // Recent Projects
             if recentProjects.isEmpty {
-                Text("暂无项目")
+                    Text("No projects".localized)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 8)
@@ -172,7 +172,7 @@ struct ProjectQuickSelector: View {
             // Actions
             HStack(spacing: 12) {
                 Button(action: onCreate) {
-                    Label("新建", systemImage: "plus")
+                    Label("New".localized, systemImage: "plus")
                         .font(.system(size: 10))
                 }
                 .buttonStyle(.borderless)
@@ -183,7 +183,7 @@ struct ProjectQuickSelector: View {
                     // Open full project selector
                     isPresented = false
                 }) {
-                    Text("全部")
+                    Text("All".localized)
                         .font(.system(size: 10))
                 }
                 .buttonStyle(.borderless)

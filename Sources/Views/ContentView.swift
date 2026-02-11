@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var clipboardMonitor = ClipboardMonitor.shared
+    @StateObject private var languageManager = LanguageManager.shared
     @State private var searchText = ""
     @State private var showingSettings = false
 
@@ -35,6 +36,7 @@ struct ContentView: View {
                 }
             }
         }
+        .id(languageManager.refreshTrigger)
         .themeAware()
         .onAppear {
             clipboardMonitor.refresh()

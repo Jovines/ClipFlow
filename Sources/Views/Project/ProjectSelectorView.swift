@@ -23,7 +23,7 @@ struct ProjectSelectorView: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("选择项目")
+                Text("Select Project".localized)
                     .font(.headline)
                 Spacer()
                 Button(action: { isPresented = false }) {
@@ -39,7 +39,7 @@ struct ProjectSelectorView: View {
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundStyle(.secondary)
-                TextField("搜索项目...", text: $searchText)
+                TextField("Search projects...".localized(), text: $searchText)
                     .textFieldStyle(.plain)
             }
             .padding(8)
@@ -56,9 +56,9 @@ struct ProjectSelectorView: View {
                     Image(systemName: "folder.badge.plus")
                         .font(.largeTitle)
                         .foregroundStyle(.secondary)
-                    Text("暂无项目")
+                    Text("No Projects".localized)
                         .foregroundStyle(.secondary)
-                    Text("点击下方按钮创建新项目")
+                    Text("Tap the button below to create a new project".localized())
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -77,10 +77,10 @@ struct ProjectSelectorView: View {
                                 isPresented = false
                             }
                             .contextMenu {
-                                Button("归档项目") {
+                                Button("Archive Project".localized()) {
                                     try? projectService.archiveProject(id: project.id)
                                 }
-                                Button("删除项目", role: .destructive) {
+                                Button("Delete Project".localized(), role: .destructive) {
                                     try? projectService.deleteProject(id: project.id)
                                 }
                             }
@@ -93,7 +93,7 @@ struct ProjectSelectorView: View {
             
             // Create Button
             Button(action: onCreateProject) {
-                Label("创建新项目", systemImage: "plus.circle")
+                Label("Create New Project".localized(), systemImage: "plus.circle")
                     .font(.system(size: 13, weight: .medium))
             }
             .buttonStyle(.borderedProminent)
@@ -151,7 +151,7 @@ struct CreateProjectSheet: View {
         VStack(spacing: 16) {
             // Header
             HStack {
-                Text("创建新项目")
+                Text("Create New Project".localized)
                     .font(.headline)
                 Spacer()
                 Button(action: { isPresented = false }) {
@@ -163,13 +163,13 @@ struct CreateProjectSheet: View {
             
             // Form
             VStack(alignment: .leading, spacing: 8) {
-                Text("项目名称")
+                Text("Project Name".localized())
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                TextField("例如：用户登录模块优化", text: $name)
+                TextField("e.g., User Login Module Optimization".localized(), text: $name)
                     .textFieldStyle(.roundedBorder)
                 
-                Text("项目描述（可选）")
+                Text("Project Description (Optional)".localized())
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.top, 8)
@@ -184,7 +184,7 @@ struct CreateProjectSheet: View {
             
             // Buttons
             HStack {
-                Button("取消") {
+                Button("Cancel".localized()) {
                     isPresented = false
                 }
                 .buttonStyle(.bordered)
@@ -198,7 +198,7 @@ struct CreateProjectSheet: View {
                             .controlSize(.small)
                             .scaleEffect(0.8)
                     } else {
-                        Text("创建")
+                        Text("Create".localized())
                     }
                 }
                 .buttonStyle(.borderedProminent)

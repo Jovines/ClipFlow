@@ -9,8 +9,8 @@ struct ModeIndicatorView: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            modeButton(icon: "magnifyingglass", label: "搜索", isActive: !isSelectionMode)
-            modeButton(icon: "number", label: "选择", isActive: isSelectionMode)
+            modeButton(icon: "magnifyingglass", label: "Search".localized(), isActive: !isSelectionMode)
+            modeButton(icon: "number", label: "Select".localized(), isActive: isSelectionMode)
 
             Spacer()
 
@@ -24,7 +24,7 @@ struct ModeIndicatorView: View {
                 }
 
                 HStack(spacing: 2) {
-                    Text("Tab")
+                    Text("Tab".localized())
                         .font(.system(size: 9, weight: .medium))
                         .foregroundStyle(.tertiary)
                     Image(systemName: "arrow.left.arrow.right")
@@ -66,13 +66,13 @@ struct SelectionModeHintView: View {
                 .font(.system(size: 10))
                 .foregroundStyle(ThemeManager.shared.accent)
 
-            Text("按数字 1-9 快速选择")
+            Text("Press number 1-9 for quick select".localized())
                 .font(.system(size: 10))
                 .foregroundStyle(ThemeManager.shared.accent)
 
             Spacer()
 
-            Text("Enter 确认")
+            Text("Enter to confirm".localized())
                 .font(.system(size: 9))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 6)

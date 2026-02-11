@@ -11,7 +11,7 @@ struct CacheManagementView: View {
                 Image(systemName: "internaldrive")
                     .foregroundStyle(.secondary)
                     .font(.system(size: 14))
-                Text("Image Cache")
+                Text("Image Cache".localized())
                     .font(.system(size: 14, weight: .semibold))
             }
 
@@ -19,13 +19,13 @@ struct CacheManagementView: View {
                 HStack(spacing: 12) {
                     StatCard(
                         icon: "photo.stack",
-                        title: "Items",
+                        title: "Items".localized(),
                         value: "\(itemCount)"
                     )
 
                     StatCard(
                         icon: "memorychip",
-                        title: "Size",
+                        title: "Size".localized(),
                         value: formattedCacheSize
                     )
                 }
@@ -37,7 +37,7 @@ struct CacheManagementView: View {
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "trash")
-                        Text("Clear Cache")
+                        Text("Clear Cache".localized())
                     }
                 }
                 .disabled(isLoading)

@@ -15,7 +15,7 @@ struct TagSidebarView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 4) {
-                Text("筛选")
+                Text("Filter".localized)
                     .font(.system(size: 11, weight: .medium))
                 Spacer()
             }

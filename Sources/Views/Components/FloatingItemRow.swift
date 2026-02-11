@@ -118,48 +118,13 @@ struct FloatingItemRow: View {
                     .trimmingCharacters(in: .whitespaces)
                 Text(cleanedContent)
             case .image:
-                Text("Image")
+                Text("Image".localized())
             }
         }
     }
 
     private var timeText: Text {
-        Text(formatTimeAgo(from: item.createdAt))
-    }
-
-    private func formatTimeAgo(from date: Date) -> String {
-        let now = Date()
-        let elapsed = now.timeIntervalSince(date)
-
-        if elapsed < 60 {
-            return "刚刚"
-        } else if elapsed < 120 {
-            return "1 分钟前"
-        } else if elapsed < 180 {
-            return "2 分钟前"
-        } else if elapsed < 240 {
-            return "3 分钟前"
-        } else if elapsed < 300 {
-            return "4 分钟前"
-        } else if elapsed < 600 {
-            return "5 分钟前"
-        } else if elapsed < 900 {
-            return "10 分钟前"
-        } else if elapsed < 1200 {
-            return "15 分钟前"
-        } else if elapsed < 1800 {
-            return "20 分钟前"
-        } else if elapsed < 3600 {
-            return "半小时前"
-        } else if elapsed < 7200 {
-            return "1 小时前"
-        } else if elapsed < 86400 {
-            let hours = Int(elapsed / 3600)
-            return "\(hours) 小时前"
-        } else {
-            let days = Int(elapsed / 86400)
-            return "\(days) 天前"
-        }
+        Text(TimeFormatter.relativeTime(from: item.createdAt))
     }
 
     private var backgroundColor: Color {

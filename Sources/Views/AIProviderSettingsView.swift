@@ -59,11 +59,11 @@ struct AIProviderSettingsView: View {
                 Image(systemName: "brain")
                     .foregroundStyle(.secondary)
                     .font(.system(size: 14))
-                Text("AI 服务商")
+                Text("AI Service".localized())
                     .font(.system(size: 14, weight: .semibold))
             }
 
-            Text("配置和管理多个 AI 服务商，支持 OpenAI、Minimax、DeepSeek 等")
+            Text("Configure and manage multiple AI service providers, supporting OpenAI, Minimax, DeepSeek and more".localized())
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -76,7 +76,7 @@ struct AIProviderSettingsView: View {
                     Image(systemName: "server.rack")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
-                    Text("服务商列表")
+                    Text("Provider List".localized())
                         .font(.system(size: 14, weight: .semibold))
                 }
 
@@ -105,7 +105,7 @@ struct AIProviderSettingsView: View {
             Image(systemName: "server.rack")
                 .font(.system(size: 32))
                 .foregroundStyle(.tertiary)
-            Text("暂无服务商")
+            Text("No providers yet".localized())
                 .font(.system(size: 13))
                 .foregroundStyle(.secondary)
         }
@@ -141,11 +141,11 @@ struct AIProviderSettingsView: View {
                 Image(systemName: "cpu")
                     .foregroundStyle(.secondary)
                     .font(.system(size: 14))
-                Text("模型选择")
+                Text("Model Selection".localized())
                     .font(.system(size: 14, weight: .semibold))
             }
 
-            Picker("模型", selection: Binding(
+            Picker("Model".localized(), selection: Binding(
                 get: { selection.model },
                 set: { updateCurrentModel($0) }
             )) {
@@ -167,12 +167,12 @@ struct AIProviderSettingsView: View {
                 Image(systemName: "testtube.2")
                     .foregroundStyle(.secondary)
                     .font(.system(size: 14))
-                Text("测试连接")
+                Text("Test Connection".localized())
                     .font(.system(size: 14, weight: .semibold))
             }
 
             VStack(spacing: 12) {
-                TextField("输入测试消息...", text: $testMessage)
+                TextField("Enter test message...".localized(), text: $testMessage)
                     .textFieldStyle(.plain)
                     .font(.system(size: 13))
                     .padding(.horizontal, 8)
@@ -184,7 +184,7 @@ struct AIProviderSettingsView: View {
                             .stroke(ThemeManager.shared.border, lineWidth: 1)
                     )
 
-                Button("发送测试请求") {
+                Button("Send Test Request".localized()) {
                     testConnection()
                 }
                 .buttonStyle(.bordered)
@@ -203,7 +203,7 @@ struct AIProviderSettingsView: View {
 
     private var testResponseView: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("响应:")
+            Text("Response:".localized())
                 .font(.caption)
                 .foregroundStyle(.secondary)
 

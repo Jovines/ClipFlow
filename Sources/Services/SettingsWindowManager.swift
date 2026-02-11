@@ -72,7 +72,7 @@ final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
         )
         
         window.contentView = hostingController?.view
-        window.title = NSLocalizedString("Settings", comment: "")
+        window.title = "Settings".localized
         window.isReleasedWhenClosed = false
         window.isOpaque = false
         window.backgroundColor = NSColor(ThemeManager.shared.background)

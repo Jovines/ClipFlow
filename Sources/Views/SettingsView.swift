@@ -53,6 +53,7 @@ struct TitleBarConfigurator: NSViewRepresentable {
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
     case aiService = "AIService"
+    case language = "Language"
     case cache = "Cache"
     case update = "Update"
     case about = "About"
@@ -63,6 +64,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
         switch self {
         case .general: return "gear"
         case .aiService: return "brain"
+        case .language: return "globe"
         case .cache: return "internaldrive"
         case .update: return "arrow.clockwise.circle"
         case .about: return "info.circle"
@@ -71,11 +73,12 @@ enum SettingsTab: String, CaseIterable, Identifiable {
 
     var localizedName: String {
         switch self {
-        case .general: return NSLocalizedString("General", comment: "")
-        case .aiService: return NSLocalizedString("AI 服务", comment: "")
-        case .cache: return NSLocalizedString("Cache", comment: "")
-        case .update: return NSLocalizedString("Update", comment: "")
-        case .about: return NSLocalizedString("About", comment: "")
+        case .general: return "General".localized()
+        case .aiService: return "AI Service".localized()
+        case .language: return "Language".localized()
+        case .cache: return "Cache".localized()
+        case .update: return "Update".localized()
+        case .about: return "About".localized()
         }
     }
 }
@@ -122,6 +125,9 @@ struct SettingsView: View {
     @State private var selectedTab: SettingsTab = .general
     
     @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var languageManager = LanguageManager.shared
+    @State private var showRestartAlert = false
+    @State private var previousLanguage: AppLanguage = .en
 
     enum AutoStartStatus {
         case unknown
@@ -141,8 +147,8 @@ struct SettingsView: View {
         }
         .frame(width: 560, height: 500)
         .background(themeManager.background)
-        .alert("Shortcut Conflict", isPresented: $showConflictAlert) {
-            Button("OK") {}
+        .alert("Shortcut Conflict".localized(), isPresented: $showConflictAlert) {
+            Button("OK".localized()) {}
         } message: {
             Text(conflictMessage)
         }
@@ -185,6 +191,8 @@ struct SettingsView: View {
                     generalSettingsContent
                 case .aiService:
                     AIProviderSettingsView()
+                case .language:
+                    languageSettingsContent
                 case .cache:
                     CacheManagementView()
                 case .update:
@@ -207,12 +215,12 @@ struct SettingsView: View {
                     Image(systemName: "keyboard")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
-                    Text("Global Shortcut")
+                    Text("Global Shortcut".localized())
                         .font(.system(size: 14, weight: .semibold))
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Click to record a new shortcut")
+                    Text("Click to record a new shortcut".localized())
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -224,7 +232,7 @@ struct SettingsView: View {
                         }
                     ))
                 }
-                .help("Set the global keyboard shortcut to show ClipFlow")
+                .help("Set the global keyboard shortcut to show ClipFlow".localized())
                 .padding(12)
                 .background(themeManager.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -237,15 +245,15 @@ struct SettingsView: View {
                         Image(systemName: "paintbrush")
                             .foregroundStyle(.secondary)
                             .font(.system(size: 14))
-                        Text("Appearance")
+                        Text("Appearance".localized())
                             .font(.system(size: 14, weight: .semibold))
                     }
 
                     VStack(spacing: 12) {
                         HStack {
                             SettingLabelWithInfo(
-                                label: "Color Scheme",
-                                description: "Choose the color scheme for the app"
+                                label: "Color Scheme".localized(),
+                                description: "Choose the color scheme for the app".localized()
                             )
                             Spacer()
                             Picker("", selection: Binding(
@@ -262,17 +270,17 @@ struct SettingsView: View {
 
                         HStack {
                             SettingLabelWithInfo(
-                                label: "Theme",
-                                description: "Choose between light and dark mode"
+                                label: "Theme".localized(),
+                                description: "Choose between light and dark mode".localized()
                             )
                             Spacer()
                             Picker("", selection: Binding(
                                 get: { ThemeOption.from(themeManager.userPreference) },
                                 set: { themeManager.setColorScheme($0.colorScheme) }
                             )) {
-                                Text("System").tag(ThemeOption.system)
-                                Text("Light").tag(ThemeOption.light)
-                                Text("Dark").tag(ThemeOption.dark)
+                                Text("System".localized()).tag(ThemeOption.system)
+                                Text("Light".localized()).tag(ThemeOption.light)
+                                Text("Dark".localized()).tag(ThemeOption.dark)
                             }
                             .pickerStyle(.segmented)
                             .labelsHidden()
@@ -291,16 +299,16 @@ struct SettingsView: View {
                     Image(systemName: "clock.arrow.circlepath")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
-                    Text("History")
+                    Text("History".localized())
                         .font(.system(size: 14, weight: .semibold))
                 }
 
                 VStack(spacing: 12) {
                     HStack {
-                        SettingLabelWithInfo(
-                            label: "Max Items",
-                            description: "Maximum number of clipboard items to store"
-                        )
+                            SettingLabelWithInfo(
+                                label: "Max Items".localized(),
+                                description: "Maximum number of clipboard items to store".localized()
+                            )
                         Spacer()
                         Text("\(maxHistoryItems)")
                             .font(.system(size: 13, design: .rounded))
@@ -310,10 +318,10 @@ struct SettingsView: View {
                     }
 
                     HStack {
-                        SettingLabelWithInfo(
-                            label: "",
-                            description: "Adjust the maximum number of clipboard items to store"
-                        )
+                            SettingLabelWithInfo(
+                                label: "",
+                                description: "Adjust the maximum number of clipboard items to store".localized()
+                            )
                         Spacer()
                     }
 
@@ -327,7 +335,7 @@ struct SettingsView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "photo")
                                 .font(.system(size: 12))
-                            Text("Save Images")
+                            Text("Save Images".localized())
                                 .font(.system(size: 13))
                         }
                     }
@@ -345,16 +353,16 @@ struct SettingsView: View {
                     Image(systemName: "clock")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
-                    Text("Top Recent")
+                    Text("Top Recent".localized())
                         .font(.system(size: 14, weight: .semibold))
                 }
 
                 VStack(spacing: 12) {
                     HStack {
-                        SettingLabelWithInfo(
-                            label: "Min Usage Count",
-                            description: "Number of uses before an item appears in Top Recent"
-                        )
+                            SettingLabelWithInfo(
+                                label: "Min Usage Count".localized(),
+                                description: "Number of uses before an item appears in Top Recent".localized()
+                            )
                         Spacer()
                         Text("\(minUsageCountForRecommendation)")
                             .font(.system(size: 13, design: .rounded))
@@ -369,10 +377,10 @@ struct SettingsView: View {
                     .controlSize(.small)
 
                     HStack {
-                        SettingLabelWithInfo(
-                            label: "Score Half-Life",
-                            description: "How quickly Top Recent scores decay over time"
-                        )
+                            SettingLabelWithInfo(
+                                label: "Score Half-Life".localized(),
+                                description: "How quickly Top Recent scores decay over time".localized()
+                            )
                         Spacer()
                         Text(decayHoursText)
                             .font(.system(size: 13, design: .rounded))
@@ -395,7 +403,7 @@ struct SettingsView: View {
                     Image(systemName: "power")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
-                    Text("Launch")
+                    Text("Launch".localized())
                         .font(.system(size: 14, weight: .semibold))
                 }
 
@@ -404,14 +412,14 @@ struct SettingsView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "arrow.forward.circle")
                                 .font(.system(size: 12))
-                            Text("Start at Login")
+                            Text("Start at Login".localized())
                                 .font(.system(size: 13))
                         }
                     }
                     .toggleStyle(.checkbox)
 
                     HStack {
-                        Text("Status")
+                        Text("Status".localized())
                             .font(.system(size: 13))
                             .foregroundStyle(.secondary)
                         Spacer()
@@ -428,10 +436,83 @@ struct SettingsView: View {
     }
 
     @ViewBuilder
+    private var languageSettingsContent: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "globe")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Language".localized())
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("Current Language".localized())
+                            .font(.system(size: 13))
+                        Spacer()
+                        Text(LanguageManager.shared.currentLanguage.displayName)
+                            .font(.system(size: 13))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Select Language".localized())
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        ForEach(AppLanguage.allCases) { language in
+                            Button {
+                                previousLanguage = languageManager.currentLanguage
+                                languageManager.setLanguage(language)
+                                if language != previousLanguage {
+                                    showRestartAlert = true
+                                }
+                            } label: {
+                                HStack {
+                                    Text(language.displayName)
+                                        .font(.system(size: 13))
+
+                                    Spacer()
+
+                                    if languageManager.currentLanguage == language {
+                                        Image(systemName: "checkmark")
+                                            .font(.system(size: 12))
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                .padding(.vertical, 8)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+                .alert("Restart Required".localized(), isPresented: $showRestartAlert) {
+                    Button("OK", role: .cancel) { }
+                    Button("Restart Now".localized()) {
+                        NSApplication.shared.terminate(nil)
+                    }
+                } message: {
+                    Text("Please restart ClipFlow to apply the language change.".localized())
+                }
+                .padding(12)
+                .background(themeManager.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Spacer()
+        }
+    }
+
+    @ViewBuilder
     private var statusBadge: some View {
         switch autoStartStatus {
         case .unknown:
-            Text("Unknown")
+            Text("Unknown".localized())
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 8)
@@ -439,7 +520,7 @@ struct SettingsView: View {
                 .background(themeManager.surfaceElevated)
                 .clipShape(Capsule())
         case .enabled:
-            Text("Enabled")
+            Text("Enabled".localized())
                 .font(.system(size: 11))
                 .foregroundStyle(themeManager.success)
                 .padding(.horizontal, 8)
@@ -447,7 +528,7 @@ struct SettingsView: View {
                 .background(themeManager.success.opacity(0.15))
                 .clipShape(Capsule())
         case .disabled:
-            Text("Disabled")
+            Text("Disabled".localized())
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 8)
@@ -455,7 +536,7 @@ struct SettingsView: View {
                 .background(themeManager.surfaceElevated)
                 .clipShape(Capsule())
         case .error(let message):
-            Text("Error")
+            Text("Error".localized())
                 .font(.system(size: 11))
                 .foregroundStyle(themeManager.error)
                 .padding(.horizontal, 8)
@@ -501,11 +582,11 @@ struct SettingsView: View {
     private func applyShortcut(_ newShortcut: HotKeyManager.Shortcut) {
         if newShortcut.isValid && !newShortcut.modifiers.isEmpty {
             if !HotKeyManager.shared.register(newShortcut) {
-                conflictMessage = "Unable to register this shortcut. It may be in use by another application."
+                conflictMessage = "Unable to register this shortcut. It may be in use by another application.".localized()
                 showConflictAlert = true
             }
         } else {
-            conflictMessage = "Please include at least one modifier key (Command, Shift, Control, or Option)."
+            conflictMessage = "Please include at least one modifier key (Command, Shift, Control, or Option).".localized()
             showConflictAlert = true
         }
     }

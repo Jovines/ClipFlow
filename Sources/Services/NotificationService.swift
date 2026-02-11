@@ -9,8 +9,8 @@ final class NotificationService {
 
     func sendAnalysisCompleteNotification(projectName: String) {
         let notification = NSUserNotification()
-        notification.title = "AI 分析完成"
-        notification.informativeText = "项目「\(projectName)」的 AI 分析已完成"
+        notification.title = "AI Analysis Complete".localized(comment: "Notification title")
+        notification.informativeText = String(format: "Project %1$@ AI Analysis Complete".localized(comment: "Notification message"), projectName)
         notification.soundName = NSUserNotificationDefaultSoundName
 
         NSUserNotificationCenter.default.deliver(notification)

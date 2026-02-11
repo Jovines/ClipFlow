@@ -18,7 +18,7 @@ struct ProjectPromptSettingsView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("AI Prompt 模板设置")
+                Text("AI Prompt Template Settings".localized)
                     .font(.headline)
                 Spacer()
                 Button(action: { dismiss() }) {
@@ -33,7 +33,7 @@ struct ProjectPromptSettingsView: View {
 
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("选择模板")
+                    Text("Select Template".localized)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.horizontal)
@@ -54,14 +54,14 @@ struct ProjectPromptSettingsView: View {
                                 }
                                 .contextMenu {
                                     if !template.isSystem {
-                                        Button("编辑") {
+                                        Button("Edit".localized) {
                                             editingTemplate = template
                                         }
-                                        Button("复制模板") {
+                                        Button("Copy Template".localized) {
                                             duplicateTemplate(template)
                                         }
                                         Divider()
-                                        Button("删除", role: .destructive) {
+                                        Button("Delete".localized, role: .destructive) {
                                             templateToDelete = template
                                             showDeleteConfirmation = true
                                         }
@@ -87,7 +87,7 @@ struct ProjectPromptSettingsView: View {
                                     .font(.headline)
 
                                 if template.isSystem {
-                                    Text("预设")
+                                    Text("Preset".localized)
                                         .font(.caption)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -95,7 +95,7 @@ struct ProjectPromptSettingsView: View {
                                         .foregroundStyle(Color.flexokiAccent)
                                         .clipShape(RoundedRectangle(cornerRadius: 4))
                                 } else {
-                                    Text("自定义")
+                                    Text("Custom".localized)
                                         .font(.caption)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -107,7 +107,7 @@ struct ProjectPromptSettingsView: View {
                                 Spacer()
 
                                 if !template.isSystem {
-                                    Button("编辑") {
+                                    Button("Edit".localized) {
                                         editingTemplate = template
                                     }
                                     .buttonStyle(.borderless)
@@ -128,7 +128,7 @@ struct ProjectPromptSettingsView: View {
                         ScrollView {
                             VStack(alignment: .leading, spacing: 16) {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("初始生成 Prompt")
+                                    Text("Initial Generation Prompt".localized)
                                         .font(.caption)
                                         .fontWeight(.medium)
                                         .foregroundStyle(.secondary)
@@ -148,7 +148,7 @@ struct ProjectPromptSettingsView: View {
                                 .padding(.horizontal)
 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("更新认知 Prompt")
+                                    Text("Update Cognition Prompt".localized)
                                         .font(.caption)
                                         .fontWeight(.medium)
                                         .foregroundStyle(.secondary)
@@ -168,7 +168,7 @@ struct ProjectPromptSettingsView: View {
                                 .padding(.horizontal)
 
                                 HStack {
-                                    Text("可用变量: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}")
+                                    Text("Available Variables: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}".localized)
                                         .font(.caption2)
                                         .foregroundStyle(.tertiary)
                                 }
@@ -182,7 +182,7 @@ struct ProjectPromptSettingsView: View {
                                 .font(.system(size: 40))
                                 .foregroundStyle(.tertiary)
 
-                            Text("选择一个模板")
+                            Text("Select a Template".localized)
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -195,7 +195,7 @@ struct ProjectPromptSettingsView: View {
             Divider()
 
             HStack {
-                Button("创建新模板") {
+                Button("Create New Template".localized) {
                     showCreateTemplate = true
                 }
                 .buttonStyle(.bordered)
@@ -203,13 +203,13 @@ struct ProjectPromptSettingsView: View {
 
                 Spacer()
 
-                Button("取消") {
+                Button("Cancel".localized) {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
 
-                Button("应用此模板") {
+                Button("Apply Template".localized) {
                     applyTemplate()
                 }
                 .buttonStyle(.borderedProminent)
@@ -241,8 +241,8 @@ struct ProjectPromptSettingsView: View {
             }
         }
         .alert("删除模板", isPresented: $showDeleteConfirmation) {
-            Button("取消", role: .cancel) { }
-            Button("删除", role: .destructive) {
+            Button("Cancel".localized, role: .cancel) { }
+            Button("Delete".localized, role: .destructive) {
                 if let template = templateToDelete {
                     try? templateService.deleteTemplate(id: template.id)
                     if selectedTemplateId == template.id {
@@ -253,7 +253,7 @@ struct ProjectPromptSettingsView: View {
             }
         } message: {
             if let template = templateToDelete {
-                Text("确定要删除模板「\(template.name)」吗？此操作不可撤销，使用该模板的项目将恢复使用默认模板。")
+                Text("Delete Template Warning".localized(template.name))
             }
         }
     }
@@ -387,7 +387,7 @@ struct TemplateEditSheet: View {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("模板名称")
+                            Text("Template Name".localized)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             TextField("输入模板名称", text: $name)
@@ -396,7 +396,7 @@ struct TemplateEditSheet: View {
                         }
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("描述")
+                            Text("Description".localized)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             TextField("简短描述用途", text: $description)
@@ -406,7 +406,7 @@ struct TemplateEditSheet: View {
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("初始生成 Prompt")
+                        Text("Initial Generation Prompt".localized)
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
@@ -423,7 +423,7 @@ struct TemplateEditSheet: View {
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("更新认知 Prompt")
+                        Text("Update Cognition Prompt".localized)
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
@@ -439,7 +439,7 @@ struct TemplateEditSheet: View {
                             )
                     }
 
-                    Text("可用变量: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}")
+                    Text("Available Variables: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}".localized)
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
@@ -450,13 +450,13 @@ struct TemplateEditSheet: View {
 
             HStack {
                 Spacer()
-                Button("取消") {
+                Button("Cancel".localized) {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
 
-                Button("保存") {
+                Button("Save".localized) {
                     save()
                 }
                 .buttonStyle(.borderedProminent)
@@ -498,7 +498,7 @@ struct TemplateEditSheet: View {
 struct ProjectPromptSettingsView_Previews: PreviewProvider {
     static var previews: some View {
         ProjectPromptSettingsView(project: .constant(
-            Project(name: "测试项目", description: "测试描述")
+            Project(name: "Test Project".localized, description: "Test Description".localized)
         ))
     }
 }

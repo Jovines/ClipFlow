@@ -22,10 +22,10 @@ struct AboutView: View {
                 }
 
                 VStack(spacing: 4) {
-                    Text("ClipFlow")
+                    Text("ClipFlow".localized())
                         .font(.system(size: 20, weight: .bold))
 
-                    Text("Version 1.0.0")
+                    Text("Version 1.0.0".localized())
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                 }
@@ -36,7 +36,7 @@ struct AboutView: View {
             VStack(spacing: 0) {
                 LinkRow(
                     icon: "globe",
-                    title: "GitHub Repository",
+                    title: "GitHub Repository".localized(),
                     url: URL(string: "https://github.com/Jovines/ClipFlow") ?? URL(string: "https://github.com")!
                 )
 
@@ -45,8 +45,17 @@ struct AboutView: View {
 
                 LinkRow(
                     icon: "exclamationmark.bubble",
-                    title: "Report Issue",
+                    title: "Report Issue".localized(),
                     url: URL(string: "https://github.com/Jovines/ClipFlow/issues") ?? URL(string: "https://github.com")!
+                )
+
+                Divider()
+                    .padding(.leading, 44)
+
+                InfoRow(
+                    icon: "character.book.closed",
+                    title: "Current Language".localized(),
+                    value: LanguageManager.shared.currentLanguage.displayName
                 )
             }
             .background(ThemeManager.shared.surface)
@@ -54,7 +63,7 @@ struct AboutView: View {
 
             Spacer()
 
-            Text("© 2026 ClipFlow. All rights reserved.")
+            Text("© 2026 ClipFlow. All rights reserved.".localized())
                 .font(.caption)
                 .foregroundStyle(.tertiary)
                 .padding(.bottom, 8)
@@ -90,5 +99,32 @@ struct LinkRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+struct InfoRow: View {
+    let icon: String
+    let title: String
+    let value: String
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 14))
+                .foregroundStyle(.secondary)
+                .frame(width: 20, height: 20)
+
+            Text(title)
+                .font(.system(size: 13))
+
+            Spacer()
+
+            Text(value)
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+        }
+        .foregroundStyle(.primary)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
     }
 }

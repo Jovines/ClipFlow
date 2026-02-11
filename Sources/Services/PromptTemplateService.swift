@@ -102,7 +102,7 @@ final class PromptTemplateService: ObservableObject, @unchecked Sendable {
 
     func duplicateTemplate(_ template: PromptTemplate) throws -> PromptTemplate {
         let newTemplate = PromptTemplate(
-            name: "\(template.name) 副本",
+            name: String(format: "%1$@ Copy".localized(comment: "Duplicate template name"), template.name),
             description: template.description,
             initialPrompt: template.initialPrompt,
             updatePrompt: template.updatePrompt,
@@ -126,11 +126,11 @@ enum PromptTemplateError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .cannotModifySystemTemplate:
-            return "系统预设模板无法修改"
+            return "System Preset Template Cannot Be Modified".localized(comment: "Error message")
         case .cannotDeleteSystemTemplate:
-            return "系统预设模板无法删除"
+            return "System Preset Template Cannot Be Deleted".localized(comment: "Error message")
         case .templateNotFound:
-            return "模板不存在"
+            return "Template Not Found".localized(comment: "Error message")
         }
     }
 }

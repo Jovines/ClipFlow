@@ -54,7 +54,7 @@ struct GroupView: View {
             Spacer()
 
             if isHovered {
-                Text("悬停查看")
+                Text("Hover to View".localized)
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }

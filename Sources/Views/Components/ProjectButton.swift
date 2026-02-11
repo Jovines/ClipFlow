@@ -40,7 +40,7 @@ struct ProjectButton: View {
                 } else {
                     Image(systemName: "folder.badge.plus")
                         .font(.system(size: 10))
-                    Text("项目")
+                    Text("Project".localized)
                         .font(.system(size: 11))
                 }
             }

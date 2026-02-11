@@ -30,6 +30,11 @@
     <string></string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>zh-Hans</string>
+    </array>
     <key>NSAccessibilityUsageDescription</key>
     <string>ClipFlow needs accessibility access to register global keyboard shortcuts (Command+Shift+V) for quick clipboard history access. This permission is only used for keyboard shortcuts and does not read screen content.</string>
     <key>NSClipboardUsageDescription</key>

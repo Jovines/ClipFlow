@@ -7,7 +7,7 @@ struct ProviderPresetSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("选择服务商")
+                Text("Select Provider".localized())
                     .font(.headline)
 
                 Spacer()

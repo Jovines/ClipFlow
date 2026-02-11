@@ -33,11 +33,11 @@ struct GroupPanelView: View {
     private var groupPanelHeader: some View {
         HStack {
             if let info = panelInfo {
-                Text("记录 \(info.startIndex)-\(info.endIndex)")
+                Text("Records %1$d-%2$d".localized(info.startIndex, info.endIndex))
                     .font(.system(size: 13, weight: .medium))
             }
             Spacer()
-            Text("\(panelItems.count) 条")
+            Text("%1$d items".localized(panelItems.count))
                 .font(.caption)
                 .foregroundStyle(ThemeManager.shared.textSecondary)
         }
@@ -72,7 +72,7 @@ struct GroupPanelView: View {
             Spacer()
 
             Button(action: onHide) {
-                Text("关闭")
+                Text("Close".localized())
                     .font(.system(size: 11))
             }
             .buttonStyle(.bordered)

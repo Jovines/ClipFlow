@@ -9,7 +9,7 @@ struct MenuBarPopoverView: View {
         VStack(spacing: 0) {
             MenuButton(
                 icon: "gear",
-                label: "设置",
+                label: "Settings".localized(comment: "Menu item"),
                 action: {
                     FloatingWindowManager.shared.hideWindow()
                     dismiss()
@@ -23,7 +23,7 @@ struct MenuBarPopoverView: View {
 
             MenuButton(
                 icon: "power",
-                label: "退出",
+                label: "Quit".localized(comment: "Menu item"),
                 action: {
                     NSApplication.shared.terminate(nil)
                 }
