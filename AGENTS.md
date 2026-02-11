@@ -76,6 +76,31 @@ func encode(to container: inout PersistenceContainer) throws {
 - Place `.contentShape(Rectangle())` on the outermost view that should respond to taps, not on nested child views
 - This prevents the common issue where tapping empty/padding areas does not trigger the gesture
 
+### Internationalization (i18n)
+
+ClipFlow uses **Apple Strings Catalog** (`Localizable.xcstrings`) for internationalization.
+
+#### String Localization
+- Use `String.localized()` extension for simple strings:
+  ```swift
+  "Settings".localized()
+  ```
+- Use `String.localized(args:...)` for strings with placeholders:
+  ```swift
+  "Items: %1$d".localized(args: count)
+  ```
+- All user-facing strings MUST be localized (no hardcoded strings in views)
+
+#### Translation Keys
+- Use clear, descriptive keys in English (e.g., `"Copy to Clipboard"`)
+- Keys should be unique across the app
+- Avoid concatenation: use `"Settings > General"` not `"Settings" + " > " + "General"`
+
+#### File Location
+- Main translations: `Resources/Localizable.xcstrings`
+- Always update the strings file when adding new UI text
+- Run `xcodegen generate` after modifying project.yml resources
+
 ## Project Structure
 ```
 Sources/

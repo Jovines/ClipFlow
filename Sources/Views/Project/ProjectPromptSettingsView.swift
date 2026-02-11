@@ -240,7 +240,7 @@ struct ProjectPromptSettingsView: View {
                 loadTemplates()
             }
         }
-        .alert("删除模板", isPresented: $showDeleteConfirmation) {
+        .alert("Delete Template".localized, isPresented: $showDeleteConfirmation) {
             Button("Cancel".localized, role: .cancel) { }
             Button("Delete".localized, role: .destructive) {
                 if let template = templateToDelete {
@@ -370,7 +370,7 @@ struct TemplateEditSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(isEditing ? "编辑模板" : "创建模板")
+                Text(isEditing ? "Edit Template".localized : "Create Template".localized)
                     .font(.headline)
                 Spacer()
                 Button(action: { dismiss() }) {
@@ -390,7 +390,7 @@ struct TemplateEditSheet: View {
                             Text("Template Name".localized)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            TextField("输入模板名称", text: $name)
+                            TextField("Enter Template Name".localized, text: $name)
                                 .textFieldStyle(.roundedBorder)
                                 .controlSize(.small)
                         }
@@ -399,7 +399,7 @@ struct TemplateEditSheet: View {
                             Text("Description".localized)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            TextField("简短描述用途", text: $description)
+                            TextField("Brief Description".localized, text: $description)
                                 .textFieldStyle(.roundedBorder)
                                 .controlSize(.small)
                         }
