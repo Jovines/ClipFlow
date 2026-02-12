@@ -139,7 +139,7 @@ struct FloatingItemRow: View {
         case .text:
             return "Text: \(item.content.prefix(50))"
         case .image:
-            return "Image"
+            return "Image".localized()
         }
     }
 }

@@ -212,16 +212,16 @@ final class HotKeyManager: @unchecked Sendable {
 
     private func checkForConflicts(_ shortcut: Shortcut) -> String? {
         if shortcut.keyCode == 0 {
-            return "Invalid key code"
+            return "Invalid key code".localized
         }
 
         if reservedKeyCodes.contains(shortcut.keyCode) {
-            return "System reserved key"
+            return "System reserved key".localized
         }
 
         if shortcut.keyCode == kVK_Space {
             if shortcut.modifiers.contains(.command) || shortcut.modifiers.contains(.control) {
-                return "Conflict with Spotlight/Quick Look"
+                return "Conflict with Spotlight/Quick Look".localized
             }
         }
 

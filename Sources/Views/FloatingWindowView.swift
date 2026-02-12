@@ -473,11 +473,11 @@ struct FloatingWindowView: View {
                 .font(.system(size: 36))
                 .foregroundStyle(themeManager.textSecondary)
 
-            Text(showTopRecentHistory ? "No Recent History" : "No clipboard history")
+            Text(showTopRecentHistory ? "No Recent History".localized() : "No clipboard history".localized())
                 .font(.subheadline)
                 .foregroundStyle(themeManager.textSecondary)
 
-            Text(showTopRecentHistory ? "Frequently used items appear here" : "Copy something to see it here")
+            Text(showTopRecentHistory ? "Frequently used items appear here".localized() : "Copy something to see it here".localized())
                 .font(.caption)
                 .foregroundStyle(themeManager.textTertiary)
         }
@@ -601,7 +601,7 @@ struct FloatingWindowView: View {
     private var createTagSheet: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("Create Tag".localized)
+                Text("Create Tag".localized())
                     .font(.headline)
                 Spacer()
                 Button(action: { showCreateTagSheet = false }) {
@@ -615,7 +615,7 @@ struct FloatingWindowView: View {
 
             Divider()
 
-            TextField("Tag name", text: $newTagName)
+            TextField("Tag name".localized(), text: $newTagName)
                 .textFieldStyle(.plain)
                 .font(.system(size: 14))
                 .padding(.horizontal, 12)
@@ -625,7 +625,7 @@ struct FloatingWindowView: View {
                 .padding(.horizontal, 12)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("Color".localized)
+                Text("Color".localized())
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 4)
@@ -652,13 +652,13 @@ struct FloatingWindowView: View {
 
             HStack(spacing: 8) {
                 Button(action: { showCreateTagSheet = false }) {
-                    Text("Cancel".localized)
+                    Text("Cancel".localized())
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
 
                 Button(action: saveNewTag) {
-                    Text("Create".localized)
+                    Text("Create".localized())
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)

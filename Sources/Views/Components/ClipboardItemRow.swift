@@ -69,7 +69,7 @@ struct ClipboardItemRow: View {
         case .text:
             return item.content
         case .image:
-            return "Image"
+            return "Image".localized()
         }
     }
 

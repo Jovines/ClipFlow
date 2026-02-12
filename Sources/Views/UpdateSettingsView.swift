@@ -5,9 +5,9 @@ struct UpdateSettingsView: View {
     @StateObject private var themeManager = ThemeManager.shared
     
     private let checkIntervalOptions: [(days: Double, label: String)] = [
-        (1, "Daily"),
-        (7, "Weekly"),
-        (30, "Monthly")
+        (1, "Daily".localized()),
+        (7, "Weekly".localized()),
+        (30, "Monthly".localized())
     ]
     
     var body: some View {

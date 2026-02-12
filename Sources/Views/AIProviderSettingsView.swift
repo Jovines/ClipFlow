@@ -267,7 +267,7 @@ struct AIProviderSettingsView: View {
                 }
             } catch {
                 await MainActor.run {
-                    testResponse = "错误: \(error.localizedDescription)"
+                    testResponse = "Test Connection Error: %1$@".localized(error.localizedDescription)
                     isTesting = false
                 }
             }

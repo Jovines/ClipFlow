@@ -29,14 +29,14 @@ struct ImagePreviewView: View {
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
-                    Text("Unable to load image".localized)
+                    Text("Unable to load image".localized())
                         .foregroundStyle(.white)
                 }
             }
-            .navigationTitle("Image Preview".localized)
+            .navigationTitle("Image Preview".localized())
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Close".localized) {
+                    Button("Close".localized()) {
                         dismiss()
                     }
                 }

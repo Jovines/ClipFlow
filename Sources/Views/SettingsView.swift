@@ -260,8 +260,8 @@ struct SettingsView: View {
                                 get: { themeManager.appTheme },
                                 set: { themeManager.setAppTheme($0) }
                             )) {
-                                Text("Flexoki").tag(AppTheme.flexoki)
-                                Text("Nord").tag(AppTheme.nord)
+                                Text("Flexoki".localized()).tag(AppTheme.flexoki)
+                                Text("Nord".localized()).tag(AppTheme.nord)
                             }
                             .pickerStyle(.segmented)
                             .labelsHidden()
@@ -492,7 +492,7 @@ struct SettingsView: View {
                     }
                 }
                 .alert("Restart Required".localized(), isPresented: $showRestartAlert) {
-                    Button("OK", role: .cancel) { }
+                    Button("OK".localized(), role: .cancel) { }
                     Button("Restart Now".localized()) {
                         NSApplication.shared.terminate(nil)
                     }
@@ -550,9 +550,9 @@ struct SettingsView: View {
     private var decayHoursText: String {
         if recommendationDecayHours >= 24 {
             let days = recommendationDecayHours / 24.0
-            return String(format: "%.1f days", days)
+            return String(format: "%.1f days".localized(), days)
         } else {
-            return "\(Int(recommendationDecayHours)) hours"
+            return "\(Int(recommendationDecayHours)) hours".localized()
         }
     }
 

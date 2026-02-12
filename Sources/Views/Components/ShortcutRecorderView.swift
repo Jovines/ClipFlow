@@ -32,12 +32,12 @@ struct ShortcutRecorderView: View {
                 .fill(themeManager.accent)
                 .frame(width: 8, height: 8)
 
-            Text("Press any key...".localized)
+            Text("Press any key to record".localized())
                 .foregroundStyle(themeManager.textSecondary)
 
             Spacer()
 
-            Text("ESC to cancel".localized)
+            Text("Press ESC to cancel".localized())
                 .font(.caption)
                 .foregroundStyle(themeManager.textSecondary)
         }
@@ -64,10 +64,10 @@ struct ShortcutRecorderView: View {
                 .foregroundStyle(themeManager.textSecondary)
                 .font(.system(size: 12))
         }
-        .alert("Shortcut Conflict".localized, isPresented: $conflictError) {
-            Button("OK".localized) {}
+        .alert("Shortcut Conflict".localized(), isPresented: $conflictError) {
+            Button("OK".localized()) {}
         } message: {
-            Text("This shortcut is already in use or invalid.".localized)
+            Text("This shortcut is already in use or invalid.".localized())
         }
     }
     

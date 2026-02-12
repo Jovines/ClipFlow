@@ -435,7 +435,7 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
             _ = ImageCacheManager.shared.saveImage(thumbnailData, forKey: "\(imageKey)_thumb")
 
             return ClipboardItem(
-                content: "Image",
+                content: "Image".localized(),
                 contentType: .image,
                 imagePath: imageKey,
                 thumbnailPath: "\(imageKey)_thumb",

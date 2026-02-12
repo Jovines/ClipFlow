@@ -664,7 +664,7 @@ struct RawInputRow: View {
                         Text("Source:".localized())
                             .font(.caption)
                             .foregroundStyle(ThemeManager.shared.textSecondary)
-                        TextField("e.g., Zhang San, Meeting Notes".localized(), text: $editedSourceContext)
+                        TextField("Source Context Placeholder".localized(), text: $editedSourceContext)
                             .font(.caption)
                             .textFieldStyle(.roundedBorder)
                     }
@@ -810,11 +810,11 @@ struct EmptyCognitionState: View {
                     .font(.system(size: 40))
                     .foregroundStyle(Color.flexokiOrange600)
                 
-                Text("AI Service Not Configured".localized)
+                Text("AI Service Not Configured".localized())
                     .font(.headline)
                     .foregroundStyle(Color.flexokiOrange600)
                 
-                Text("Please configure AI provider in settings (OpenAI, DeepSeek, etc.)".localized)
+                Text("Please configure AI provider in settings to use project features".localized())
                     .font(.caption)
                     .foregroundStyle(ThemeManager.shared.textSecondary)
                     .multilineTextAlignment(.center)
@@ -832,7 +832,7 @@ struct EmptyCognitionState: View {
                     .font(.system(size: 40))
                     .foregroundStyle(Color.flexokiRed600)
                 
-                Text("AI Analysis Failed".localized)
+                Text("AI Analysis Failed".localized())
                     .font(.headline)
                     .foregroundStyle(Color.flexokiRed600)
                 
@@ -858,7 +858,7 @@ struct EmptyCognitionState: View {
                     .font(.headline)
                     .foregroundStyle(Color.flexokiText)
                 
-                Text("AI is analyzing, please wait...".localized)
+                Text("AI is analyzing, please wait...".localized())
                     .font(.caption)
                     .foregroundStyle(ThemeManager.shared.textSecondary)
                     .multilineTextAlignment(.center)
@@ -884,7 +884,7 @@ struct EmptyCognitionState: View {
                         .multilineTextAlignment(.center)
                     
                     Button(action: onAnalyze) {
-                        Label("Start Analysis".localized, systemImage: "wand.and.stars")
+                        Label("Start Analysis".localized(), systemImage: "wand.and.stars")
                             .font(.system(size: 13, weight: .medium))
                     }
                     .buttonStyle(.borderedProminent)
@@ -898,11 +898,11 @@ struct EmptyCognitionState: View {
                     .font(.system(size: 40))
                     .foregroundStyle(ThemeManager.shared.textTertiary)
                 
-                Text("No Materials".localized)
+                Text("No Materials".localized())
                     .font(.headline)
                     .foregroundStyle(Color.flexokiText)
                 
-                Text("Copy discussion to clipboard, then tap analyze".localized)
+                Text("Copy discussion to clipboard to share".localized())
                     .font(.caption)
                     .foregroundStyle(ThemeManager.shared.textSecondary)
                     .multilineTextAlignment(.center)
@@ -925,7 +925,7 @@ struct ExportProjectView: View {
         VStack(spacing: 16) {
             // Header
             HStack {
-                Text("Export Project".localized)
+                Text("Export Project".localized())
                     .font(.headline)
                 Spacer()
                 Button(action: onDismiss) {

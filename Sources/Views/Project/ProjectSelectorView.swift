@@ -23,7 +23,7 @@ struct ProjectSelectorView: View {
         VStack(spacing: 0) {
             // Header
             HStack {
-                Text("Select Project".localized)
+                Text("Select Project".localized())
                     .font(.headline)
                 Spacer()
                 Button(action: { isPresented = false }) {
@@ -56,7 +56,7 @@ struct ProjectSelectorView: View {
                     Image(systemName: "folder.badge.plus")
                         .font(.largeTitle)
                         .foregroundStyle(.secondary)
-                    Text("No Projects".localized)
+                    Text("No Projects".localized())
                         .foregroundStyle(.secondary)
                     Text("Tap the button below to create a new project".localized())
                         .font(.caption)
@@ -77,10 +77,10 @@ struct ProjectSelectorView: View {
                                 isPresented = false
                             }
                             .contextMenu {
-                                Button("Archive Project".localized()) {
+                                Button("Project Archive".localized()) {
                                     try? projectService.archiveProject(id: project.id)
                                 }
-                                Button("Delete Project".localized(), role: .destructive) {
+                                Button("Project Delete".localized(), role: .destructive) {
                                     try? projectService.deleteProject(id: project.id)
                                 }
                             }
@@ -151,7 +151,7 @@ struct CreateProjectSheet: View {
         VStack(spacing: 16) {
             // Header
             HStack {
-                Text("Create New Project".localized)
+                Text("Create New Project".localized())
                     .font(.headline)
                 Spacer()
                 Button(action: { isPresented = false }) {
@@ -166,7 +166,7 @@ struct CreateProjectSheet: View {
                 Text("Project Name".localized())
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                TextField("e.g., User Login Module Optimization".localized(), text: $name)
+                TextField("Project Name Placeholder".localized(), text: $name)
                     .textFieldStyle(.roundedBorder)
                 
                 Text("Project Description (Optional)".localized())

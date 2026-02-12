@@ -15,7 +15,7 @@ struct TagSidebarView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 4) {
-                Text("Filter".localized)
+                Text("Filter".localized())
                     .font(.system(size: 11, weight: .medium))
                 Spacer()
             }
@@ -59,7 +59,7 @@ struct TagSidebarView: View {
                         .font(.system(size: 11, weight: .medium))
                 }
                 .buttonStyle(.plain)
-                .help("Manage tags")
+                .help("Manage tags".localized())
             }
             .frame(height: 28)
             .padding(.horizontal, 6)
@@ -71,12 +71,12 @@ struct TagSidebarView: View {
         .sheet(isPresented: .constant(editingTag != nil)) {
             editTagSheet
         }
-        .alert("Delete Tag", isPresented: $showDeleteConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) { deleteTag() }
+        .alert("Delete Tag".localized(), isPresented: $showDeleteConfirmation) {
+            Button("Cancel".localized(), role: .cancel) {}
+            Button("Delete".localized(), role: .destructive) { deleteTag() }
         } message: {
             if let tag = tagToDelete {
-                Text("Are you sure you want to delete \"\(tag.name)\"? This will remove the tag from all clipboard items.")
+                Text("Are you sure you want to delete \"\(tag.name)\"? This will remove the tag from all clipboard items.".localized())
             }
         }
     }
@@ -128,7 +128,7 @@ struct TagSidebarView: View {
     private var editTagSheet: some View {
         VStack(spacing: 12) {
             HStack {
-                Text("Rename Tag")
+                Text("Rename Tag".localized())
                     .font(.headline)
                 Spacer()
                 Button(action: { editingTag = nil }) {
@@ -142,7 +142,7 @@ struct TagSidebarView: View {
 
             Divider()
 
-            TextField("Tag name", text: $editName)
+            TextField("Tag name".localized(), text: $editName)
                 .textFieldStyle(.plain)
                 .font(.system(size: 14))
                 .padding(.horizontal, 12)
@@ -155,13 +155,13 @@ struct TagSidebarView: View {
 
             HStack(spacing: 8) {
                 Button(action: { editingTag = nil }) {
-                    Text("Cancel")
+                    Text("Cancel".localized())
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
 
                 Button(action: saveEdit) {
-                    Text("Save")
+                    Text("Save".localized())
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
@@ -191,7 +191,7 @@ struct TopRecentHistorySidebarItem: View {
                     .font(.system(size: 10))
                     .foregroundStyle(isSelected ? themeManager.accent : themeManager.textSecondary)
 
-                Text("Recent History")
+                Text("Recent History".localized())
                     .font(.system(size: 10))
                     .lineLimit(1)
             }
@@ -238,10 +238,10 @@ struct TagSidebarRowView: View {
         .buttonStyle(.plain)
         .contextMenu {
             Button(action: onEdit) {
-                Label("Rename", systemImage: "pencil")
+                Label("Rename".localized(), systemImage: "pencil")
             }
             Button(role: .destructive, action: onDelete) {
-                Label("Delete", systemImage: "trash")
+                Label("Delete".localized(), systemImage: "trash")
             }
         }
     }

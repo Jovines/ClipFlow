@@ -9,7 +9,7 @@ extension String {
         if args.isEmpty {
             return NSLocalizedString(self, comment: "")
         } else {
-            return String(format: NSLocalizedString(self, comment: ""), arguments: args)
+            return String(format: NSLocalizedString(self, comment: ""), args)
         }
     }
 

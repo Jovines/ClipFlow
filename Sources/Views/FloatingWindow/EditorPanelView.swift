@@ -121,7 +121,7 @@ struct EditorPanelView: View {
                 Spacer()
             }
 
-            TextField("Add note".localized(), text: $editNote, axis: .vertical)
+            TextField("Add Note".localized(), text: $editNote, axis: .vertical)
                 .font(.system(size: 12))
                 .lineLimit(1...3)
                 .scrollContentBackground(.hidden)

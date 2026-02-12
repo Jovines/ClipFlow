@@ -9,7 +9,7 @@ enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
 
     var displayName: String {
         switch self {
-        case .en: return "English"
+        case .en: return "English".localized
         case .zhHans: return "简体中文"
         }
     }

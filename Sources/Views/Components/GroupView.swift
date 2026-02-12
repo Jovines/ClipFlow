@@ -54,7 +54,7 @@ struct GroupView: View {
             Spacer()
 
             if isHovered {
-                Text("Hover to View".localized)
+                Text("Hover to View".localized())
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
@@ -166,18 +166,18 @@ struct CompactItemRow: View {
         .onTapGesture(perform: onSelect)
         .contextMenu {
             Button(action: onManageTags) {
-                Label("Manage Tags", systemImage: "tag")
+                Label("Manage Tags".localized(), systemImage: "tag")
             }
             Button(action: onAddToProject) {
-                Label("Add to Project", systemImage: "folder.badge.plus")
+                Label("Add to Project".localized(), systemImage: "folder.badge.plus")
             }
             Divider()
             Button(action: onEdit) {
-                Label("Edit", systemImage: "pencil")
+                Label("Edit".localized(), systemImage: "pencil")
             }
             Divider()
             Button(role: .destructive, action: onDelete) {
-                Label("Delete", systemImage: "trash")
+                Label("Delete".localized(), systemImage: "trash")
             }
         }
         .onAppear { loadItemTags() }
@@ -230,7 +230,7 @@ struct CompactItemRow: View {
                     .trimmingCharacters(in: .whitespaces)
                 Text(cleanedContent)
             case .image:
-                Text("Image")
+                Text("Image".localized())
             }
         }
         .font(.system(size: 11))
@@ -320,7 +320,7 @@ struct GroupPanelItemRow: View {
                     .trimmingCharacters(in: .whitespaces)
                 Text(cleanedContent)
             case .image:
-                Text("Image")
+                Text("Image".localized())
             }
         }
         .font(.system(size: 11))

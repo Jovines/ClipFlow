@@ -26,13 +26,13 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationTitle("ClipFlow")
+            .navigationTitle("ClipFlow".localized())
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingSettings = true }) {
                         Image(systemName: "gear")
                     }
-                    .help("Settings")
+                    .help("Settings".localized())
                 }
             }
         }

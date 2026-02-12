@@ -144,7 +144,7 @@ struct TagManagementView: View {
             Button("Delete".localized(), role: .destructive) { deleteTag() }
         } message: {
             if let tag = tagToDelete {
-                Text("Are you sure you want to delete \"\(tag.name)\"? This will remove the tag from all clipboard items.")
+                Text("Are you sure you want to delete \"%1$@\"? This will remove the tag from all clipboard items.".localized(tag.name))
             }
         }
     }

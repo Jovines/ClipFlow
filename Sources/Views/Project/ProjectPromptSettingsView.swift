@@ -18,7 +18,7 @@ struct ProjectPromptSettingsView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("AI Prompt Template Settings".localized)
+                Text("AI Prompt Template Settings".localized())
                     .font(.headline)
                 Spacer()
                 Button(action: { dismiss() }) {
@@ -33,7 +33,7 @@ struct ProjectPromptSettingsView: View {
 
             HStack(spacing: 0) {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("Select Template".localized)
+                    Text("Select Template".localized())
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .padding(.horizontal)
@@ -54,14 +54,14 @@ struct ProjectPromptSettingsView: View {
                                 }
                                 .contextMenu {
                                     if !template.isSystem {
-                                        Button("Edit".localized) {
-                                            editingTemplate = template
-                                        }
-                                        Button("Copy Template".localized) {
+                                    Button("Edit".localized()) {
+                                        editingTemplate = template
+                                    }
+                                    Button("Copy Template".localized()) {
                                             duplicateTemplate(template)
                                         }
                                         Divider()
-                                        Button("Delete".localized, role: .destructive) {
+                                        Button("Delete".localized(), role: .destructive) {
                                             templateToDelete = template
                                             showDeleteConfirmation = true
                                         }
@@ -87,7 +87,7 @@ struct ProjectPromptSettingsView: View {
                                     .font(.headline)
 
                                 if template.isSystem {
-                                    Text("Preset".localized)
+                                    Text("Preset".localized())
                                         .font(.caption)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -95,7 +95,7 @@ struct ProjectPromptSettingsView: View {
                                         .foregroundStyle(Color.flexokiAccent)
                                         .clipShape(RoundedRectangle(cornerRadius: 4))
                                 } else {
-                                    Text("Custom".localized)
+                                    Text("Custom".localized())
                                         .font(.caption)
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
@@ -107,7 +107,7 @@ struct ProjectPromptSettingsView: View {
                                 Spacer()
 
                                 if !template.isSystem {
-                                    Button("Edit".localized) {
+                                    Button("Edit".localized()) {
                                         editingTemplate = template
                                     }
                                     .buttonStyle(.borderless)
@@ -128,7 +128,7 @@ struct ProjectPromptSettingsView: View {
                         ScrollView {
                             VStack(alignment: .leading, spacing: 16) {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Initial Generation Prompt".localized)
+                                    Text("Initial Generation Prompt".localized())
                                         .font(.caption)
                                         .fontWeight(.medium)
                                         .foregroundStyle(.secondary)
@@ -148,7 +148,7 @@ struct ProjectPromptSettingsView: View {
                                 .padding(.horizontal)
 
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Update Cognition Prompt".localized)
+                                    Text("Update Cognition Prompt".localized())
                                         .font(.caption)
                                         .fontWeight(.medium)
                                         .foregroundStyle(.secondary)
@@ -168,7 +168,7 @@ struct ProjectPromptSettingsView: View {
                                 .padding(.horizontal)
 
                                 HStack {
-                                    Text("Available Variables: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}".localized)
+                                    Text("Available Variables: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}".localized())
                                         .font(.caption2)
                                         .foregroundStyle(.tertiary)
                                 }
@@ -182,7 +182,7 @@ struct ProjectPromptSettingsView: View {
                                 .font(.system(size: 40))
                                 .foregroundStyle(.tertiary)
 
-                            Text("Select a Template".localized)
+                            Text("Select a Template".localized())
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -195,7 +195,7 @@ struct ProjectPromptSettingsView: View {
             Divider()
 
             HStack {
-                Button("Create New Template".localized) {
+                Button("Create New Template".localized()) {
                     showCreateTemplate = true
                 }
                 .buttonStyle(.bordered)
@@ -203,13 +203,13 @@ struct ProjectPromptSettingsView: View {
 
                 Spacer()
 
-                Button("Cancel".localized) {
+                Button("Cancel".localized()) {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
 
-                Button("Apply Template".localized) {
+                Button("Apply Template".localized()) {
                     applyTemplate()
                 }
                 .buttonStyle(.borderedProminent)
@@ -240,9 +240,9 @@ struct ProjectPromptSettingsView: View {
                 loadTemplates()
             }
         }
-        .alert("Delete Template".localized, isPresented: $showDeleteConfirmation) {
-            Button("Cancel".localized, role: .cancel) { }
-            Button("Delete".localized, role: .destructive) {
+        .alert("Delete Template".localized(), isPresented: $showDeleteConfirmation) {
+            Button("Cancel".localized(), role: .cancel) { }
+            Button("Delete".localized(), role: .destructive) {
                 if let template = templateToDelete {
                     try? templateService.deleteTemplate(id: template.id)
                     if selectedTemplateId == template.id {
@@ -370,7 +370,7 @@ struct TemplateEditSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(isEditing ? "Edit Template".localized : "Create Template".localized)
+                Text(isEditing ? "Edit Template".localized() : "Create Template".localized())
                     .font(.headline)
                 Spacer()
                 Button(action: { dismiss() }) {
@@ -387,26 +387,26 @@ struct TemplateEditSheet: View {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Template Name".localized)
+                            Text("Template Name".localized())
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            TextField("Enter Template Name".localized, text: $name)
+                            TextField("Enter Template Name".localized(), text: $name)
                                 .textFieldStyle(.roundedBorder)
                                 .controlSize(.small)
                         }
 
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Description".localized)
+                            Text("Description".localized())
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
-                            TextField("Brief Description".localized, text: $description)
+                            TextField("Brief Description".localized(), text: $description)
                                 .textFieldStyle(.roundedBorder)
                                 .controlSize(.small)
                         }
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Initial Generation Prompt".localized)
+                            Text("Initial Generation Prompt".localized())
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
@@ -423,7 +423,7 @@ struct TemplateEditSheet: View {
                     }
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Update Cognition Prompt".localized)
+                            Text("Update Cognition Prompt".localized())
                             .font(.caption)
                             .foregroundStyle(.secondary)
 
@@ -439,7 +439,7 @@ struct TemplateEditSheet: View {
                             )
                     }
 
-                    Text("Available Variables: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}".localized)
+                    Text("Available Variables: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}".localized())
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                 }
@@ -450,13 +450,13 @@ struct TemplateEditSheet: View {
 
             HStack {
                 Spacer()
-                Button("Cancel".localized) {
+                Button("Cancel".localized()) {
                     dismiss()
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
 
-                Button("Save".localized) {
+                Button("Save".localized()) {
                     save()
                 }
                 .buttonStyle(.borderedProminent)
@@ -498,7 +498,7 @@ struct TemplateEditSheet: View {
 struct ProjectPromptSettingsView_Previews: PreviewProvider {
     static var previews: some View {
         ProjectPromptSettingsView(project: .constant(
-            Project(name: "Test Project".localized, description: "Test Description".localized)
+            Project(name: "Test Project".localized(), description: "Test Description".localized())
         ))
     }
 }
