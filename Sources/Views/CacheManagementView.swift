@@ -56,11 +56,11 @@ struct CacheManagementView: View {
 
     private var formattedCacheSize: String {
         if cacheSize < 1024 {
-            return "\(cacheSize) B"
+            return "%1$d B".localized(cacheSize)
         } else if cacheSize < 1024 * 1024 {
-            return String(format: "%.1f KB", Double(cacheSize) / 1024.0)
+            return "%.1f KB".localized(Double(cacheSize) / 1024.0)
         } else {
-            return String(format: "%.1f MB", Double(cacheSize) / (1024.0 * 1024.0))
+            return "%.1f MB".localized(Double(cacheSize) / (1024.0 * 1024.0))
         }
     }
 

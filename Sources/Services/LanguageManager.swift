@@ -9,8 +9,8 @@ enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
 
     var displayName: String {
         switch self {
-        case .en: return "English".localized
-        case .zhHans: return "简体中文"
+        case .en: return "English".localized()
+        case .zhHans: return "Simplified Chinese".localized()
         }
     }
 
@@ -30,17 +30,25 @@ final class LanguageManager: ObservableObject {
 
     private init() {
         let savedValue = UserDefaults.standard.string(forKey: "appLanguage") ?? "en"
+        let appleLanguages = UserDefaults.standard.array(forKey: "AppleLanguages")
+        print("[LanguageManager] init - savedValue: \(savedValue), AppleLanguages: \(appleLanguages?.description ?? "nil")")
         if let language = AppLanguage(rawValue: savedValue), AppLanguage.allCases.contains(language) {
             self.currentLanguage = language
+            print("[LanguageManager] init - loaded language: \(language.rawValue)")
         } else {
             self.currentLanguage = .en
+            print("[LanguageManager] init - fallback to English")
         }
     }
 
     func setLanguage(_ language: AppLanguage) {
+        print("[LanguageManager] setLanguage called: \(language.rawValue)")
         currentLanguage = language
         refreshTrigger += 1
         UserDefaults.standard.set(language.rawValue, forKey: userDefaultsKey)
+        UserDefaults.standard.set([language.rawValue], forKey: "AppleLanguages")
+        print("[LanguageManager] setLanguage - UserDefaults appLanguage: \(language.rawValue)")
+        print("[LanguageManager] setLanguage - UserDefaults AppleLanguages: \(UserDefaults.standard.array(forKey: "AppleLanguages")?.description ?? "nil")")
     }
 }
 

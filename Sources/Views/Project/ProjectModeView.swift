@@ -936,7 +936,7 @@ struct ExportProjectView: View {
             }
             
             // Options
-            Toggle("Include Raw Materials", isOn: $includeRawInputs)
+            Toggle("Include Raw Materials".localized(), isOn: $includeRawInputs)
                 .font(.system(size: 13))
                 .onChange(of: includeRawInputs) { _ in
                     generateExport()
@@ -992,7 +992,7 @@ struct ExportProjectView: View {
                 includeRawInputs: includeRawInputs
             )
         } catch {
-            exportContent = "Export failed: \(error.localizedDescription)"
+            exportContent = "Export Failed: %1$@".localized(error.localizedDescription)
         }
     }
     

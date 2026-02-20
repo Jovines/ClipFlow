@@ -137,7 +137,7 @@ struct FloatingItemRow: View {
     private var accessibilityLabel: String {
         switch item.contentType {
         case .text:
-            return "Text: \(item.content.prefix(50))"
+            return "\("Text".localized()): \(item.content.prefix(50))"
         case .image:
             return "Image".localized()
         }

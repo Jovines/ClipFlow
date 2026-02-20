@@ -7,6 +7,7 @@ struct ClipFlowApp: App {
     var body: some Scene {
         MenuBarExtra {
             MenuBarPopoverView()
+                .environment(\.currentLocale, LanguageManager.shared.currentLanguage.locale)
         } label: {
             Image(systemName: "doc.on.clipboard")
         }

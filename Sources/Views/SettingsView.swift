@@ -162,6 +162,7 @@ struct SettingsView: View {
             TitleBarConfigurator()
         )
         .themeAware()
+        .id(languageManager.refreshTrigger)
     }
 
     private var sidebar: some View {
@@ -260,8 +261,10 @@ struct SettingsView: View {
                                 get: { themeManager.appTheme },
                                 set: { themeManager.setAppTheme($0) }
                             )) {
-                                Text("Flexoki".localized()).tag(AppTheme.flexoki)
-                                Text("Nord".localized()).tag(AppTheme.nord)
+                                // Theme names are technical terms and should not be localized
+                                // Color scheme names like "Flexoki" and "Nord" are brand/technical names
+                                Text("Flexoki").tag(AppTheme.flexoki)
+                                Text("Nord").tag(AppTheme.nord)
                             }
                             .pickerStyle(.segmented)
                             .labelsHidden()
@@ -550,9 +553,9 @@ struct SettingsView: View {
     private var decayHoursText: String {
         if recommendationDecayHours >= 24 {
             let days = recommendationDecayHours / 24.0
-            return String(format: "%.1f days".localized(), days)
+            return "%.1f days".localized(days)
         } else {
-            return "\(Int(recommendationDecayHours)) hours".localized()
+            return "%1$d hours".localized(Int(recommendationDecayHours))
         }
     }
 

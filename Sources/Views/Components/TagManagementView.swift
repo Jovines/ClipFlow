@@ -96,7 +96,7 @@ struct TagManagementView: View {
                                 Circle()
                                     .fill(Color.hex(colorOption.hex))
                                     .frame(width: 12, height: 12)
-                                Text(colorOption.name.capitalized)
+                                Text(colorOption.name.capitalized.localized())
                             }
                         }
                     }

@@ -75,7 +75,7 @@ struct AddToProjectSelectorView: View {
                     Image(systemName: "folder.badge.plus")
                         .font(.largeTitle)
                         .foregroundStyle(.secondary)
-                    Text("No projects".localized())
+                    Text("No Projects".localized())
                         .foregroundStyle(.secondary)
                     Text("Please create a project in settings first".localized())
                         .font(.caption)

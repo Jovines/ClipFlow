@@ -59,7 +59,7 @@ struct TagSidebarView: View {
                         .font(.system(size: 11, weight: .medium))
                 }
                 .buttonStyle(.plain)
-                .help("Manage tags".localized())
+                .help("Manage Tags".localized())
             }
             .frame(height: 28)
             .padding(.horizontal, 6)

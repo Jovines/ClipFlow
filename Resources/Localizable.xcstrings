@@ -401,6 +401,38 @@
                 }
             }
         },
+        "Simplified Chinese": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Simplified Chinese"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "简体中文"
+                    }
+                }
+            }
+        },
+        "Stream failed: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Stream failed: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "流式传输失败：%1$@"
+                    }
+                }
+            }
+        },
         "Unknown": {
             "localizations": {
                 "en": {
@@ -445,6 +477,22 @@
                     "stringUnit": {
                         "state": "translated",
                         "value": "已禁用"
+                    }
+                }
+            }
+        },
+        "Enter Template Name": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Enter Template Name"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "输入模板名称"
                     }
                 }
             }
@@ -557,6 +605,22 @@
                     "stringUnit": {
                         "state": "translated",
                         "value": "GitHub 仓库"
+                    }
+                }
+            }
+        },
+        "Rename Tag": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Rename Tag"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "重命名标签"
                     }
                 }
             }
@@ -961,6 +1025,54 @@
                 }
             }
         },
+        "Copy Template": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Copy Template"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "复制模板"
+                    }
+                }
+            }
+        },
+        "Description": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Description"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "描述"
+                    }
+                }
+            }
+        },
+        "Edit": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Edit"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "编辑"
+                    }
+                }
+            }
+        },
         "Edit Tag": {
             "localizations": {
                 "en": {
@@ -1260,87 +1372,71 @@
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "API Key"
+                        "value": "API密钥"
                     }
                 }
             }
         },
-        "Model List (comma-separated)": {
+        "APIKey": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Model List (comma-separated)"
+                        "value": "APIKey"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "模型列表（用逗号分隔）"
+                        "value": "API密钥"
                     }
                 }
             }
         },
-        "Default Model": {
+        "Test Connection Error: %1$@": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Default Model"
+                        "value": "Test Connection Error: %1$@"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "默认模型"
+                        "value": "测试连接错误：%1$@"
                     }
                 }
             }
         },
-        "Select Provider": {
+        "Half Hour Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Select Provider"
+                        "value": "Half Hour Ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "选择服务商"
+                        "value": "半小时前"
                     }
                 }
             }
         },
-        "Add to Project": {
+        "Just Now": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Add to Project"
+                        "value": "Just Now"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "添加到项目"
-                    }
-                }
-            }
-        },
-        "No projects yet": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "No projects yet"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "暂无项目"
+                        "value": "刚刚"
                     }
                 }
             }
@@ -1361,34 +1457,322 @@
                 }
             }
         },
-        "Raw Materials (%1$d)": {
+        "Quit": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Raw Materials (%1$d)"
+                        "value": "Quit"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "原始素材 (%1$d)"
+                        "value": "退出"
                     }
                 }
             }
         },
-        "%1$d analyzed": {
+        "Close": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "%1$d analyzed"
+                        "value": "Close"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "%1$d 已分析"
+                        "value": "关闭"
+                    }
+                }
+            }
+        },
+        "Restart Now": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Restart Now"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "立即重启"
+                    }
+                }
+            }
+        },
+        "Restart Required": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Restart Required"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "需要重启"
+                    }
+                }
+            }
+        },
+        "Include Raw Materials": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Include Raw Materials"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "包含原始素材"
+                    }
+                }
+            }
+        },
+        "AI Analyzing...": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI Analyzing..."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI分析中..."
+                    }
+                }
+            }
+        },
+        "No Materials": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No Materials"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "无素材"
+                    }
+                }
+            }
+        },
+        "Copy discussion to clipboard to share": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Copy discussion to clipboard to share"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "复制讨论内容到剪贴板以分享"
+                    }
+                }
+            }
+        },
+        "%1$d items collected": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d items collected"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "已收集 %1$d 个项目"
+                    }
+                }
+            }
+        },
+        "%1$d items collected, waiting for AI analysis": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d items collected, waiting for AI analysis"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "已收集 %1$d 个项目，等待AI分析"
+                    }
+                }
+            }
+        },
+        "%1$d items pending analysis": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d items pending analysis"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d 个项目待分析"
+                    }
+                }
+            }
+        },
+        "AI is analyzing, please wait...": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI is analyzing, please wait..."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI正在分析，请稍候..."
+                    }
+                }
+            }
+        },
+        "This material will be permanently deleted and cannot be recovered. Are you sure?": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "This material will be permanently deleted and cannot be recovered. Are you sure?"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "此素材将被永久删除且无法恢复，确定吗？"
+                    }
+                }
+            }
+        },
+        "Exit Project": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Exit Project"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "退出项目"
+                    }
+                }
+            }
+        },
+        "AI Service Not Configured": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI Service Not Configured"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI 服务未配置"
+                    }
+                }
+            }
+        },
+        "Start Analysis": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Start Analysis"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "开始分析"
+                    }
+                }
+            }
+        },
+        "Copy to Clipboard": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Copy to Clipboard"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "复制到剪贴板"
+                    }
+                }
+            }
+        },
+        "Provider not found": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Provider not found"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "服务商未找到"
+                    }
+                }
+            }
+        },
+        "Project Not Found": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Project Not Found"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "项目未找到"
+                    }
+                }
+            }
+        },
+        "Confirm Delete": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Confirm Delete"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "确认删除"
                     }
                 }
             }
@@ -1409,34 +1793,613 @@
                 }
             }
         },
-        "Analyzing...": {
+        "Records %1$d-%2$d": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Analyzing..."
+                        "value": "Records %1$d-%2$d"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "分析中..."
+                        "value": "记录 %1$d-%2$d"
                     }
                 }
             }
         },
-        "Incremental Analysis (%1$d)": {
+        "AI analysis for project \"%1$@\" is complete": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Incremental Analysis (%1$d)"
+                        "value": "AI analysis for project \"%1$@\" is complete"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "增量分析 (%1$d)"
+                        "value": "项目 \"%1$@\" 的 AI 分析已完成"
+                    }
+                }
+            }
+        }
+    }
+}
+        },
+        "No Projects": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No projects"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "暂无项目"
+                    }
+                }
+            }
+        },
+        "Please configure AI provider in settings to use project features": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Please configure AI provider in settings to use project features"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "请在设置中配置AI服务商以使用项目功能"
+                    }
+                }
+            }
+        },
+        "No content to analyze": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No content to analyze"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "无内容可分析"
+                    }
+                }
+            }
+        },
+        "Source:": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Source:"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "来源："
+                    }
+                }
+            }
+        },
+        "Source Context Placeholder": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Source Context Placeholder"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "输入来源上下文..."
+                    }
+                }
+            }
+        },
+        "Unable to load image": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Unable to load image"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "无法加载图片"
+                    }
+                }
+            }
+        },
+        "Initial cognition document generation": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Initial cognition document generation"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "初始认知文档生成"
+                    }
+                }
+            }
+        },
+        "Re-analysis - Generate new cognition based on all materials": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Re-analysis - Generate new cognition based on all materials"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "重新分析 - 基于所有素材生成新认知"
+                    }
+                }
+            }
+        },
+        "Continue Analysis": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Continue Analysis"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "继续分析"
+                    }
+                }
+            }
+        },
+        "Manage Tags": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Manage tags"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "管理标签"
+                    }
+                }
+            }
+        },
+        "Set the global keyboard shortcut to show ClipFlow": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Set the global keyboard shortcut to show ClipFlow"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "设置显示ClipFlow的全局快捷键"
+                    }
+                }
+            }
+        },
+        "Choose the color scheme for the app": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Choose the color scheme for the app"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "选择应用程序的配色方案"
+                    }
+                }
+            }
+        },
+        "Choose between light and dark mode": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Choose between light and dark mode"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "选择浅色或深色模式"
+                    }
+                }
+            }
+        },
+        "Adjust the maximum number of clipboard items to store": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Adjust the maximum number of clipboard items to store"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "调整要存储的剪贴板项目最大数量"
+                    }
+                }
+            }
+        },
+        "Project Archive": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Project Archive"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "项目归档"
+                    }
+                }
+            }
+        },
+        "Project Delete": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Project Delete"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "删除项目"
+                    }
+                }
+            }
+        },
+        "Project Name Placeholder": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Project Name Placeholder"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "输入项目名称..."
+                    }
+                }
+            }
+        },
+        "Project Description (Optional)": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Project Description (Optional)"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "项目描述（可选）"
+                    }
+                }
+            }
+        },
+        "Create": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Create"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "创建"
+                    }
+                }
+            }
+        },
+        "Search projects...": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Search projects..."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "搜索项目..."
+                    }
+                }
+            }
+        },
+        "No Projects": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No Projects"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "暂无项目"
+                    }
+                }
+            }
+        },
+        "Tap the button below to create a new project": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Tap the button below to create a new project"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "点击下方按钮创建新项目"
+                    }
+                }
+            }
+        },
+        "Select Project": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Select Project"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "选择项目"
+                    }
+                }
+            }
+        },
+        "Model": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Model"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "模型"
+                    }
+                }
+            }
+        },
+        "Edit Record": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Edit Record"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "编辑记录"
+                    }
+                }
+            }
+        },
+        "Add Note": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Add Note"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "添加备注"
+                    }
+                }
+            }
+        },
+        "Reset": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Reset"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "重置"
+                    }
+                }
+            }
+        },
+        "Cache Size Bytes": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d B"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d B"
+                    }
+                }
+            }
+        },
+        "Cache Size KB": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%.1f KB"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%.1f KB"
+                    }
+                }
+            }
+        },
+        "Cache Size MB": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%.1f MB"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%.1f MB"
+                    }
+                }
+            }
+        },
+        "%1$d hours": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d hours"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d 小时"
+                    }
+                }
+            }
+        },
+        "Hover to View": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Hover to View"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "悬停查看"
+                    }
+                }
+            }
+        },
+        "Unnamed": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Unnamed"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "未命名"
+                    }
+                }
+            }
+        },
+        "Export Project": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Export Project"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "导出项目"
+                    }
+                }
+            }
+        },
+        "AI Prompt Settings": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI Prompt Settings"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI 提示词设置"
+                    }
+                }
+            }
+        },
+        "Export Failed: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Export Failed: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "导出失败：%1$@"
                     }
                 }
             }
@@ -1505,1602 +2468,66 @@
                 }
             }
         },
-        "Export Project": {
+        "%1$d Materials": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Export Project"
+                        "value": "%1$d Materials"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "导出项目"
+                        "value": "%1$d 个素材"
                     }
                 }
             }
         },
-        "AI Prompt Settings": {
+        "%1$d Analyzed": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "AI Prompt Settings"
+                        "value": "%1$d Analyzed"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "AI Prompt 设置"
+                        "value": "%1$d 个已分析"
                     }
                 }
             }
         },
-        "Exit Project": {
+        "Raw Materials (%1$d)": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Exit Project"
+                        "value": "Raw Materials (%1$d)"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "退出项目"
+                        "value": "原始素材 (%1$d)"
                     }
                 }
             }
         },
-        "Unnamed": {
+        "Export": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Unnamed"
+                        "value": "Export"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "未命名"
-                    }
-                }
-            }
-        },
-        "Confirm Delete": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Confirm Delete"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "确认删除"
-                    }
-                }
-            }
-        },
-        "AI Service Not Configured": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Service Not Configured"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 服务未配置"
-                    }
-                }
-            }
-        },
-        "AI Analysis Failed": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Analysis Failed"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 分析失败"
-                    }
-                }
-            }
-        },
-        "Start Analysis": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Start Analysis"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "开始分析"
-                    }
-                }
-            }
-        },
-        "Copy to Clipboard": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Copy to Clipboard"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "复制到剪贴板"
-                    }
-                }
-            }
-        },
-        "Export failed: %1$@": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Export failed: %1$@"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "导出失败：%1$@"
-                    }
-                }
-            }
-        },
-        "Select Project": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Select Project"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "选择项目"
-                    }
-                }
-            }
-        },
-        "Create New Project": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Create New Project"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "创建新项目"
-                    }
-                }
-            }
-        },
-        "Project Name": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Project Name"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "项目名称"
-                    }
-                }
-            }
-        },
-        "Image": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Image"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "图片"
-                    }
-                }
-            }
-        },
-        "Just now": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Just now"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "刚刚"
-                    }
-                }
-            }
-        },
-        "Half hour ago": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Half hour ago"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "半小时前"
-                    }
-                }
-            }
-        },
-        "Attached": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Attached"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "已添加"
-                    }
-                }
-            }
-        },
-        "Available": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Available"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "可用"
-                    }
-                }
-            }
-        },
-        "OK": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "OK"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "确定"
-                    }
-                }
-            }
-        },
-        "Choose the color scheme for the app": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Choose the color scheme for the app"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "选择应用配色方案"
-                    }
-                }
-            }
-        },
-        "Choose between light and dark mode": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Choose between light and dark mode"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "选择浅色或深色模式"
-                    }
-                }
-            }
-        },
-        "Set the global keyboard shortcut to show ClipFlow": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Set the global keyboard shortcut to show ClipFlow"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "设置显示 ClipFlow 的全局键盘快捷键"
-                    }
-                }
-            }
-        },
-        "Current Language": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Current Language"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "当前语言"
-                    }
-                }
-            }
-        },
-        "Language": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Language"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "语言"
-                    }
-                }
-            }
-        },
-        "Select Language": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Select Language"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "选择语言"
-                    }
-                }
-            }
-        },
-        "Restart Required": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Restart Required"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "需要重启"
-                    }
-                }
-            }
-        },
-        "Please restart ClipFlow to apply the language change.": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Please restart ClipFlow to apply the language change."
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "请重启 ClipFlow 以应用语言更改。"
-                    }
-                }
-            }
-        },
-        "Restart Now": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Restart Now"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "立即重启"
-                    }
-                }
-            }
-        },
-        "Press number 1-9 for quick select": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Press number 1-9 for quick select"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "按数字 1-9 快速选择"
-                    }
-                }
-            }
-        },
-        "Enter to confirm": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Enter to confirm"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Enter 确认"
-                    }
-                }
-            }
-        },
-        "Record %1$d-%2$d": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Record %1$d-%2$d"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "记录 %1$d-%2$d"
-                    }
-                }
-            }
-        },
-        "%1$d items": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d items"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d 条"
-                    }
-                }
-            }
-        },
-        "Search": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Search"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "搜索"
-                    }
-                }
-            }
-        },
-        "Select": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Select"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "选择"
-                    }
-                }
-            }
-        },
-        "%1$d of %2$d": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d of %2$d"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d / %2$d"
-                    }
-                }
-            }
-        },
-        "+%1$d": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "+%1$d"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "+%1$d"
-                    }
-                }
-            }
-        },
-        "Quit": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Quit"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "退出"
-                    }
-                }
-            }
-        },
-        "Edit Record": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Edit Record"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "编辑记录"
-                    }
-                }
-            }
-        },
-        "Note": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Note"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "备注"
-                    }
-                }
-            }
-        },
-        "Add Note": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Add Note"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "添加备注"
-                    }
-                }
-            }
-        },
-        "Tags": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Tags"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "标签"
-                    }
-                }
-            }
-        },
-        "Reset": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Reset"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "重置"
-                    }
-                }
-            }
-        },
-        "Source": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Source"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "来源"
-                    }
-                }
-            }
-        },
-        "Source Context Placeholder": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "e.g., Zhang San, Meeting Notes"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "例如：张三、会议笔记"
-                    }
-                }
-            }
-        },
-        "Search projects": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Search projects"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "搜索项目"
-                    }
-                }
-            }
-        },
-        "AI Analyzing": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Analyzing"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 分析中"
-                    }
-                }
-            }
-        },
-        "Waiting for AI Analysis": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Waiting for AI Analysis"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "等待 AI 分析"
-                    }
-                }
-            }
-        },
-        "Initial Cognition": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Initial Cognition"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "初始认知"
-                    }
-                }
-            }
-        },
-        "No Content to Analyze": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "No Content to Analyze"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "无内容可分析"
-                    }
-                }
-            }
-        },
-        "Regenerate All": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Regenerate All"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "全部重新生成"
-                    }
-                }
-            }
-        },
-        "Delete Warning": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Delete Warning"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "删除警告"
-                    }
-                }
-            }
-        },
-        "No Materials": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "No Materials"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "暂无素材"
-                    }
-                }
-            }
-        },
-        "Copy Prompt": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Copy Prompt"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "复制提示词"
-                    }
-                }
-            }
-        },
-        "AI Error Not Configured": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Error Not Configured"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 错误：未配置"
-                    }
-                }
-            }
-        },
-        "AI Error Invalid Request": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Error Invalid Request"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 错误：无效请求"
-                    }
-                }
-            }
-        },
-        "AI Error Model Not Found": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Error Model Not Found"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 错误：模型不存在"
-                    }
-                }
-            }
-        },
-        "AI Error Network Failed": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Error Network Failed"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 错误：网络失败"
-                    }
-                }
-            }
-        },
-        "AI Error Rate Limit": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Error Rate Limit"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 错误：频率限制"
-                    }
-                }
-            }
-        },
-        "Export Close": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Export Close"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "导出关闭"
-                    }
-                }
-            }
-        },
-        "Export Include Raw Materials": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Export Include Raw Materials"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "导出包含原始素材"
-                    }
-                }
-            }
-        },
-        "Material Collected": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Material Collected"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "素材已收集"
-                    }
-                }
-            }
-        },
-        "Material Collected Waiting": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Material Collected Waiting"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "素材已收集等待中"
-                    }
-                }
-            }
-        },
-        "Material Count": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Material Count"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "素材数量"
-                    }
-                }
-            }
-        },
-        "Material to Analyze": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Material to Analyze"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "待分析素材"
-                    }
-                }
-            }
-        },
-        "Tooltip Prompt Settings": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Tooltip Prompt Settings"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "提示词设置提示"
-                    }
-                }
-            }
-        },
-        "AI Apply Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Apply Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 应用模板"
-                    }
-                }
-            }
-        },
-        "AI Copy Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Copy Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 复制模板"
-                    }
-                }
-            }
-        },
-        "AI Create New Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Create New Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 创建新模板"
-                    }
-                }
-            }
-        },
-        "AI Create Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Create Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 创建模板"
-                    }
-                }
-            }
-        },
-        "AI Custom": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Custom"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 自定义"
-                    }
-                }
-            }
-        },
-        "AI Delete": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Delete"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 删除"
-                    }
-                }
-            }
-        },
-        "AI Delete Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Delete Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 删除模板"
-                    }
-                }
-            }
-        },
-        "AI Delete Template Warning": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Delete Template Warning"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 删除模板警告"
-                    }
-                }
-            }
-        },
-        "AI Edit": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Edit"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 编辑"
-                    }
-                }
-            }
-        },
-        "AI Edit Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Edit Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 编辑模板"
-                    }
-                }
-            }
-        },
-        "AI Initial Prompt": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Initial Prompt"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 初始提示词"
-                    }
-                }
-            }
-        },
-        "AI Preset": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Preset"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 预设"
-                    }
-                }
-            }
-        },
-        "AI Save": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Save"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 保存"
-                    }
-                }
-            }
-        },
-        "AI Select Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Select Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 选择模板"
-                    }
-                }
-            }
-        },
-        "AI Select Template Hint": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Select Template Hint"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 选择模板提示"
-                    }
-                }
-            }
-        },
-        "AI Template Description": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Template Description"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 模板描述"
-                    }
-                }
-            }
-        },
-        "AI Template Description Placeholder": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Template Description Placeholder"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 模板描述占位符"
-                    }
-                }
-            }
-        },
-        "AI Template Name": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Template Name"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 模板名称"
-                    }
-                }
-            }
-        },
-        "AI Template Name Placeholder": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Template Name Placeholder"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 模板名称占位符"
-                    }
-                }
-            }
-        },
-        "AI Update Prompt": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Update Prompt"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 更新提示词"
-                    }
-                }
-            }
-        },
-        "AI Variables": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Variables"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 变量"
-                    }
-                }
-            }
-        },
-        "Project Archive": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Project Archive"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "项目归档"
-                    }
-                }
-            }
-        },
-        "Project Click to Create": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Project Click to Create"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "点击创建项目"
-                    }
-                }
-            }
-        },
-        "Project Create": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Project Create"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "创建项目"
-                    }
-                }
-            }
-        },
-        "Project Create New": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Project Create New"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "新建项目"
-                    }
-                }
-            }
-        },
-        "Project Delete": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Project Delete"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "删除项目"
-                    }
-                }
-            }
-        },
-        "Project Description Optional": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Project Description Optional"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "项目描述（可选）"
-                    }
-                }
-            }
-        },
-        "Project Name Placeholder": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "e.g., User Login Module Optimization"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "例如：用户登录模块优化"
-                    }
-                }
-            }
-        },
-        "Hover to View": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Hover to View"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "悬停查看"
-                    }
-                }
-            }
-        },
-        "Filter": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Filter"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "筛选"
-                    }
-                }
-            }
-        },
-        "Just Now": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Just Now"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "刚刚"
-                    }
-                }
-            }
-        },
-        "Minutes Ago": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d minute(s) ago"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d 分钟前"
-                    }
-                }
-            }
-        },
-        "Hours Ago": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d hour(s) ago"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d 小时前"
-                    }
-                }
-            }
-        },
-        "Days Ago": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d day(s) ago"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d 天前"
-                    }
-                }
-            }
-        },
-        "Half Hour Ago": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Half Hour Ago"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "半小时前"
+                        "value": "导出"
                     }
                 }
             }
@@ -3121,274 +2548,354 @@
                 }
             }
         },
-        "Project AI Analysis Complete": {
+        "AI analysis for project \"%1$@\" is complete": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Project AI Analysis Complete"
+                        "value": "AI analysis for project \"%1$@\" is complete"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "项目 AI 分析完成"
+                        "value": "项目 \"%1$@\" 的 AI 分析已完成"
                     }
                 }
             }
         },
-        "%1$@ Copy": {
+        "1 Minute Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "%1$@ Copy"
+                        "value": "1 minute ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "%1$@ 副本"
+                        "value": "1 分钟前"
                     }
                 }
             }
         },
-        "System Preset Template Cannot Be Modified": {
+        "2 Minutes Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "System Preset Template Cannot Be Modified"
+                        "value": "2 minutes ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "系统预设模板无法修改"
+                        "value": "2 分钟前"
                     }
                 }
             }
         },
-        "System Preset Template Cannot Be Deleted": {
+        "3 Minutes Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "System Preset Template Cannot Be Deleted"
+                        "value": "3 minutes ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "系统预设模板无法删除"
+                        "value": "3 分钟前"
                     }
                 }
             }
         },
-        "Project %1$@ AI Analysis Complete": {
+        "4 Minutes Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Project %1$@ AI Analysis Complete"
+                        "value": "4 minutes ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "项目 %1$@ AI 分析完成"
+                        "value": "4 分钟前"
                     }
                 }
             }
         },
-        "Please Configure AI Provider in Settings First": {
+        "5 Minutes Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Please Configure AI Provider in Settings First"
+                        "value": "5 minutes ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "请先在设置中配置 AI 服务商"
+                        "value": "5 分钟前"
                     }
                 }
             }
         },
-        "Provider Configuration Not Found": {
+        "10 Minutes Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Provider Configuration Not Found"
+                        "value": "10 minutes ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "未找到服务商配置"
+                        "value": "10 分钟前"
                     }
                 }
             }
         },
-        "Stream Request Failed: %1$@": {
+        "15 Minutes Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Stream Request Failed: %1$@"
+                        "value": "15 minutes ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "流式请求失败：%1$@"
+                        "value": "15 分钟前"
                     }
                 }
             }
         },
-        "No Cognition Document Found for Project": {
+        "20 Minutes Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "No Cognition Document Found for Project"
+                        "value": "20 minutes ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "未找到项目的认知文档"
+                        "value": "20 分钟前"
                     }
                 }
             }
         },
-        "Project Not Found": {
+        "1 Hour Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Project Not Found"
+                        "value": "1 hour ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "未找到项目"
+                        "value": "1 小时前"
                     }
                 }
             }
         },
-        "Template Not Found": {
+        "%1$d Hours Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Template Not Found"
+                        "value": "%1$d hours ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "未找到模板"
+                        "value": "%1$d 小时前"
                     }
                 }
             }
         },
-        "Rename": {
+        "1 Day Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Rename"
+                        "value": "1 day ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "重命名"
+                        "value": "1 天前"
                     }
                 }
             }
         },
-        "Press any key to record": {
+        "%1$d Days Ago": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Press any key to record"
+                        "value": "%1$d days ago"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "按下任意按键录制"
+                        "value": "%1$d 天前"
                     }
                 }
             }
         },
-        "Press ESC to cancel": {
+        "AI service is not configured or invalid. Please check your API Key in settings.": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Press ESC to cancel"
+                        "value": "AI service is not configured or invalid. Please check your API Key in settings."
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "按 ESC 取消"
+                        "value": "AI服务未配置或无效。请在设置中检查您的API密钥。"
                     }
                 }
             }
         },
-        "Quick Select": {
+        "Network connection failed. Please check your network settings and try again.": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Quick Select"
+                        "value": "Network connection failed. Please check your network settings and try again."
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "快速选择"
+                        "value": "网络连接失败。请检查您的网络设置后重试。"
                     }
                 }
             }
         },
-        "Enter": {
+        "API rate limit reached. Please wait a moment or upgrade your quota.": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Enter"
+                        "value": "API rate limit reached. Please wait a moment or upgrade your quota."
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "进入"
+                        "value": "已达到API速率限制。请稍候或升级您的配额。"
                     }
                 }
             }
         },
-        "New": {
+        "Invalid request parameters. Please check your AI provider settings.": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "New"
+                        "value": "Invalid request parameters. Please check your AI provider settings."
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "新建"
+                        "value": "无效的请求参数。请检查您的AI服务商设置。"
+                    }
+                }
+            }
+        },
+        "AI model does not exist. Please check the model name in your settings.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI model does not exist. Please check the model name in your settings."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI模型不存在。请在设置中检查模型名称。"
+                    }
+                }
+            }
+        },
+        "Name (e.g.: OpenAI)": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Name (e.g.: OpenAI)"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "名称（例如：OpenAI）"
+                    }
+                }
+            }
+        },
+        "Base URL (e.g.: https://api.openai.com/v1)": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Base URL (e.g.: https://api.openai.com/v1)"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "基础URL（例如：https://api.openai.com/v1）"
+                    }
+                }
+            }
+        },
+        "Model List (comma-separated)": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Model List (comma-separated)"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "模型列表（逗号分隔）"
+                    }
+                }
+            }
+        },
+        "Default Model": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Default Model"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "默认模型"
                     }
                 }
             }
@@ -3409,755 +2916,82 @@
                 }
             }
         },
-        "Unable to load image": {
+        "Text": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Unable to load image"
+                        "value": "Text"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "无法加载图片"
+                        "value": "文本"
                     }
                 }
             }
         },
-        "Image Preview": {
+        "Images": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Image Preview"
+                        "value": "Images"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "图片预览"
+                        "value": "图片"
                     }
                 }
             }
         },
-        "No Projects": {
+        "Tagged": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "No Projects"
+                        "value": "Tagged"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "暂无项目"
+                        "value": "已标记"
                     }
                 }
             }
         },
-        "AI is analyzing, please wait...": {
+        "Project Prompt Settings": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "AI is analyzing, please wait..."
+                        "value": "Project Prompt Settings"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "AI 正在分析，请稍候..."
+                        "value": "项目提示词设置"
                     }
                 }
             }
         },
-        "Copy discussion to clipboard to share": {
+        "Project Name": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Copy discussion to clipboard to share"
+                        "value": "Project Name"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "复制讨论内容到剪贴板以分享"
-                    }
-                }
-            }
-        },
-        "Please configure AI provider in settings to use project features": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Please configure AI provider in settings to use project features"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "请在设置中配置 AI 服务商以使用项目功能"
-                    }
-                }
-            }
-        }
-    }
-}
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "All analysis results will be cleared. Continue?"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "所有分析结果将被清除，是否继续？"
-                    }
-                }
-            }
-        },
-        "Adjust the maximum number of clipboard items to store": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Adjust the maximum number of clipboard items to store"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "调整存储剪贴板项目的最大数量"
-                    }
-                }
-            }
-        },
-        "Base URL (e.g.: https://api.openai.com/v1)": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Base URL (e.g.: https://api.openai.com/v1)"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Base URL（如：https://api.openai.com/v1）"
-                    }
-                }
-            }
-        },
-        "ClipFlow": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "ClipFlow"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "ClipFlow"
-                    }
-                }
-            }
-        },
-        "Model": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Model"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "模型"
-                    }
-                }
-            }
-        },
-        "Name (e.: OpenAI)": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Name (e.: OpenAI)"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "名称（如：OpenAI）"
-                    }
-                }
-            }
-        },
-        "Tab": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Tab"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "标签页"
-                    }
-                }
-            }
-        },
-        "Name (e.g.: OpenAI)": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Name (e.g.: OpenAI)"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "名称（如：OpenAI）"
-                    }
-                }
-            }
-        },
-        "Search projects...": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Search projects..."
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "搜索项目..."
-                    }
-                }
-            }
-        },
-        "No projects": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "No projects"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "暂无项目"
-                    }
-                }
-            }
-        },
-        "Simplified Chinese": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Simplified Chinese"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "简体中文"
-                    }
-                }
-            }
-        },
-        "AI is analyzing, please wait...": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI is analyzing, please wait..."
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 正在分析中，请稍等片刻..."
-                    }
-                }
-            }
-        },
-        "%1$d items pending analysis": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d items pending analysis"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d 条素材待分析"
-                    }
-                }
-            }
-        },
-        "Include Raw Materials": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Include Raw Materials"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "包含原始素材"
-                    }
-                }
-            }
-        },
-        "Copy discussion to clipboard, then tap analyze": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Copy discussion to clipboard, then tap analyze"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "复制讨论内容到剪贴板，然后点击分析按钮"
-                    }
-                }
-            }
-        },
-        "%1$d items collected": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d items collected"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "已收集 %1$d 条素材"
-                    }
-                }
-            }
-        },
-        "%1$d items collected, waiting for AI analysis": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%1$d items collected, waiting for AI analysis"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "已收集 %1$d 条素材，等待 AI 分析"
-                    }
-                }
-            }
-        },
-        "Please configure AI provider in settings (OpenAI, DeepSeek, etc.)": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Please configure AI provider in settings (OpenAI, DeepSeek, etc.)"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "请在设置中配置 AI 提供商（如 OpenAI、DeepSeek 等）"
-                    }
-                }
-            }
-        },
-        "AI Prompt Template Settings": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Prompt Template Settings"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI Prompt 模板设置"
-                    }
-                }
-            }
-        },
-        "Create New Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Create New Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "创建新模板"
-                    }
-                }
-            }
-        },
-        "Create Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Create Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "创建模板"
-                    }
-                }
-            }
-        },
-        "Initial Generation Prompt": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Initial Generation Prompt"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "初始生成 Prompt"
-                    }
-                }
-            }
-        },
-        "Delete Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Delete Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "删除模板"
-                    }
-                }
-            }
-        },
-        "Copy Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Copy Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "复制模板"
-                    }
-                }
-            }
-        },
-        "Apply Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Apply Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "应用此模板"
-                    }
-                }
-            }
-        },
-        "Description": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Description"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "描述"
-                    }
-                }
-            }
-        },
-        "Update Cognition Prompt": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Update Cognition Prompt"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "更新认知 Prompt"
-                    }
-                }
-            }
-        },
-        "Template Name": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Template Name"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "模板名称"
-                    }
-                }
-            }
-        },
-        "Test Description": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Test Description"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "测试描述"
-                    }
-                }
-            }
-        },
-        "Test Project": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Test Project"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "测试项目"
-                    }
-                }
-            }
-        },
-        "Delete Template Warning": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Delete Template Warning"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "确定要删除模板「%1$s」吗？此操作不可撤销，使用该模板的项目将恢复使用默认模板。"
-                    }
-                }
-            }
-        },
-        "Brief Description": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Brief Description"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "简短描述用途"
-                    }
-                }
-            }
-        },
-        "Edit Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Edit Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "编辑模板"
-                    }
-                }
-            }
-        },
-        "Custom": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Custom"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "自定义"
-                    }
-                }
-            }
-        },
-        "Enter Template Name": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Enter Template Name"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "输入模板名称"
-                    }
-                }
-            }
-        },
-        "Select a Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Select a Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "选择一个模板"
-                    }
-                }
-            }
-        },
-        "Select Template": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Select Template"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "选择模板"
-                    }
-                }
-            }
-        },
-        "Preset": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Preset"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "预设"
-                    }
-                }
-            }
-        },
-        "Click to expand records": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Click to expand records"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "点击展开原始记录"
-                    }
-                }
-            }
-        },
-        "Raw Materials": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Raw Materials"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "原始素材"
-                    }
-                }
-            }
-        },
-        "Untitled": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Untitled"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "未命名"
+                        "value": "项目名称"
                     }
                 }
             }
@@ -4178,18 +3012,370 @@
                 }
             }
         },
-        "Initial Cognition Document Generated": {
+        "Prompt Template": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Initial Cognition Document Generated"
+                        "value": "Prompt Template"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "初始认知文档生成"
+                        "value": "提示词模板"
+                    }
+                }
+            }
+        },
+        "Start from Scratch": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Start from Scratch"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "从头开始"
+                    }
+                }
+            }
+        },
+        "Create New Project": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Create New Project"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "创建新项目"
+                    }
+                }
+            }
+        },
+        "Rename": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Rename"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "重命名"
+                    }
+                }
+            }
+        },
+        "This shortcut is already used by %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "This shortcut is already used by %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "此快捷键已被 %1$@ 使用"
+                    }
+                }
+            }
+        },
+        "The shortcut must contain at least one modifier key.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "The shortcut must contain at least one modifier key."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "快捷键必须包含至少一个修饰键。"
+                    }
+                }
+            }
+        },
+        "AI Prompt Template Settings": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI Prompt Template Settings"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI 提示词模板设置"
+                    }
+                }
+            }
+        },
+        "Create Template": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Create Template"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "创建模板"
+                    }
+                }
+            }
+        },
+        "Select Template": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Select Template"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "选择模板"
+                    }
+                }
+            }
+        },
+        "Template Name": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Template Name"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "模板名称"
+                    }
+                }
+            }
+        },
+        "Brief Description": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Brief Description"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "简短描述"
+                    }
+                }
+            }
+        },
+        "Delete Template": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Delete Template"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "删除模板"
+                    }
+                }
+            }
+        },
+        "Initial Generation Prompt": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Initial Generation Prompt"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "初始生成提示词"
+                    }
+                }
+            }
+        },
+        "Update Cognition Prompt": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Update Cognition Prompt"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "更新认知提示词"
+                    }
+                }
+            }
+        },
+        "Preset": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Preset"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "预设"
+                    }
+                }
+            }
+        },
+        "Custom": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Custom"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "自定义"
+                    }
+                }
+            }
+        },
+        "Available Variables": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Available Variables"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "可用变量"
+                    }
+                }
+            }
+        },
+        "Apply Template": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Apply Template"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "应用模板"
+                    }
+                }
+            }
+        },
+        "Delete Template Warning": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Are you sure you want to delete this template?"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "确定要删除此模板吗？"
+                    }
+                }
+            }
+        },
+        "Add to Project": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Add to Project"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "添加到项目"
+                    }
+                }
+            }
+        },
+        "Create Tag": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Create Tag"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "创建标签"
+                    }
+                }
+            }
+        },
+        "OK": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "OK"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "确定"
+                    }
+                }
+            }
+        },
+        "%.1f days": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%.1f days"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%.1f 天"
                     }
                 }
             }
@@ -4226,226 +3412,50 @@
                 }
             }
         },
-        "Rename Tag": {
+        "Select a Template": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Rename Tag"
+                        "value": "Select a Template"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "重命名标签"
+                        "value": "选择一个模板"
                     }
                 }
             }
         },
-        "Recent History": {
+        "Edit Template": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Recent History"
+                        "value": "Edit Template"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "最近历史"
+                        "value": "编辑模板"
                     }
                 }
             }
         },
-        "Daily": {
+        "Language": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Daily"
+                        "value": "Language"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "每天"
-                    }
-                }
-            }
-        },
-        "Weekly": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Weekly"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "每周"
-                    }
-                }
-            }
-        },
-        "Monthly": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Monthly"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "每月"
-                    }
-                }
-            }
-        },
-        "Manage tags": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Manage tags"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "管理标签"
-                    }
-                }
-            }
-        },
-        "Selection Mode": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Selection Mode"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "选择模式"
-                    }
-                }
-            }
-        },
-        "Are you sure you want to delete this tag?": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Are you sure you want to delete this tag?"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "确定要删除此标签吗？"
-                    }
-                }
-            }
-        },
-        "Pin to Top": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Pin to Top"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "置顶"
-                    }
-                }
-            }
-        },
-        "Delete Item": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Delete Item"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "删除项目"
-                    }
-                }
-            }
-        },
-        "%.1f days": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%.1f days"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "%.1f 天"
-                    }
-                }
-            }
-        },
-        "hours": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "hours"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "小时"
-                    }
-                }
-            }
-        },
-        "Enter": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Enter"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "进入"
-                    }
-                }
-            }
-        },
-        "Quick Select": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Quick Select"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "快速选择"
+                        "value": "语言"
                     }
                 }
             }
@@ -4466,386 +3476,146 @@
                 }
             }
         },
-        "All": {
+        "Enter": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "All"
+                        "value": "Enter"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "全部"
+                        "value": "回车"
                     }
                 }
             }
         },
-        "Create": {
+        "Select": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Create"
+                        "value": "Select"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "创建"
+                        "value": "选择"
                     }
                 }
             }
         },
-        "Flexoki": {
+        "Search": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Flexoki"
+                        "value": "Search"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Flexoki"
+                        "value": "搜索"
                     }
                 }
             }
         },
-        "Nord": {
+        "Tab": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Nord"
+                        "value": "Tab"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Nord"
+                        "value": "Tab键"
                     }
                 }
             }
         },
-        "Continue Analysis": {
+        "Enter to confirm": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Continue Analysis"
+                        "value": "Enter to confirm"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "继续分析"
+                        "value": "按回车确认"
                     }
                 }
             }
         },
-        "This will reset all materials' analysis status and regenerate the cognition document based on existing materials. Old versions will be preserved in history.": {
+        "Press number 1-9 for quick select": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "This will reset all materials' analysis status and regenerate the cognition document based on existing materials. Old versions will be preserved in history."
+                        "value": "Press number 1-9 for quick select"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "这将重置所有材料的分析状态，并基于现有材料重新生成认知文档。旧版本将保存在历史记录中。"
+                        "value": "按数字1-9快速选择"
                     }
                 }
             }
         },
-        "AI Service Not Configured Detailed": {
+        "Space": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "AI service is not configured or invalid. Please check your API Key in settings."
+                        "value": "Space"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "AI 服务未配置或无效。请在设置中检查您的 API Key。"
+                        "value": "空格"
                     }
                 }
             }
         },
-        "Network Connection Failed": {
+        "Return": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Network connection failed. Please check your network settings and try again."
+                        "value": "Return"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "网络连接失败。请检查您的网络设置并重试。"
+                        "value": "回车"
                     }
                 }
             }
         },
-        "API Rate Limit": {
+        "Delete": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "API rate limit reached. Please wait a moment or upgrade your quota."
+                        "value": "Delete"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "达到 API 速率限制。请稍等或升级配额。"
-                    }
-                }
-            }
-        },
-        "Invalid Request Parameters": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Invalid request parameters. Please check your AI provider settings."
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "无效的请求参数。请检查您的 AI 提供商设置。"
-                    }
-                }
-            }
-        },
-        "AI Model Not Found": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI model does not exist. Please check the model name in your settings."
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI 模型不存在。请在设置中检查模型名称。"
-                    }
-                }
-            }
-        },
-        "Initial Cognition Document Generation": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Initial cognition document generation"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "初始认知文档生成"
-                    }
-                }
-            }
-        },
-        "Re-analysis Description": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Re-analysis - Generate new cognition based on all materials"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "重新分析 - 基于所有材料生成新认知"
-                    }
-                }
-            }
-        },
-        "Source Colon": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Source:"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "来源："
-                    }
-                }
-            }
-        },
-        "Delete Material Warning": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "This material will be permanently deleted and cannot be recovered. Are you sure?"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "此材料将被永久删除且无法恢复。确定吗？"
-                    }
-                }
-            }
-        },
-        "Tap Button Create Project": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Tap the button below to create a new project"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "点击下方按钮创建新项目"
-                    }
-                }
-            }
-        },
-        "Edit": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Edit"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "编辑"
-                    }
-                }
-            }
-        },
-        "Available Variables": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Available Variables: {{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "可用变量：{{PROJECT_NAME}}, {{PROJECT_DESCRIPTION}}, {{INPUTS}}, {{NEW_INPUTS}}, {{CURRENT_COGNITION}}"
-                    }
-                }
-            }
-        },
-        "Invalid key code": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Invalid key code"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "无效的键码"
-                    }
-                }
-            }
-        },
-        "System reserved key": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "System reserved key"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "系统保留键"
-                    }
-                }
-            }
-        },
-        "Conflict with Spotlight/Quick Look": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Conflict with Spotlight/Quick Look"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "与 Spotlight/Quick Look 冲突"
-                    }
-                }
-            }
-        },
-        "English": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "English"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "English"
-                    }
-                }
-            }
-        },
-        "•": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "•"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "•"
-                    }
-                }
-            }
-        },
-        "Test Connection Error: %1$@": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Test Connection Error: %1$@"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "测试连接失败：%1$@"
+                        "value": "删除"
                     }
                 }
             }

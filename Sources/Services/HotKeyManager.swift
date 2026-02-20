@@ -64,7 +64,7 @@ final class HotKeyManager: @unchecked Sendable {
                 kVK_ANSI_Minus: "-", kVK_ANSI_Equal: "=", kVK_ANSI_Semicolon: ";",
                 kVK_ANSI_Quote: "'", kVK_ANSI_Backslash: "\\", kVK_ANSI_Comma: ",",
                 kVK_ANSI_Period: ".", kVK_ANSI_Slash: "/",
-                kVK_Space: "Space", kVK_Return: "Return", kVK_Delete: "Delete",
+                kVK_Space: "Space".localized(), kVK_Return: "Return".localized(), kVK_Delete: "Delete".localized(),
                 kVK_Escape: "Escape", kVK_Tab: "Tab",
                 kVK_UpArrow: "↑", kVK_DownArrow: "↓", kVK_LeftArrow: "←", kVK_RightArrow: "→",
                 kVK_F1: "F1", kVK_F2: "F2", kVK_F3: "F3", kVK_F4: "F4",

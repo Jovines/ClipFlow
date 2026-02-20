@@ -85,7 +85,7 @@ struct UpdateSettingsView: View {
                         Text("Version".localized())
                             .font(.system(size: 13))
                         Spacer()
-                        Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown")
+                        Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown".localized())
                             .font(.system(size: 13, design: .rounded))
                             .foregroundStyle(.secondary)
                             .monospacedDigit()

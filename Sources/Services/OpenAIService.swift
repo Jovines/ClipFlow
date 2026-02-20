@@ -148,10 +148,8 @@ final class OpenAIService: ObservableObject, @unchecked Sendable {
                         if let content = chunk.choices.first?.delta.content {
                             buffer += content
                             
-                            // Clean thinking tags from accumulated buffer
                             let cleaned = AIResponseFilter.cleanThinkingTags(from: buffer)
                             
-                            // Yield only new content
                             if cleaned.count > yieldedLength {
                                 let startIndex = cleaned.index(cleaned.startIndex, offsetBy: yieldedLength)
                                 let newContent = String(cleaned[startIndex...])
@@ -173,31 +171,36 @@ enum OpenAIError: LocalizedError {
     case notConfigured
     case providerNotFound
     case streamFailed(Error)
+    case invalidAPIKey
+    case networkError
+    case rateLimitExceeded
+    case invalidRequest
+    case modelNotFound
 
     var errorDescription: String? {
         switch self {
-        case .notConfigured:
-            return "Please Configure AI Provider in Settings First".localized(comment: "AI not configured error")
+        case .notConfigured, .invalidAPIKey:
+            "AI service is not configured or invalid. Please check your API Key in settings.".localized()
         case .providerNotFound:
-            return "Provider Configuration Not Found".localized(comment: "Provider not found error")
+            "Provider not found".localized()
         case .streamFailed(let error):
-            return String(format: "Stream Request Failed: %1$@".localized(comment: "Stream failed error"), error.localizedDescription)
+            "Stream failed: %1$@".localized(error.localizedDescription)
+        case .networkError:
+            "Network connection failed. Please check your network settings and try again.".localized()
+        case .rateLimitExceeded:
+            "API rate limit reached. Please wait a moment or upgrade your quota.".localized()
+        case .invalidRequest:
+            "Invalid request parameters. Please check your AI provider settings.".localized()
+        case .modelNotFound:
+            "AI model does not exist. Please check the model name in your settings.".localized()
         }
     }
 }
 
-// MARK: - AI Response Filter
-
-/// Filters thinking/reasoning content from AI model responses
-/// Supports various formats: MiniMax (<think>...</think>), DeepSeek (<thinking>...</thinking>), etc.
 enum AIResponseFilter {
     
-    /// Pattern to match thinking tags (supports both <think> and <thinking>)
     private static let thinkingPattern = #"<think(?:ing)?>\s*[\s\S]*?\s*</think(?:ing)?>"#
     
-    /// Removes thinking tags and their content from AI responses
-    /// - Parameter content: Raw response content from AI model
-    /// - Returns: Cleaned content with thinking sections removed
     static func cleanThinkingTags(from content: String) -> String {
         guard let regex = try? NSRegularExpression(
             pattern: thinkingPattern,
@@ -214,15 +217,11 @@ enum AIResponseFilter {
             withTemplate: ""
         )
         
-        // Clean up extra whitespace left by removed thinking sections
         return cleanedContent
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .replacingOccurrences(of: "\n\n\n", with: "\n\n")
     }
     
-    /// Checks if content contains thinking tags
-    /// - Parameter content: Content to check
-    /// - Returns: True if thinking tags are present
     static func containsThinkingTags(_ content: String) -> Bool {
         guard let regex = try? NSRegularExpression(
             pattern: thinkingPattern,

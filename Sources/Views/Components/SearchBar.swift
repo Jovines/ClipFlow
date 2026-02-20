@@ -132,7 +132,7 @@ TextField("Search...".localized(), text: $text)
                     Button {
                         selectedFilter = filter
                     } label: {
-                        Label(filter.rawValue, systemImage: filter.icon)
+                        Label(filter.rawValue.localized(), systemImage: filter.icon)
                         if selectedFilter == filter {
                             Image(systemName: "checkmark")
                         }

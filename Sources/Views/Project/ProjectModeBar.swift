@@ -137,7 +137,7 @@ struct ProjectQuickSelector: View {
             
             // Recent Projects
             if recentProjects.isEmpty {
-                    Text("No projects".localized())
+                    Text("No Projects".localized())
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 8)

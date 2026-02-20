@@ -8,31 +8,35 @@ enum TimeFormatter {
         if elapsed < 60 {
             return "Just Now".localized()
         } else if elapsed < 120 {
-            return String(format: "Minutes Ago".localized(), 1)
+            return "1 Minute Ago".localized()
         } else if elapsed < 180 {
-            return String(format: "Minutes Ago".localized(), 2)
+            return "2 Minutes Ago".localized()
         } else if elapsed < 240 {
-            return String(format: "Minutes Ago".localized(), 3)
+            return "3 Minutes Ago".localized()
         } else if elapsed < 300 {
-            return String(format: "Minutes Ago".localized(), 4)
+            return "4 Minutes Ago".localized()
         } else if elapsed < 600 {
-            return String(format: "Minutes Ago".localized(), 5)
+            return "5 Minutes Ago".localized()
         } else if elapsed < 900 {
-            return String(format: "Minutes Ago".localized(), 10)
+            return "10 Minutes Ago".localized()
         } else if elapsed < 1200 {
-            return String(format: "Minutes Ago".localized(), 15)
+            return "15 Minutes Ago".localized()
         } else if elapsed < 1800 {
-            return String(format: "Minutes Ago".localized(), 20)
+            return "20 Minutes Ago".localized()
         } else if elapsed < 3600 {
             return "Half Hour Ago".localized()
         } else if elapsed < 7200 {
-            return String(format: "Hours Ago".localized(), 1)
+            return "1 Hour Ago".localized()
         } else if elapsed < 86400 {
             let hours = Int(elapsed / 3600)
-            return String(format: "Hours Ago".localized(), hours)
+            return "%1$d Hours Ago".localized(hours)
         } else {
             let days = Int(elapsed / 86400)
-            return String(format: "Days Ago".localized(), days)
+            if days == 1 {
+                return "1 Day Ago".localized()
+            } else {
+                return "%1$d Days Ago".localized(days)
+            }
         }
     }
 
