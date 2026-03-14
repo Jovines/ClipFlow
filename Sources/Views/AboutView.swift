@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct AboutView: View {
+    @StateObject private var themeManager = ThemeManager.shared
+    
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 16) {
@@ -8,17 +10,17 @@ struct AboutView: View {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(
                             LinearGradient(
-                                colors: [Color.flexokiAccent.opacity(0.8), Color.flexokiAccent],
+                                colors: [themeManager.accent.opacity(0.8), themeManager.accent],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                         .frame(width: 80, height: 80)
-                        .shadow(color: Color.flexokiAccent.opacity(0.3), radius: 10, x: 0, y: 4)
+                        .shadow(color: themeManager.accent.opacity(0.3), radius: 10, x: 0, y: 4)
 
                     Image(systemName: "doc.on.clipboard")
                         .font(.system(size: 36, weight: .medium))
-                        .foregroundStyle(Color.flexokiPaper)
+                        .foregroundStyle(themeManager.isLiquidGlassEnabled ? Color.primary : Color.white)
                 }
 
                 VStack(spacing: 4) {

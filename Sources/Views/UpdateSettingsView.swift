@@ -65,8 +65,7 @@ struct UpdateSettingsView: View {
                     }
                 }
                 .padding(12)
-                .background(themeManager.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .liquidGlassCard(cornerRadius: 8)
             }
             
             Divider()
@@ -116,8 +115,7 @@ struct UpdateSettingsView: View {
                     .controlSize(.small)
                 }
                 .padding(12)
-                .background(themeManager.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .liquidGlassCard(cornerRadius: 8)
             }
             
             Spacer()

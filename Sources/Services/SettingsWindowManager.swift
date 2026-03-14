@@ -33,7 +33,12 @@ final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
     }
 
     private func updateWindowBackgroundColor() {
-        window?.backgroundColor = NSColor(ThemeManager.shared.background)
+        let themeManager = ThemeManager.shared
+        if themeManager.isLiquidGlassEnabled {
+            window?.backgroundColor = .windowBackgroundColor
+        } else {
+            window?.backgroundColor = NSColor(themeManager.background)
+        }
     }
     
     private func setupWindowNotifications() {
@@ -74,8 +79,15 @@ final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
         window.contentView = hostingController?.view
         window.title = "Settings".localized()
         window.isReleasedWhenClosed = false
-        window.isOpaque = false
-        window.backgroundColor = NSColor(ThemeManager.shared.background)
+        
+        let themeManager = ThemeManager.shared
+        if themeManager.isLiquidGlassEnabled {
+            window.isOpaque = true
+            window.backgroundColor = .windowBackgroundColor
+        } else {
+            window.isOpaque = false
+            window.backgroundColor = NSColor(themeManager.background)
+        }
         
         window.titlebarAppearsTransparent = false
         window.titleVisibility = .visible

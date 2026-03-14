@@ -28,6 +28,7 @@ enum ThemeOption: String, CaseIterable, Identifiable {
 }
 
 enum ColorSchemeOption: String, CaseIterable, Identifiable {
+    case system = "System (Liquid Glass)"
     case flexoki = "Flexoki"
     case nord = "Nord"
 
@@ -35,6 +36,8 @@ enum ColorSchemeOption: String, CaseIterable, Identifiable {
 }
 
 struct TitleBarConfigurator: NSViewRepresentable {
+    @StateObject private var themeManager = ThemeManager.shared
+    
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
         return view
@@ -43,8 +46,13 @@ struct TitleBarConfigurator: NSViewRepresentable {
     func updateNSView(_ nsView: NSView, context: Context) {
         DispatchQueue.main.async {
             if let window = nsView.window {
-                window.titlebarAppearsTransparent = true
-                window.backgroundColor = NSColor(ThemeManager.shared.surface)
+                if themeManager.isLiquidGlassEnabled {
+                    window.titlebarAppearsTransparent = false
+                    window.backgroundColor = .windowBackgroundColor
+                } else {
+                    window.titlebarAppearsTransparent = true
+                    window.backgroundColor = NSColor(themeManager.surface)
+                }
             }
         }
     }
@@ -136,17 +144,32 @@ struct SettingsView: View {
         case error(String)
     }
 
+    private var settingsWindowBackground: Color {
+        themeManager.isLiquidGlassEnabled ? Color(NSColor.windowBackgroundColor) : themeManager.background
+    }
+
+    private var settingsSidebarBackground: Color {
+        themeManager.isLiquidGlassEnabled ? Color(NSColor.controlBackgroundColor) : themeManager.surface
+    }
+
+    private var settingsCardBackground: Color {
+        themeManager.isLiquidGlassEnabled ? Color(NSColor.controlBackgroundColor) : themeManager.surface
+    }
+
+    private var settingsSelectionBackground: Color {
+        themeManager.isLiquidGlassEnabled ? Color.accentColor.opacity(0.14) : themeManager.accent
+    }
+
     var body: some View {
         HStack(spacing: 0) {
             sidebar
                 .frame(width: 140)
-                .background(themeManager.surface)
 
             contentView
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: 560, height: 500)
-        .background(themeManager.background)
+        .background(settingsWindowBackground)
         .alert("Shortcut Conflict".localized(), isPresented: $showConflictAlert) {
             Button("OK".localized()) {}
         } message: {
@@ -181,6 +204,7 @@ struct SettingsView: View {
 
             Spacer()
         }
+        .background(settingsSidebarBackground)
     }
 
     @ViewBuilder
@@ -206,7 +230,7 @@ struct SettingsView: View {
             .padding(.top, 12)
             .padding(.bottom, 20)
         }
-        .background(themeManager.background)
+        .background(settingsWindowBackground)
     }
 
     private var generalSettingsContent: some View {
@@ -235,7 +259,7 @@ struct SettingsView: View {
                 }
                 .help("Set the global keyboard shortcut to show ClipFlow".localized())
                 .padding(12)
-                .background(themeManager.surface)
+                .background(settingsCardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -263,12 +287,13 @@ struct SettingsView: View {
                             )) {
                                 // Theme names are technical terms and should not be localized
                                 // Color scheme names like "Flexoki" and "Nord" are brand/technical names
-                                Text("Flexoki").tag(AppTheme.flexoki)
-                                Text("Nord").tag(AppTheme.nord)
+                                ForEach(AppTheme.allCases) { theme in
+                                    Text(theme.displayName).tag(theme)
+                                }
                             }
                             .pickerStyle(.segmented)
                             .labelsHidden()
-                            .frame(width: 140)
+                            .frame(width: 240)
                         }
 
                         HStack {
@@ -291,8 +316,8 @@ struct SettingsView: View {
                         }
                     }
                     .padding(12)
-                    .background(themeManager.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .background(settingsCardBackground)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
 
             Divider()
@@ -345,7 +370,7 @@ struct SettingsView: View {
                     .toggleStyle(.checkbox)
                 }
                 .padding(12)
-                .background(themeManager.surface)
+                .background(settingsCardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -395,7 +420,7 @@ struct SettingsView: View {
                         .controlSize(.small)
                 }
                 .padding(12)
-                .background(themeManager.surface)
+                .background(settingsCardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -430,7 +455,7 @@ struct SettingsView: View {
                     }
                 }
                 .padding(12)
-                .background(themeManager.surface)
+                .background(settingsCardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -503,7 +528,7 @@ struct SettingsView: View {
                     Text("Please restart ClipFlow to apply the language change.".localized())
                 }
                 .padding(12)
-                .background(themeManager.surface)
+                .background(settingsCardBackground)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
@@ -600,7 +625,11 @@ struct SidebarTabButton: View {
     let isSelected: Bool
     let action: () -> Void
 
-    private var themeManager: ThemeManager { ThemeManager.shared }
+    @StateObject private var themeManager = ThemeManager.shared
+
+    private var selectionBackground: Color {
+        themeManager.isLiquidGlassEnabled ? Color.accentColor.opacity(0.14) : themeManager.accent
+    }
 
     var body: some View {
         Button(action: action) {
@@ -617,13 +646,13 @@ struct SidebarTabButton: View {
             .foregroundStyle(themeManager.text)
             .padding(.horizontal, 10)
             .padding(.vertical, 7)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(isSelected ? Color.flexokiAccent : Color.clear)
-            )
         }
         .buttonStyle(.plain)
         .contentShape(Rectangle())
+        .background(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(isSelected ? selectionBackground : Color.clear)
+        )
     }
 }
 
