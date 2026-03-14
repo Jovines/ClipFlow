@@ -2,10 +2,19 @@ import SwiftUI
 import Combine
 
 enum AppTheme: String, CaseIterable, Identifiable {
+    case system = "System"
     case flexoki = "Flexoki"
     case nord = "Nord"
 
     var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .system: return "System (Liquid Glass)"
+        case .flexoki: return "Flexoki"
+        case .nord: return "Nord"
+        }
+    }
 }
 
 @MainActor
@@ -23,142 +32,316 @@ final class ThemeManager: ObservableObject {
         }
     }
 
-    @Published var appTheme: AppTheme = .flexoki {
-        didSet {
-            saveTheme()
-            updateColorScheme()
-        }
+@Published var appTheme: AppTheme = .flexoki {
+    didSet {
+        saveTheme()
+        updateColorScheme()
     }
+}
 
-    @Published var colorScheme: ColorScheme = .light
+@Published var colorScheme: ColorScheme = .light
+
+// MARK: - Liquid Glass
+
+/// 当前是否启用 Liquid Glass（System 主题）
+    var isLiquidGlassEnabled: Bool {
+        appTheme == .system
+    }
 
     var background: Color {
         switch appTheme {
+        case .system:
+            // Liquid Glass: 使用系统材质，返回 clear
+            return .clear
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiBackgroundDark : Color.flexokiBackground
+            return colorScheme == .dark ? Color.flexokiBackgroundDark : Color.flexokiBackground
         case .nord:
-            colorScheme == .dark ? Color.nordBackground : Color.nordBackgroundLight
+            return colorScheme == .dark ? Color.nordBackground : Color.nordBackgroundLight
         }
     }
     var surface: Color {
         switch appTheme {
+        case .system:
+            return Color.primary.opacity(colorScheme == .dark ? 0.10 : 0.07)
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiSurfaceDark : Color.flexokiSurface
+            return colorScheme == .dark ? Color.flexokiSurfaceDark : Color.flexokiSurface
         case .nord:
-            colorScheme == .dark ? Color.nordSurface : Color.nordSurfaceLight
+            return colorScheme == .dark ? Color.nordSurface : Color.nordSurfaceLight
         }
     }
     var surfaceElevated: Color {
         switch appTheme {
+        case .system:
+            return Color.primary.opacity(colorScheme == .dark ? 0.14 : 0.10)
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiSurfaceElevatedDark : Color.flexokiSurfaceElevated
+            return colorScheme == .dark ? Color.flexokiSurfaceElevatedDark : Color.flexokiSurfaceElevated
         case .nord:
-            colorScheme == .dark ? Color.nordSurfaceElevated : Color.nordSurfaceElevatedLight
+            return colorScheme == .dark ? Color.nordSurfaceElevated : Color.nordSurfaceElevatedLight
         }
     }
     var border: Color {
         switch appTheme {
+        case .system:
+            return Color.primary.opacity(colorScheme == .dark ? 0.18 : 0.12)
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiBorderDark : Color.flexokiBorder
+            return colorScheme == .dark ? Color.flexokiBorderDark : Color.flexokiBorder
         case .nord:
-            colorScheme == .dark ? Color.nordBorder : Color.nordBorderLight
+            return colorScheme == .dark ? Color.nordBorder : Color.nordBorderLight
         }
     }
     var borderSubtle: Color {
         switch appTheme {
+        case .system:
+            return Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08)
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiBorderSubtleDark : Color.flexokiBorderSubtle
+            return colorScheme == .dark ? Color.flexokiBorderSubtleDark : Color.flexokiBorderSubtle
         case .nord:
-            colorScheme == .dark ? Color.nordBorderSubtle : Color.nordBorderSubtleLight
+            return colorScheme == .dark ? Color.nordBorderSubtle : Color.nordBorderSubtleLight
         }
     }
     var text: Color {
         switch appTheme {
+        case .system:
+            return .primary
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiTextDark : Color.flexokiText
+            return colorScheme == .dark ? Color.flexokiTextDark : Color.flexokiText
         case .nord:
-            colorScheme == .dark ? Color.nordText : Color.nordTextLight
+            return colorScheme == .dark ? Color.nordText : Color.nordTextLight
         }
     }
     var textSecondary: Color {
         switch appTheme {
+        case .system:
+            return .secondary
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiTextSecondaryDark : Color.flexokiTextSecondary
+            return colorScheme == .dark ? Color.flexokiTextSecondaryDark : Color.flexokiTextSecondary
         case .nord:
-            colorScheme == .dark ? Color.nordTextSecondary : Color.nordTextSecondaryLight
+            return colorScheme == .dark ? Color.nordTextSecondary : Color.nordTextSecondaryLight
         }
     }
     var textTertiary: Color {
         switch appTheme {
+        case .system:
+            return .secondary.opacity(0.7)
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiTextTertiaryDark : Color.flexokiTextTertiary
+            return colorScheme == .dark ? Color.flexokiTextTertiaryDark : Color.flexokiTextTertiary
         case .nord:
-            colorScheme == .dark ? Color.nordTextTertiary : Color.nordTextTertiaryLight
+            return colorScheme == .dark ? Color.nordTextTertiary : Color.nordTextTertiaryLight
         }
     }
     var accent: Color {
         switch appTheme {
+        case .system:
+            return .accentColor
         case .flexoki:
-            Color.flexokiAccent
+            return Color.flexokiAccent
         case .nord:
-            Color.nordAccent
+            return Color.nordAccent
         }
     }
     var accentLight: Color {
         switch appTheme {
+        case .system:
+            return .accentColor.opacity(0.8)
         case .flexoki:
-            Color.flexokiAccentLight
+            return Color.flexokiAccentLight
         case .nord:
-            Color.nordAccentLight
+            return Color.nordAccentLight
         }
     }
 
     var hoverBackground: Color {
         switch appTheme {
+        case .system:
+            return Color.primary.opacity(colorScheme == .dark ? 0.12 : 0.08)
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiHoverBackgroundDark : Color.flexokiHoverBackground
+            return colorScheme == .dark ? Color.flexokiHoverBackgroundDark : Color.flexokiHoverBackground
         case .nord:
-            colorScheme == .dark ? Color.nord2 : Color.nord5
+            return colorScheme == .dark ? Color.nord2 : Color.nord5
         }
     }
 
     var selectedBackground: Color {
         switch appTheme {
+        case .system:
+            return accent.opacity(colorScheme == .dark ? 0.22 : 0.16)
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiSelectedBackgroundDark : Color.flexokiSelectedBackground
+            return colorScheme == .dark ? Color.flexokiSelectedBackgroundDark : Color.flexokiSelectedBackground
         case .nord:
-            colorScheme == .dark ? Color.nord1 : Color.nord6
+            return colorScheme == .dark ? Color.nord1 : Color.nord6
         }
     }
 
+    var chromeSurface: Color {
+        if appTheme == .system {
+            return Color.primary.opacity(colorScheme == .dark ? 0.11 : 0.08)
+        }
+        return surface
+    }
+
+    var chromeSurfaceElevated: Color {
+        if appTheme == .system {
+            return Color.primary.opacity(colorScheme == .dark ? 0.16 : 0.11)
+        }
+        return surfaceElevated
+    }
+
+    var separator: Color {
+        if appTheme == .system {
+            return Color.primary.opacity(colorScheme == .dark ? 0.16 : 0.10)
+        }
+        return borderSubtle
+    }
+
     var activeBackground: Color {
-        colorScheme == .dark ? accent.opacity(0.15) : accent.opacity(0.10)
+        if appTheme == .system {
+            return accent.opacity(0.15)
+        }
+        return colorScheme == .dark ? accent.opacity(0.15) : accent.opacity(0.10)
+    }
+
+    var iconAccent: Color {
+        if appTheme == .system {
+            return accent.opacity(colorScheme == .dark ? 0.88 : 0.78)
+        }
+        return accent
+    }
+
+    var iconWarning: Color {
+        if appTheme == .system {
+            return warning.opacity(colorScheme == .dark ? 0.84 : 0.72)
+        }
+        return warning
+    }
+
+    var iconDestructive: Color {
+        if appTheme == .system {
+            return error.opacity(colorScheme == .dark ? 0.86 : 0.74)
+        }
+        return error
+    }
+
+    var iconDestructiveMuted: Color {
+        if appTheme == .system {
+            return error.opacity(colorScheme == .dark ? 0.68 : 0.56)
+        }
+        return error.opacity(0.85)
+    }
+
+    var iconSecondary: Color {
+        if appTheme == .system {
+            return textSecondary.opacity(colorScheme == .dark ? 0.92 : 0.88)
+        }
+        return textSecondary
+    }
+
+    var iconBadgeBackground: Color {
+        if appTheme == .system {
+            return Color.primary.opacity(colorScheme == .dark ? 0.14 : 0.08)
+        }
+        return surfaceElevated.opacity(0.9)
+    }
+
+    var iconBadgeAccentBackground: Color {
+        if appTheme == .system {
+            return colorScheme == .dark ? accent.opacity(0.22) : accent.opacity(0.56)
+        }
+        return accent.opacity(colorScheme == .dark ? 0.22 : 0.14)
+    }
+
+    var iconBadgeDestructiveBackground: Color {
+        if appTheme == .system {
+            return colorScheme == .dark ? error.opacity(0.20) : error.opacity(0.52)
+        }
+        return error.opacity(colorScheme == .dark ? 0.18 : 0.12)
+    }
+
+    var iconBadgeStroke: Color {
+        if appTheme == .system {
+            return Color.white.opacity(colorScheme == .dark ? 0.10 : 0.14)
+        }
+        return separator.opacity(0.8)
+    }
+
+    var iconBadgeShadowOpacity: Double {
+        if appTheme == .system {
+            return colorScheme == .dark ? 0.08 : 0.10
+        }
+        return 0.08
+    }
+
+    var iconBadgeAccentForeground: Color {
+        if appTheme == .system {
+            return colorScheme == .dark ? accent.opacity(0.95) : .white
+        }
+        return accent
+    }
+
+    var iconBadgeDestructiveForeground: Color {
+        if appTheme == .system {
+            return colorScheme == .dark ? error.opacity(0.95) : .white
+        }
+        return error
+    }
+
+    var statusBadgeWarningBackground: Color {
+        if appTheme == .system {
+            return colorScheme == .dark ? warning.opacity(0.26) : warning.opacity(0.58)
+        }
+        return warning.opacity(colorScheme == .dark ? 0.18 : 0.12)
+    }
+
+    var statusBadgeWarningForeground: Color {
+        if appTheme == .system {
+            return colorScheme == .dark ? .white.opacity(0.96) : .white
+        }
+        return warning
+    }
+
+    var tagTintOpacity: Double {
+        if appTheme == .system {
+            return colorScheme == .dark ? 0.68 : 0.56
+        }
+        return 1.0
+    }
+
+    var tagFillOpacity: Double {
+        if appTheme == .system {
+            return colorScheme == .dark ? 0.12 : 0.10
+        }
+        return 0.15
     }
 
     var success: Color {
         switch appTheme {
+        case .system:
+            return Color.green
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiSuccessDark : Color.flexokiSuccess
+            return colorScheme == .dark ? Color.flexokiSuccessDark : Color.flexokiSuccess
         case .nord:
-            Color.nord14
+            return Color.nord14
         }
     }
 
     var error: Color {
         switch appTheme {
+        case .system:
+            return Color.red
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiErrorDark : Color.flexokiError
+            return colorScheme == .dark ? Color.flexokiErrorDark : Color.flexokiError
         case .nord:
-            Color.nord11
+            return Color.nord11
         }
     }
 
     var warning: Color {
         switch appTheme {
+        case .system:
+            return Color.orange
         case .flexoki:
-            colorScheme == .dark ? Color.flexokiWarningDark : Color.flexokiWarning
+            return colorScheme == .dark ? Color.flexokiWarningDark : Color.flexokiWarning
         case .nord:
-            Color.nord12
+            return Color.nord12
         }
     }
 
