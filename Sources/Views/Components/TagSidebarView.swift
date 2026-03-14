@@ -63,10 +63,14 @@ struct TagSidebarView: View {
             }
             .frame(height: 28)
             .padding(.horizontal, 6)
-            .background(ThemeManager.shared.surface)
+            .background(ThemeManager.shared.chromeSurface)
         }
         .frame(width: sidebarWidth)
-        .background(ThemeManager.shared.surface.opacity(0.5))
+        .background(ThemeManager.shared.chromeSurface)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(ThemeManager.shared.separator, lineWidth: 1)
+        )
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .sheet(isPresented: .constant(editingTag != nil)) {
             editTagSheet
@@ -199,7 +203,7 @@ struct TopRecentHistorySidebarItem: View {
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.clear)
-            .background(isSelected ? themeManager.activeBackground : Color.clear)
+            .background(isSelected ? themeManager.selectedBackground : Color.clear)
             .foregroundStyle(isSelected ? themeManager.accent : themeManager.textSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 4))
             .contentShape(Rectangle())
@@ -230,7 +234,7 @@ struct TagSidebarRowView: View {
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.clear)
-            .background(isSelected ? Color.hex(tag.color).opacity(0.15) : Color.clear)
+            .background(isSelected ? Color.hex(tag.color).opacity(0.16) : Color.clear)
             .foregroundStyle(isSelected ? Color.hex(tag.color) : .secondary)
             .clipShape(RoundedRectangle(cornerRadius: 4))
             .contentShape(Rectangle())

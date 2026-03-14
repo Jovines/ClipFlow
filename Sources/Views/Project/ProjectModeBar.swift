@@ -5,6 +5,7 @@ struct ProjectModeBar: View {
     @Binding var isProjectMode: Bool
     @Binding var currentProject: Project?
     @Binding var showProjectSelector: Bool
+    @StateObject private var themeManager = ThemeManager.shared
     
     var body: some View {
         HStack(spacing: 8) {
@@ -15,7 +16,7 @@ struct ProjectModeBar: View {
                     HStack(spacing: 6) {
                         Image(systemName: "folder.fill")
                             .font(.system(size: 10))
-                            .foregroundStyle(Color.flexokiAccent)
+                            .foregroundStyle(themeManager.accent)
                         
                         Text(project.name)
                             .font(.system(size: 11, weight: .medium))
@@ -45,7 +46,7 @@ struct ProjectModeBar: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.flexokiAccent.opacity(0.1))
+                    .background(themeManager.accent.opacity(0.1))
                     .cornerRadius(4)
                 } else {
                     // Has project but not in project mode - show enter button
@@ -69,7 +70,7 @@ struct ProjectModeBar: View {
                                 Text("Enter".localized())
                                     .font(.system(size: 10))
                             }
-                            .foregroundStyle(Color.flexokiAccent)
+                            .foregroundStyle(themeManager.accent)
                         }
                         .buttonStyle(.borderless)
                         

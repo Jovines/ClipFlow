@@ -44,13 +44,17 @@ struct ProjectButton: View {
                         .font(.system(size: 11))
                 }
             }
-            .foregroundStyle(currentProject != nil ? Color.flexokiAccent : .secondary)
+            .foregroundStyle(currentProject != nil ? themeManager.accent : .secondary)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
             .background(
                 currentProject != nil
-                    ? Color.flexokiAccent.opacity(0.1)
-                    : ThemeManager.shared.surface
+                    ? themeManager.selectedBackground
+                    : themeManager.chromeSurface
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(themeManager.separator, lineWidth: currentProject != nil ? 0 : 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: 4))
         }

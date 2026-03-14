@@ -107,11 +107,12 @@ struct ProjectSelectorView: View {
 struct ProjectRow: View {
     let project: Project
     let isActive: Bool
+    @StateObject private var themeManager = ThemeManager.shared
     
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: isActive ? "folder.fill" : "folder")
-                .foregroundStyle(isActive ? Color.flexokiAccent : ThemeManager.shared.textSecondary)
+                .foregroundStyle(isActive ? themeManager.accent : themeManager.textSecondary)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(project.name)
@@ -125,13 +126,13 @@ struct ProjectRow: View {
             
             if isActive {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Color.flexokiAccent)
+                    .foregroundStyle(themeManager.accent)
                     .font(.caption)
             }
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
-        .background(isActive ? Color.flexokiAccent.opacity(0.1) : Color.clear)
+        .background(isActive ? themeManager.accent.opacity(0.1) : Color.clear)
     }
 }
 
