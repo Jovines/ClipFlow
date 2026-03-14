@@ -24,6 +24,10 @@ final class ThemeManager: ObservableObject {
 
     private static let userPreferenceKey = "themeUserPreference"
     private static let themeTypeKey = "themeType"
+    private static let liquidGlassWindowOpacityKey = "liquidGlassWindowOpacity"
+
+    static let defaultLiquidGlassWindowOpacity = 1.0
+    static let minLiquidGlassWindowOpacity = 0.35
 
     @Published var userPreference: ColorScheme? {
         didSet {
@@ -38,6 +42,17 @@ final class ThemeManager: ObservableObject {
         updateColorScheme()
     }
 }
+
+    @Published var liquidGlassWindowOpacity: Double = 1.0 {
+        didSet {
+            let clampedValue = min(max(liquidGlassWindowOpacity, Self.minLiquidGlassWindowOpacity), 1.0)
+            if liquidGlassWindowOpacity != clampedValue {
+                liquidGlassWindowOpacity = clampedValue
+                return
+            }
+            saveLiquidGlassWindowOpacity()
+        }
+    }
 
 @Published var colorScheme: ColorScheme = .light
 
@@ -102,7 +117,7 @@ final class ThemeManager: ObservableObject {
     var text: Color {
         switch appTheme {
         case .system:
-            return .primary
+            return liquidGlassPrimaryForeground
         case .flexoki:
             return colorScheme == .dark ? Color.flexokiTextDark : Color.flexokiText
         case .nord:
@@ -112,7 +127,7 @@ final class ThemeManager: ObservableObject {
     var textSecondary: Color {
         switch appTheme {
         case .system:
-            return .secondary
+            return liquidGlassSecondaryForeground
         case .flexoki:
             return colorScheme == .dark ? Color.flexokiTextSecondaryDark : Color.flexokiTextSecondary
         case .nord:
@@ -122,7 +137,7 @@ final class ThemeManager: ObservableObject {
     var textTertiary: Color {
         switch appTheme {
         case .system:
-            return .secondary.opacity(0.7)
+            return liquidGlassTertiaryForeground
         case .flexoki:
             return colorScheme == .dark ? Color.flexokiTextTertiaryDark : Color.flexokiTextTertiary
         case .nord:
@@ -258,7 +273,7 @@ final class ThemeManager: ObservableObject {
 
     var iconBadgeStroke: Color {
         if appTheme == .system {
-            return Color.white.opacity(colorScheme == .dark ? 0.10 : 0.14)
+            return liquidGlassStroke
         }
         return separator.opacity(0.8)
     }
@@ -272,16 +287,16 @@ final class ThemeManager: ObservableObject {
 
     var iconBadgeAccentForeground: Color {
         if appTheme == .system {
-            return colorScheme == .dark ? accent.opacity(0.95) : .white
+            return Color.white.opacity(0.96)
         }
-        return accent
+        return .white
     }
 
     var iconBadgeDestructiveForeground: Color {
         if appTheme == .system {
-            return colorScheme == .dark ? error.opacity(0.95) : .white
+            return Color.white.opacity(0.96)
         }
-        return error
+        return .white
     }
 
     var statusBadgeWarningBackground: Color {
@@ -293,9 +308,25 @@ final class ThemeManager: ObservableObject {
 
     var statusBadgeWarningForeground: Color {
         if appTheme == .system {
-            return colorScheme == .dark ? .white.opacity(0.96) : .white
+            return Color.white.opacity(0.96)
         }
-        return warning
+        return .white
+    }
+
+    private var liquidGlassPrimaryForeground: Color {
+        colorScheme == .dark ? Color.white.opacity(0.96) : Color.black.opacity(0.82)
+    }
+
+    private var liquidGlassSecondaryForeground: Color {
+        colorScheme == .dark ? Color.white.opacity(0.74) : Color.black.opacity(0.58)
+    }
+
+    private var liquidGlassTertiaryForeground: Color {
+        colorScheme == .dark ? Color.white.opacity(0.52) : Color.black.opacity(0.42)
+    }
+
+    private var liquidGlassStroke: Color {
+        colorScheme == .dark ? Color.white.opacity(0.10) : Color.black.opacity(0.08)
     }
 
     var tagTintOpacity: Double {
@@ -358,6 +389,13 @@ final class ThemeManager: ObservableObject {
             appTheme = AppTheme(rawValue: rawValue) ?? .flexoki
         }
 
+        let savedOpacity = UserDefaults.standard.double(forKey: Self.liquidGlassWindowOpacityKey)
+        if savedOpacity == 0 {
+            liquidGlassWindowOpacity = Self.defaultLiquidGlassWindowOpacity
+        } else {
+            liquidGlassWindowOpacity = min(max(savedOpacity, Self.minLiquidGlassWindowOpacity), 1.0)
+        }
+
         guard let rawValue = UserDefaults.standard.string(forKey: Self.userPreferenceKey) else {
             userPreference = nil
             return
@@ -382,6 +420,10 @@ final class ThemeManager: ObservableObject {
 
     private func saveTheme() {
         UserDefaults.standard.set(appTheme.rawValue, forKey: Self.themeTypeKey)
+    }
+
+    private func saveLiquidGlassWindowOpacity() {
+        UserDefaults.standard.set(liquidGlassWindowOpacity, forKey: Self.liquidGlassWindowOpacityKey)
     }
 
     private func setupAppearanceObserver() {
@@ -417,6 +459,10 @@ final class ThemeManager: ObservableObject {
 
     func setAppTheme(_ theme: AppTheme) {
         appTheme = theme
+    }
+
+    func setLiquidGlassWindowOpacity(_ opacity: Double) {
+        liquidGlassWindowOpacity = opacity
     }
 }
 

@@ -49,6 +49,38 @@
                 }
             }
         },
+        "Suggested": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Suggested"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "推荐"
+                    }
+                }
+            }
+        },
+        "Suggested based on your history": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Suggested based on your history"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "根据历史使用推荐"
+                    }
+                }
+            }
+        },
         "Update": {
             "localizations": {
                 "en": {
@@ -157,6 +189,38 @@
                     "stringUnit": {
                         "state": "translated",
                         "value": "主题"
+                    }
+                }
+            }
+        },
+        "Floating Window Transparency": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Floating Window Transparency"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "悬浮窗透明度"
+                    }
+                }
+            }
+        },
+        "Adjust the transparency of the floating window when Liquid Glass is enabled": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Adjust the transparency of the floating window when Liquid Glass is enabled"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "在启用 Liquid Glass 主题时调整悬浮窗的透明度"
                     }
                 }
             }
@@ -273,18 +337,66 @@
                 }
             }
         },
-        "Top Recent": {
+        "No suggestions yet": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Top Recent"
+                        "value": "No suggestions yet"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "最近常用"
+                        "value": "暂无推荐"
+                    }
+                }
+            }
+        },
+        "Suggestions based on your history appear here": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Suggestions based on your history appear here"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "这里会显示根据你的历史使用推荐的内容"
+                    }
+                }
+            }
+        },
+        "Number of uses before an item appears in Suggested": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Number of uses before an item appears in Suggested"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "条目出现在推荐中前所需的使用次数"
+                    }
+                }
+            }
+        },
+        "How quickly Suggested scores decay over time": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "How quickly Suggested scores decay over time"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "推荐分数随时间衰减的速度"
                     }
                 }
             }
@@ -305,22 +417,6 @@
                 }
             }
         },
-        "Number of uses before an item appears in Top Recent": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Number of uses before an item appears in Top Recent"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "项目出现在「最近常用」前的使用次数"
-                    }
-                }
-            }
-        },
         "Score Half-Life": {
             "localizations": {
                 "en": {
@@ -333,22 +429,6 @@
                     "stringUnit": {
                         "state": "translated",
                         "value": "分数衰减周期"
-                    }
-                }
-            }
-        },
-        "How quickly Top Recent scores decay over time": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "How quickly Top Recent scores decay over time"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "最近常用分数随时间衰减的速度"
                     }
                 }
             }
@@ -3376,38 +3456,6 @@
                     "stringUnit": {
                         "state": "translated",
                         "value": "%.1f 天"
-                    }
-                }
-            }
-        },
-        "No Recent History": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "No Recent History"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "无最近历史"
-                    }
-                }
-            }
-        },
-        "Frequently used items appear here": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Frequently used items appear here"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "常用项目将显示在这里"
                     }
                 }
             }

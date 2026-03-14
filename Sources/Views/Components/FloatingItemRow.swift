@@ -15,57 +15,13 @@ struct FloatingItemRow: View {
     var body: some View {
         HStack(spacing: 10) {
             contentPreview
-
-            Spacer()
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if isHovered && !isEditing {
-                Button(action: onAddToProject) {
-                    Image(systemName: "folder.badge.plus")
-                        .font(.system(size: 12))
-                        .frame(width: 24, height: 24)
-                        .background(themeManager.iconBadgeAccentBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                        .shadow(color: themeManager.iconBadgeAccentBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(themeManager.iconBadgeAccentForeground)
-
-                Button(action: onEdit) {
-                    Image(systemName: "pencil")
-                        .font(.system(size: 12))
-                        .frame(width: 24, height: 24)
-                        .background(themeManager.iconBadgeAccentBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                        .shadow(color: themeManager.iconBadgeAccentBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(themeManager.iconBadgeAccentForeground)
-
-                Button(action: onDelete) {
-                    Image(systemName: "trash")
-                        .font(.system(size: 12))
-                        .frame(width: 24, height: 24)
-                        .background(themeManager.iconBadgeDestructiveBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
-                        .shadow(color: themeManager.iconBadgeDestructiveBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(themeManager.iconBadgeDestructiveForeground)
-                .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
+                actionButtons
             }
         }
+        .frame(minHeight: 24)
         .padding(.horizontal, 12)
         .padding(.vertical, 4)
         .background(backgroundColor)
@@ -97,6 +53,56 @@ struct FloatingItemRow: View {
                 .font(.caption2)
                 .foregroundStyle(themeManager.textSecondary)
             }
+        }
+    }
+
+    private var actionButtons: some View {
+        HStack(spacing: 8) {
+            Button(action: onAddToProject) {
+                Image(systemName: "folder.badge.plus")
+                    .font(.system(size: 12))
+                    .frame(width: 24, height: 24)
+                    .background(themeManager.iconBadgeAccentBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .shadow(color: themeManager.iconBadgeAccentBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(themeManager.iconBadgeAccentForeground)
+
+            Button(action: onEdit) {
+                Image(systemName: "pencil")
+                    .font(.system(size: 12))
+                    .frame(width: 24, height: 24)
+                    .background(themeManager.iconBadgeAccentBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .shadow(color: themeManager.iconBadgeAccentBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(themeManager.iconBadgeAccentForeground)
+
+            Button(action: onDelete) {
+                Image(systemName: "trash")
+                    .font(.system(size: 12))
+                    .frame(width: 24, height: 24)
+                    .background(themeManager.iconBadgeDestructiveBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                    .shadow(color: themeManager.iconBadgeDestructiveBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(themeManager.iconBadgeDestructiveForeground)
+            .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
         }
     }
 

@@ -26,10 +26,10 @@ struct ModeIndicatorView: View {
                 HStack(spacing: 2) {
                     Text("Tab".localized())
                         .font(.system(size: 9, weight: .medium))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(themeManager.textTertiary)
                     Image(systemName: "arrow.left.arrow.right")
                         .font(.system(size: 8))
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(themeManager.textTertiary)
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 2)
@@ -51,11 +51,11 @@ struct ModeIndicatorView: View {
         HStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.system(size: 11))
-                .foregroundStyle(isActive ? themeManager.accent : .secondary)
+                .foregroundStyle(isActive ? themeManager.accent : themeManager.textSecondary)
 
             Text(label)
                 .font(.system(size: 11))
-                .foregroundStyle(isActive ? themeManager.accent : .secondary)
+                .foregroundStyle(isActive ? themeManager.accent : themeManager.textSecondary)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
@@ -65,28 +65,30 @@ struct ModeIndicatorView: View {
 }
 
 struct SelectionModeHintView: View {
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: "number")
                 .font(.system(size: 10))
-                .foregroundStyle(ThemeManager.shared.accent)
+                .foregroundStyle(themeManager.accent)
 
             Text("Press number 1-9 for quick select".localized())
                 .font(.system(size: 10))
-                .foregroundStyle(ThemeManager.shared.accent)
+                .foregroundStyle(themeManager.accent)
 
             Spacer()
 
             Text("Enter to confirm".localized())
                 .font(.system(size: 9))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(themeManager.textSecondary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background(ThemeManager.shared.surface)
+                .background(themeManager.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 4))
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(ThemeManager.shared.selectedBackground)
+        .background(themeManager.selectedBackground)
     }
 }

@@ -6,6 +6,7 @@ struct ShortcutRecorderView: View {
 
     @State private var isRecording = false
     @State private var conflictError = false
+    @State private var conflictMessage = "This shortcut is already in use or invalid.".localized()
     @State private var eventMonitor: Any?
 
     private var themeManager: ThemeManager { ThemeManager.shared }
@@ -66,7 +67,7 @@ struct ShortcutRecorderView: View {
         .alert("Shortcut Conflict".localized(), isPresented: $conflictError) {
             Button("OK".localized()) {}
         } message: {
-            Text("This shortcut is already in use or invalid.".localized())
+            Text(conflictMessage)
         }
     }
     
@@ -94,8 +95,9 @@ struct ShortcutRecorderView: View {
             
             if self.validateShortcut(newShortcut) {
                 self.shortcut = newShortcut
-                _ = HotKeyManager.shared.register(newShortcut)
             } else {
+                self.conflictMessage = HotKeyManager.shared.validationError(for: newShortcut)
+                    ?? "This shortcut is already in use or invalid.".localized()
                 self.conflictError = true
             }
             
@@ -122,11 +124,7 @@ struct ShortcutRecorderView: View {
     }
     
     private func validateShortcut(_ shortcut: HotKeyManager.Shortcut) -> Bool {
-        guard shortcut.isValid else { return false }
-        
-        // At least one modifier required
-        let hasModifier = !shortcut.modifiers.isEmpty
-        return hasModifier
+        HotKeyManager.shared.validationError(for: shortcut) == nil
     }
 }
 

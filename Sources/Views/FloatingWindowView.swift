@@ -274,9 +274,11 @@ struct FloatingWindowView: View {
                     // 使用 .regular 变体获得平衡的透明度和可读性
                     RoundedRectangle(cornerRadius: 16)
                         .glassEffect(.regular, in: .rect(cornerRadius: 16))
+                        .opacity(themeManager.liquidGlassWindowOpacity)
                 } else {
                     RoundedRectangle(cornerRadius: 16)
                         .fill(.ultraThinMaterial)
+                        .opacity(themeManager.liquidGlassWindowOpacity)
                 }
             } else {
                 RoundedRectangle(cornerRadius: 16)
@@ -371,10 +373,10 @@ struct FloatingWindowView: View {
     private var topRecentSection: some View {
         VStack(spacing: 4) {
             HStack(spacing: 4) {
-                Image(systemName: "clock")
+                Image(systemName: "sparkles")
                     .font(.system(size: 9))
                     .foregroundStyle(themeManager.textSecondary)
-                Text("Top Recent".localized())
+                Text("Suggested".localized())
                     .font(.system(size: 9, weight: .medium))
                     .foregroundStyle(themeManager.textSecondary)
                 Spacer()
@@ -494,11 +496,11 @@ struct FloatingWindowView: View {
                 .font(.system(size: 36))
                 .foregroundStyle(themeManager.textSecondary)
 
-            Text(showTopRecentHistory ? "No Recent History".localized() : "No clipboard history".localized())
+            Text(showTopRecentHistory ? "No suggestions yet".localized() : "No clipboard history".localized())
                 .font(.subheadline)
                 .foregroundStyle(themeManager.textSecondary)
 
-            Text(showTopRecentHistory ? "Frequently used items appear here".localized() : "Copy something to see it here".localized())
+            Text(showTopRecentHistory ? "Suggestions based on your history appear here".localized() : "Copy something to see it here".localized())
                 .font(.caption)
                 .foregroundStyle(themeManager.textTertiary)
         }
@@ -627,7 +629,7 @@ struct FloatingWindowView: View {
                 Spacer()
                 Button(action: { showCreateTagSheet = false }) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(themeManager.textSecondary)
                 }
                 .buttonStyle(.plain)
             }
@@ -648,7 +650,7 @@ struct FloatingWindowView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Color".localized())
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(themeManager.textSecondary)
                     .padding(.horizontal, 4)
 
                 HStack(spacing: 8) {

@@ -24,6 +24,7 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
     private let windowHeight: CGFloat = 480
     private let maxVisibleItems = 15
     private let itemsPerGroup = 15
+    private let screenMargin: CGFloat = 2
 
     private init(clipboardMonitor: ClipboardMonitor = .shared) {
         self.clipboardMonitor = clipboardMonitor
@@ -108,7 +109,7 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
             createWindow()
         }
 
-        positionWindow()
+        positionWindow(width: preferredFloatingWindowWidth())
         floatingWindow?.orderFront(nil)
         floatingWindow?.makeKeyAndOrderFront(nil)
 
@@ -220,43 +221,20 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
     func resizeWindowForProjectMode(isProjectMode: Bool, project: Project? = nil) {
         guard let window = floatingWindow, isWindowVisible else { return }
         
-        let targetWidth: CGFloat = isProjectMode ? projectWindowWidth : windowWidth
+        let targetWidth: CGFloat = isProjectMode ? projectWindowWidth : preferredFloatingWindowWidth()
         let currentFrame = window.frame
-        let mouseLocation = NSEvent.mouseLocation
         
-        // Calculate new frame ensuring it stays within screen bounds
         var newFrame = currentFrame
         newFrame.size.width = targetWidth
         newFrame.size.height = windowHeight
         
-        // Get screen bounds
-        let targetScreen = NSScreen.screens.first { screen in
-            NSMouseInRect(mouseLocation, screen.frame, false)
-        } ?? NSScreen.main ?? NSScreen.screens.first
-        
+        let targetScreen = screen(for: window, fallbackPoint: NSEvent.mouseLocation)
         guard let screen = targetScreen else { return }
-        let screenFrame = screen.visibleFrame
-        let margin: CGFloat = 2
-        
-        // Ensure window doesn't go beyond right edge
-        if newFrame.maxX > screenFrame.maxX - margin {
-            newFrame.origin.x = screenFrame.maxX - margin - targetWidth
-        }
-        
-        // Ensure window doesn't go beyond left edge
-        if newFrame.origin.x < screenFrame.minX + margin {
-            newFrame.origin.x = screenFrame.minX + margin
-        }
-        
-        // Ensure window doesn't go beyond bottom edge
-        if newFrame.origin.y < screenFrame.minY + margin {
-            newFrame.origin.y = screenFrame.minY + margin
-        }
-        
-        // Ensure window doesn't go beyond top edge
-        if newFrame.maxY > screenFrame.maxY - margin {
-            newFrame.origin.y = screenFrame.maxY - margin - windowHeight
-        }
+        newFrame.origin = clampedWindowOrigin(
+            for: newFrame.origin,
+            windowSize: newFrame.size,
+            in: screen.visibleFrame
+        )
         
         // Animate the resize
         NSAnimationContext.runAnimationGroup { context in
@@ -330,58 +308,110 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
     private func positionWindow(width: CGFloat? = nil) {
         guard let window = floatingWindow else { return }
 
-        let windowWidthToUse = width ?? windowWidth
+        let windowWidthToUse = width ?? preferredFloatingWindowWidth()
         let mouseLocation = NSEvent.mouseLocation
 
-        let targetScreen = NSScreen.screens.first { screen in
-            NSMouseInRect(mouseLocation, screen.frame, false)
-        } ?? NSScreen.main ?? NSScreen.screens.first
+        let targetScreen = screen(containingOrNearestTo: mouseLocation)
 
         guard let screen = targetScreen else { return }
 
         let screenFrame = screen.visibleFrame
-        let screenFrameFull = screen.frame
 
-        let margin: CGFloat = 2
+        let windowSize = NSSize(width: windowWidthToUse, height: windowHeight)
+        let desiredX = mouseLocation.x - windowWidthToUse / 2
+        let spaceBelow = mouseLocation.y - screenFrame.minY - screenMargin
+        let spaceAbove = screenFrame.maxY - mouseLocation.y - screenMargin
 
-        var windowOrigin = NSPoint(x: 0, y: 0)
-
-        let minX = screenFrame.minX + margin
-        let maxX = screenFrame.maxX - margin - windowWidthToUse
-        let minY = screenFrame.minY + margin
-        let maxY = screenFrame.maxY - margin
-
-        windowOrigin.x = mouseLocation.x - windowWidthToUse / 2
-        if windowOrigin.x < minX {
-            windowOrigin.x = minX
-        } else if windowOrigin.x > maxX {
-            windowOrigin.x = maxX
-        }
-
-        let spaceBelow = mouseLocation.y - minY
-        let spaceAbove = maxY - mouseLocation.y
-        
-        let screenHeight = maxY - minY
-        let mouseRelativeY = mouseLocation.y - minY
-        let isMouseInLowerHalf = mouseRelativeY > screenHeight * 0.6
-        
-        if spaceBelow >= windowHeight && (!isMouseInLowerHalf || spaceAbove < windowHeight) {
-            windowOrigin.y = mouseLocation.y - windowHeight - margin
+        let desiredY: CGFloat
+        if spaceBelow >= windowHeight && (spaceBelow >= spaceAbove || spaceAbove < windowHeight) {
+            desiredY = mouseLocation.y - windowHeight - screenMargin
         } else if spaceAbove >= windowHeight {
-            windowOrigin.y = mouseLocation.y + margin
+            desiredY = mouseLocation.y + screenMargin
+        } else if spaceBelow >= spaceAbove {
+            desiredY = screenFrame.minY + screenMargin
         } else {
-            windowOrigin.y = spaceBelow > spaceAbove ? minY : maxY - windowHeight
+            desiredY = screenFrame.maxY - screenMargin - windowHeight
         }
-        
-        let minValidY = minY
-        let maxValidY = maxY - windowHeight
-        if windowOrigin.y < minValidY {
-            windowOrigin.y = minValidY
-        } else if windowOrigin.y > maxValidY {
-            windowOrigin.y = maxValidY
+
+        let windowOrigin = clampedWindowOrigin(
+            for: NSPoint(x: desiredX, y: desiredY),
+            windowSize: windowSize,
+            in: screenFrame
+        )
+
+        window.setFrame(NSRect(origin: windowOrigin, size: windowSize), display: false)
+    }
+
+    private func preferredFloatingWindowWidth() -> CGFloat {
+        guard let hostingView = floatingWindowHostingController?.view else {
+            return windowWidth
         }
-        
-        window.setFrameOrigin(windowOrigin)
+
+        hostingView.layoutSubtreeIfNeeded()
+        let fittingWidth = hostingView.fittingSize.width
+
+        guard fittingWidth.isFinite, fittingWidth > 0 else {
+            return windowWidth
+        }
+
+        return ceil(fittingWidth)
+    }
+
+    private func screen(containingOrNearestTo point: NSPoint) -> NSScreen? {
+        if let containingScreen = NSScreen.screens.first(where: { $0.frame.contains(point) }) {
+            return containingScreen
+        }
+
+        return NSScreen.screens.min { lhs, rhs in
+            distance(from: point, to: lhs.frame) < distance(from: point, to: rhs.frame)
+        }
+    }
+
+    private func screen(for window: NSWindow, fallbackPoint: NSPoint) -> NSScreen? {
+        if let windowScreen = window.screen {
+            return windowScreen
+        }
+
+        let windowCenter = NSPoint(x: window.frame.midX, y: window.frame.midY)
+        return screen(containingOrNearestTo: windowCenter) ?? screen(containingOrNearestTo: fallbackPoint)
+    }
+
+    private func clampedWindowOrigin(
+        for origin: NSPoint,
+        windowSize: NSSize,
+        in screenFrame: CGRect
+    ) -> NSPoint {
+        let minX = screenFrame.minX + screenMargin
+        let maxX = max(minX, screenFrame.maxX - screenMargin - windowSize.width)
+        let minY = screenFrame.minY + screenMargin
+        let maxY = max(minY, screenFrame.maxY - screenMargin - windowSize.height)
+
+        return NSPoint(
+            x: min(max(origin.x, minX), maxX),
+            y: min(max(origin.y, minY), maxY)
+        )
+    }
+
+    private func distance(from point: NSPoint, to rect: CGRect) -> CGFloat {
+        let dx: CGFloat
+        if point.x < rect.minX {
+            dx = rect.minX - point.x
+        } else if point.x > rect.maxX {
+            dx = point.x - rect.maxX
+        } else {
+            dx = 0
+        }
+
+        let dy: CGFloat
+        if point.y < rect.minY {
+            dy = rect.minY - point.y
+        } else if point.y > rect.maxY {
+            dy = point.y - rect.maxY
+        } else {
+            dy = 0
+        }
+
+        return hypot(dx, dy)
     }
 
     func cleanup() {

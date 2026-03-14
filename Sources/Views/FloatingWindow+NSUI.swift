@@ -5,6 +5,7 @@ class FloatingWindow: NSWindow {
     private var isDragging = false
     private var dragStartLocation: NSPoint = .zero
     private var dragStartOrigin: NSPoint = .zero
+    private let screenMargin: CGFloat = 2
     
     override var canBecomeKey: Bool {
         return true
@@ -40,6 +41,15 @@ class FloatingWindow: NSWindow {
             var newOrigin = dragStartOrigin
             newOrigin.x += deltaX
             newOrigin.y += deltaY
+
+            if let screen = screen ?? NSScreen.screens.first(where: { $0.frame.contains(currentLocation) }) {
+                let visibleFrame = screen.visibleFrame
+                let maxX = max(visibleFrame.minX + screenMargin, visibleFrame.maxX - screenMargin - frame.width)
+                let maxY = max(visibleFrame.minY + screenMargin, visibleFrame.maxY - screenMargin - frame.height)
+
+                newOrigin.x = min(max(newOrigin.x, visibleFrame.minX + screenMargin), maxX)
+                newOrigin.y = min(max(newOrigin.y, visibleFrame.minY + screenMargin), maxY)
+            }
             
             self.setFrameOrigin(newOrigin)
         } else {

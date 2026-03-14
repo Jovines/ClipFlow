@@ -160,6 +160,10 @@ struct SettingsView: View {
         themeManager.isLiquidGlassEnabled ? Color.accentColor.opacity(0.14) : themeManager.accent
     }
 
+    private var liquidGlassOpacityPercentText: String {
+        "\(Int(themeManager.liquidGlassWindowOpacity * 100))%"
+    }
+
     var body: some View {
         HStack(spacing: 0) {
             sidebar
@@ -176,6 +180,7 @@ struct SettingsView: View {
             Text(conflictMessage)
         }
         .onAppear {
+            shortcut = HotKeyManager.shared.loadSavedShortcut()
             checkAutoStartStatus()
         }
         .onChange(of: autoStart) { _, newValue in
@@ -314,6 +319,29 @@ struct SettingsView: View {
                             .labelsHidden()
                             .frame(width: 180)
                         }
+
+                        if themeManager.isLiquidGlassEnabled {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    SettingLabelWithInfo(
+                                        label: "Floating Window Transparency".localized(),
+                                        description: "Adjust the transparency of the floating window when Liquid Glass is enabled".localized()
+                                    )
+                                    Spacer()
+                                    Text(liquidGlassOpacityPercentText)
+                                        .font(.system(size: 13, design: .rounded))
+                                        .foregroundStyle(.secondary)
+                                        .monospacedDigit()
+                                        .frame(width: 44, alignment: .trailing)
+                                }
+
+                                Slider(value: Binding(
+                                    get: { themeManager.liquidGlassWindowOpacity },
+                                    set: { themeManager.setLiquidGlassWindowOpacity($0) }
+                                ), in: ThemeManager.minLiquidGlassWindowOpacity...1.0, step: 0.05)
+                                .controlSize(.small)
+                            }
+                        }
                     }
                     .padding(12)
                     .background(settingsCardBackground)
@@ -381,7 +409,7 @@ struct SettingsView: View {
                     Image(systemName: "clock")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
-                    Text("Top Recent".localized())
+                    Text("Suggested".localized())
                         .font(.system(size: 14, weight: .semibold))
                 }
 
@@ -389,7 +417,7 @@ struct SettingsView: View {
                     HStack {
                             SettingLabelWithInfo(
                                 label: "Min Usage Count".localized(),
-                                description: "Number of uses before an item appears in Top Recent".localized()
+                                description: "Number of uses before an item appears in Suggested".localized()
                             )
                         Spacer()
                         Text("\(minUsageCountForRecommendation)")
@@ -407,7 +435,7 @@ struct SettingsView: View {
                     HStack {
                             SettingLabelWithInfo(
                                 label: "Score Half-Life".localized(),
-                                description: "How quickly Top Recent scores decay over time".localized()
+                                description: "How quickly Suggested scores decay over time".localized()
                             )
                         Spacer()
                         Text(decayHoursText)
@@ -608,13 +636,16 @@ struct SettingsView: View {
     }
 
     private func applyShortcut(_ newShortcut: HotKeyManager.Shortcut) {
-        if newShortcut.isValid && !newShortcut.modifiers.isEmpty {
-            if !HotKeyManager.shared.register(newShortcut) {
-                conflictMessage = "Unable to register this shortcut. It may be in use by another application.".localized()
-                showConflictAlert = true
-            }
-        } else {
-            conflictMessage = "Please include at least one modifier key (Command, Shift, Control, or Option).".localized()
+        if let validationError = HotKeyManager.shared.validationError(for: newShortcut) {
+            shortcut = HotKeyManager.shared.currentShortcut ?? HotKeyManager.shared.loadSavedShortcut()
+            conflictMessage = validationError
+            showConflictAlert = true
+            return
+        }
+
+        if !HotKeyManager.shared.register(newShortcut) {
+            shortcut = HotKeyManager.shared.currentShortcut ?? HotKeyManager.shared.loadSavedShortcut()
+            conflictMessage = "Unable to register this shortcut. It may be in use by another application.".localized()
             showConflictAlert = true
         }
     }

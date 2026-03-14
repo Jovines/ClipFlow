@@ -57,13 +57,15 @@ struct TagSidebarView: View {
                 Button(action: onManageTags) {
                     Image(systemName: "tag")
                         .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(ThemeManager.shared.textSecondary)
+                        .frame(width: 24, height: 24)
+                        .contentShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 }
                 .buttonStyle(.plain)
                 .help("Manage Tags".localized())
             }
             .frame(height: 28)
             .padding(.horizontal, 6)
-            .background(ThemeManager.shared.chromeSurface)
         }
         .frame(width: sidebarWidth)
         .background(ThemeManager.shared.chromeSurface)
@@ -137,7 +139,7 @@ struct TagSidebarView: View {
                 Spacer()
                 Button(action: { editingTag = nil }) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(ThemeManager.shared.textSecondary)
                 }
                 .buttonStyle(.plain)
             }
@@ -184,19 +186,24 @@ struct TopRecentHistorySidebarItem: View {
     @Binding var isSelected: Bool
     let count: Int
 
+    @Environment(\.locale) private var locale
+
     private var themeManager: ThemeManager { ThemeManager.shared }
+    private var labelFontSize: CGFloat {
+        locale.language.languageCode?.identifier == "en" ? 9 : 10
+    }
 
     var body: some View {
         Button {
             isSelected.toggle()
         } label: {
             HStack(spacing: 4) {
-                Image(systemName: "clock.arrow.circlepath")
+                Image(systemName: "sparkles")
                     .font(.system(size: 10))
-                    .foregroundStyle(isSelected ? themeManager.accent : themeManager.textSecondary)
+                    .foregroundStyle(isSelected ? themeManager.iconBadgeAccentForeground : themeManager.textSecondary)
 
-                Text("Recent History".localized())
-                    .font(.system(size: 10))
+                Text("Suggested".localized())
+                    .font(.system(size: labelFontSize))
                     .lineLimit(1)
             }
             .padding(.horizontal, 6)
@@ -204,11 +211,12 @@ struct TopRecentHistorySidebarItem: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.clear)
             .background(isSelected ? themeManager.selectedBackground : Color.clear)
-            .foregroundStyle(isSelected ? themeManager.accent : themeManager.textSecondary)
+            .foregroundStyle(isSelected ? themeManager.iconBadgeAccentForeground : themeManager.textSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 4))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .help("Suggested based on your history".localized())
     }
 }
 
@@ -219,11 +227,13 @@ struct TagSidebarRowView: View {
     let onEdit: () -> Void
     let onDelete: () -> Void
 
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 4) {
                 Circle()
-                    .fill(Color.hex(tag.color))
+                    .fill(isSelected ? themeManager.iconBadgeAccentForeground : Color.hex(tag.color))
                     .frame(width: 6, height: 6)
 
                 Text(tag.name)
@@ -234,8 +244,8 @@ struct TagSidebarRowView: View {
             .padding(.vertical, 4)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Color.clear)
-            .background(isSelected ? Color.hex(tag.color).opacity(0.16) : Color.clear)
-            .foregroundStyle(isSelected ? Color.hex(tag.color) : .secondary)
+            .background(isSelected ? themeManager.selectedBackground : Color.clear)
+            .foregroundStyle(isSelected ? themeManager.iconBadgeAccentForeground : themeManager.textSecondary)
             .clipShape(RoundedRectangle(cornerRadius: 4))
             .contentShape(Rectangle())
         }

@@ -3,6 +3,8 @@ import AppKit
 import CoreGraphics
 
 final class HotKeyManager: @unchecked Sendable {
+    private static let deviceIndependentModifierMask: NSEvent.ModifierFlags = [.command, .shift, .control, .option]
+
     struct Shortcut: Equatable, Codable {
         var keyCode: UInt16
         var modifierFlags: UInt
@@ -37,7 +39,8 @@ final class HotKeyManager: @unchecked Sendable {
         }
 
         var isValid: Bool {
-            keyCode != 0 && !modifiers.isEmpty
+            !modifiers.intersection(HotKeyManager.deviceIndependentModifierMask).isEmpty &&
+            keyStringFromKeyCode(keyCode).isEmpty == false
         }
 
         var carbonModifiers: UInt32 {
@@ -64,7 +67,9 @@ final class HotKeyManager: @unchecked Sendable {
                 kVK_ANSI_Minus: "-", kVK_ANSI_Equal: "=", kVK_ANSI_Semicolon: ";",
                 kVK_ANSI_Quote: "'", kVK_ANSI_Backslash: "\\", kVK_ANSI_Comma: ",",
                 kVK_ANSI_Period: ".", kVK_ANSI_Slash: "/",
-                kVK_Space: "Space".localized(), kVK_Return: "Return".localized(), kVK_Delete: "Delete".localized(),
+                kVK_Space: LocalizationHelper.localizedString(for: "Space"),
+                kVK_Return: LocalizationHelper.localizedString(for: "Return"),
+                kVK_Delete: LocalizationHelper.localizedString(for: "Delete"),
                 kVK_Escape: "Escape", kVK_Tab: "Tab",
                 kVK_UpArrow: "↑", kVK_DownArrow: "↓", kVK_LeftArrow: "←", kVK_RightArrow: "→",
                 kVK_F1: "F1", kVK_F2: "F2", kVK_F3: "F3", kVK_F4: "F4",
@@ -112,8 +117,12 @@ final class HotKeyManager: @unchecked Sendable {
         }
 
         unregister()
+        guard startMonitoring(shortcut) else {
+            currentShortcut = nil
+            return false
+        }
+
         currentShortcut = shortcut
-        startMonitoring(shortcut)
         saveShortcut(shortcut)
         return true
     }
@@ -137,7 +146,11 @@ final class HotKeyManager: @unchecked Sendable {
         return register(shortcut)
     }
 
-    private func startMonitoring(_ shortcut: Shortcut) {
+    func validationError(for shortcut: Shortcut) -> String? {
+        checkForConflicts(shortcut)
+    }
+
+    private func startMonitoring(_ shortcut: Shortcut) -> Bool {
         stopMonitoring()
 
         let eventMask = CGEventMask(1 << CGEventType.keyDown.rawValue)
@@ -167,13 +180,21 @@ final class HotKeyManager: @unchecked Sendable {
                 }
                 let userInfo = Unmanaged<UserInfo>.fromOpaque(refcon).takeUnretainedValue()
 
+                if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+                    if let tap = userInfo.manager.eventTap {
+                        CGEvent.tapEnable(tap: tap, enable: true)
+                    }
+                    return Unmanaged.passUnretained(event)
+                }
+
                 if type == .keyDown {
                     let eventKeyCode = event.getIntegerValueField(.keyboardEventKeycode)
-                    let eventFlags = UInt(event.flags.rawValue)
+                    let eventFlags = NSEvent.ModifierFlags(rawValue: UInt(truncatingIfNeeded: event.flags.rawValue))
+                        .intersection(HotKeyManager.deviceIndependentModifierMask)
                     let shortcut = userInfo.shortcut
 
                     if UInt16(eventKeyCode) == shortcut.keyCode &&
-                       (eventFlags & shortcut.modifierFlags) == shortcut.modifierFlags {
+                       eventFlags == shortcut.modifiers.intersection(HotKeyManager.deviceIndependentModifierMask) {
                         let manager = userInfo.manager
                         DispatchQueue.main.async {
                             manager.onHotKeyPressed?()
@@ -187,13 +208,15 @@ final class HotKeyManager: @unchecked Sendable {
             userInfo: userInfoPtr
         ) else {
             print("[ERROR] HotKeyManager - Failed to create event tap")
-            return
+            return false
         }
 
         self.eventTap = eventTap
 
         runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, eventTap, 0)
         CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
+        CGEvent.tapEnable(tap: eventTap, enable: true)
+        return true
     }
 
     private func stopMonitoring() {
@@ -211,17 +234,17 @@ final class HotKeyManager: @unchecked Sendable {
     }
 
     private func checkForConflicts(_ shortcut: Shortcut) -> String? {
-        if shortcut.keyCode == 0 {
-            return "Invalid key code".localized
+        if !shortcut.isValid {
+            return LocalizationHelper.localizedString(for: "Please include at least one modifier key (Command, Shift, Control, or Option).")
         }
 
         if reservedKeyCodes.contains(shortcut.keyCode) {
-            return "System reserved key".localized
+            return LocalizationHelper.localizedString(for: "System reserved key")
         }
 
         if shortcut.keyCode == kVK_Space {
             if shortcut.modifiers.contains(.command) || shortcut.modifiers.contains(.control) {
-                return "Conflict with Spotlight/Quick Look".localized
+                return LocalizationHelper.localizedString(for: "Conflict with Spotlight/Quick Look")
             }
         }
 
