@@ -504,11 +504,12 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
         let maxItems = UserDefaults.standard.integer(forKey: "maxHistoryItems")
         let effectiveMaxItems = maxItems > 0 ? maxItems : 100
 
-        if capturedItems.count > effectiveMaxItems {
-            do {
-                let taggedItemIds = try database.fetchAllTaggedItemIds()
-                let untaggedItems = capturedItems.filter { !taggedItemIds.contains($0.id) }
-                let itemsToRemove = Array(untaggedItems.suffix(from: min(effectiveMaxItems, untaggedItems.count)))
+        do {
+            let taggedItemIds = try database.fetchAllTaggedItemIds()
+            let untaggedItems = capturedItems.filter { !taggedItemIds.contains($0.id) }
+
+            if untaggedItems.count > effectiveMaxItems {
+                let itemsToRemove = Array(untaggedItems.suffix(from: effectiveMaxItems))
 
                 for item in itemsToRemove where item.contentType == .image {
                     if let imagePath = item.imagePath {
@@ -522,9 +523,9 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
                 let removedIds = Set(itemsToRemove.map { $0.id })
                 capturedItems.removeAll { removedIds.contains($0.id) }
                 try database.cleanupExcessItems(keepCount: effectiveMaxItems)
-            } catch {
-                ClipFlowLogger.error("Failed to cleanup excess items: \(error)")
             }
+        } catch {
+            ClipFlowLogger.error("Failed to cleanup excess items: \(error)")
         }
     }
 }
