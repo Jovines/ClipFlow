@@ -2,8 +2,8 @@ name: ClipFlow
 options:
   bundleIdPrefix: com.clipflow
   deploymentTarget:
-    macOS: "15.0"
-  xcodeVersion: "16.0"
+    macOS: "26.0"
+  xcodeVersion: "26.0"
   generateEmptyDirectories: true
 
 packages:
