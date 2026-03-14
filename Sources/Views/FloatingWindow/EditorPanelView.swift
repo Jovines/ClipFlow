@@ -49,7 +49,12 @@ struct EditorPanelView: View {
             editorFooter
         }
         .frame(width: editorWidth, height: fixedHeight)
-        .background(ThemeManager.shared.surface.opacity(0.95))
+        .background(ThemeManager.shared.chromeSurface)
+        .overlay(alignment: .leading) {
+            Rectangle()
+                .fill(ThemeManager.shared.separator)
+                .frame(width: 1)
+        }
         .onAppear {
             loadItemTags()
         }
@@ -124,8 +129,15 @@ struct EditorPanelView: View {
             TextField("Add Note".localized(), text: $editNote, axis: .vertical)
                 .font(.system(size: 12))
                 .lineLimit(1...3)
+                .textFieldStyle(.plain)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
                 .scrollContentBackground(.hidden)
-                .background(Color.clear)
+                .liquidGlassBackground(cornerRadius: 10, material: .thinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(ThemeManager.shared.separator, lineWidth: 1)
+                )
 
             if noteCharacterCount > 0 {
                 Text("\(noteCharacterCount)/\(maxNoteCharacterCount)")
@@ -259,24 +271,37 @@ struct TagChip: View {
     var body: some View {
         HStack(spacing: 4) {
             Circle()
-                .fill(Color.hex(tag.color))
-                .frame(width: 6, height: 6)
+                .fill(Color.hex(tag.color).opacity(ThemeManager.shared.tagTintOpacity))
+                .frame(width: 7, height: 7)
             Text(tag.name)
                 .font(.system(size: 11))
                 .lineLimit(1)
+                .foregroundStyle(ThemeManager.shared.text)
 
             if let onRemove = onRemove {
                 Button(action: onRemove) {
                     Image(systemName: "xmark")
                         .font(.system(size: 8, weight: .bold))
-                        .foregroundStyle(Color.hex(tag.color))
+                        .foregroundStyle(ThemeManager.shared.iconSecondary)
+                        .frame(width: 16, height: 16)
+                        .background(ThemeManager.shared.iconBadgeBackground)
+                        .overlay(
+                            Circle()
+                                .stroke(ThemeManager.shared.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(Circle())
+                        .shadow(color: ThemeManager.shared.iconBadgeBackground.opacity(ThemeManager.shared.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
             }
         }
         .padding(.horizontal, onRemove != nil ? 6 : 8)
         .padding(.vertical, 4)
-        .background(Color.hex(tag.color).opacity(0.15))
+        .background(Color.hex(tag.color).opacity(ThemeManager.shared.tagFillOpacity))
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .stroke(ThemeManager.shared.separator, lineWidth: 1)
+        )
         .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 }

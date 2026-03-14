@@ -203,7 +203,7 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
         window.level = .floating
         window.isOpaque = false
         window.backgroundColor = .clear
-        window.hasShadow = true
+        window.hasShadow = false
         window.ignoresMouseEvents = false
         window.isMovableByWindowBackground = false  // Disable to avoid conflict with internal split view
         window.collectionBehavior = [.canJoinAllSpaces, .managed]
@@ -317,7 +317,7 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
         window.level = .floating
         window.isOpaque = false
         window.backgroundColor = .clear
-        window.hasShadow = true
+        window.hasShadow = false
         window.ignoresMouseEvents = false
         window.isMovableByWindowBackground = false  // Disable to avoid conflict with internal split view
         window.collectionBehavior = [.canJoinAllSpaces, .managed]

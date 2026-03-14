@@ -141,7 +141,7 @@ struct FloatingWindowView: View {
                 .frame(height: 480)
 
                 Divider()
-                    .background(themeManager.borderSubtle)
+                    .background(themeManager.separator)
 
                 VStack(spacing: 0) {
                     HeaderBar(
@@ -188,9 +188,12 @@ struct FloatingWindowView: View {
                 .frame(width: groupPanelWidth, height: 480)
             }
         }
-        .background(themeManager.surface.opacity(0.95))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: .black.opacity(0.15), radius: 15, x: 0, y: 5)
+        .background(windowBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .shadow(color: .black.opacity(themeManager.isLiquidGlassEnabled ? 0.25 : 0.15),
+                radius: themeManager.isLiquidGlassEnabled ? 24 : 15,
+                x: 0,
+                y: themeManager.isLiquidGlassEnabled ? 10 : 5)
         .onAppear {
             clipboardMonitor.refresh()
             groupPanelCoordinator.startTracking()
@@ -260,6 +263,25 @@ struct FloatingWindowView: View {
         }
         .sheet(isPresented: $showCreateTagSheet) {
             createTagSheet
+        }
+    }
+
+    @ViewBuilder
+    private var windowBackground: some View {
+        Group {
+            if themeManager.isLiquidGlassEnabled {
+                if #available(macOS 26.0, *) {
+                    // 使用 .regular 变体获得平衡的透明度和可读性
+                    RoundedRectangle(cornerRadius: 16)
+                        .glassEffect(.regular, in: .rect(cornerRadius: 16))
+                } else {
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(.ultraThinMaterial)
+                }
+            } else {
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(themeManager.surface.opacity(0.95))
+            }
         }
     }
 
@@ -351,10 +373,10 @@ struct FloatingWindowView: View {
             HStack(spacing: 4) {
                 Image(systemName: "clock")
                     .font(.system(size: 9))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(themeManager.textSecondary)
                 Text("Top Recent".localized())
                     .font(.system(size: 9, weight: .medium))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(themeManager.textSecondary)
                 Spacer()
             }
             .padding(.horizontal, 4)
@@ -391,11 +413,10 @@ struct FloatingWindowView: View {
             .padding(.bottom, 4)
         }
         .padding(4)
-        .background(themeManager.surfaceElevated)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .liquidGlassCard(cornerRadius: 6, useClearVariant: true)
         .overlay(
             RoundedRectangle(cornerRadius: 6)
-                .stroke(themeManager.borderSubtle, lineWidth: 1)
+                .stroke(themeManager.separator.opacity(0.8), lineWidth: 1)
         )
         .padding(.bottom, 8)
     }
@@ -620,7 +641,7 @@ struct FloatingWindowView: View {
                 .font(.system(size: 14))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(themeManager.borderSubtle)
+                .background(themeManager.chromeSurfaceElevated)
                 .clipShape(RoundedRectangle(cornerRadius: 6))
                 .padding(.horizontal, 12)
 
@@ -637,7 +658,7 @@ struct FloatingWindowView: View {
                             .frame(width: 24, height: 24)
                             .overlay(
                                 Circle()
-                                    .stroke(themeManager.border, lineWidth: newTagColorName == colorOption.name ? 2 : 0)
+                                    .stroke(themeManager.separator, lineWidth: newTagColorName == colorOption.name ? 2 : 0)
                             )
                             .onTapGesture {
                                 newTagColorName = colorOption.name
@@ -668,8 +689,7 @@ struct FloatingWindowView: View {
             .padding(.bottom, 12)
         }
         .frame(width: 260, height: 200)
-        .background(themeManager.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .liquidGlassCard(cornerRadius: 12)
     }
 
     private func saveNewTag() {

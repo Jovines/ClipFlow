@@ -32,7 +32,7 @@ struct SearchIndicatorView: View {
                 .foregroundStyle(themeManager.textSecondary)
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background(themeManager.surface)
+                .background(themeManager.chromeSurface)
                 .clipShape(Capsule())
 
             Button(action: onReset) {
@@ -44,6 +44,11 @@ struct SearchIndicatorView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.5))
+        .background(themeManager.chromeSurface)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(themeManager.separator)
+                .frame(height: 1)
+        }
     }
 }

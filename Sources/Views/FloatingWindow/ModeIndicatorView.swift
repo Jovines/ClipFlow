@@ -33,13 +33,18 @@ struct ModeIndicatorView: View {
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 2)
-                .background(themeManager.surface)
+                .background(themeManager.chromeSurface)
                 .clipShape(RoundedRectangle(cornerRadius: 3))
             }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(themeManager.surface.opacity(0.8))
+        .background(themeManager.chromeSurface)
+        .overlay(alignment: .bottom) {
+            Rectangle()
+                .fill(themeManager.separator)
+                .frame(height: 1)
+        }
     }
 
     private func modeButton(icon: String, label: String, isActive: Bool) -> some View {
@@ -82,6 +87,6 @@ struct SelectionModeHintView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(ThemeManager.shared.accent.opacity(0.08))
+        .background(ThemeManager.shared.selectedBackground)
     }
 }
