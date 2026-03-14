@@ -6,13 +6,14 @@ struct SearchBar: View {
     @Binding var text: String
     @State private var debouncedText: String = ""
     @State private var cancellables = Set<AnyCancellable>()
+    @StateObject private var themeManager = ThemeManager.shared
     var onDebouncedTextChange: ((String) -> Void)?
     var delay: TimeInterval = 0.3
 
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundStyle(ThemeManager.shared.textSecondary)
+                .foregroundStyle(themeManager.textSecondary)
 
             TextField("Search...".localized(), text: $text)
                 .textFieldStyle(.plain)
@@ -23,14 +24,17 @@ struct SearchBar: View {
             if !text.isEmpty {
                 Button(action: { text = "" }) {
                     Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(ThemeManager.shared.textSecondary)
+                        .foregroundStyle(themeManager.textSecondary)
                 }
                 .buttonStyle(.plain)
             }
         }
         .padding(10)
-        .background(ThemeManager.shared.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .liquidGlassBackground(cornerRadius: 12, material: .ultraThinMaterial)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(themeManager.separator, lineWidth: 1)
+        )
     }
 
     private func debounceText(_ value: String) {
@@ -88,6 +92,7 @@ struct AdvancedSearchBar: View {
     @Binding var text: String
     @Binding var selectedFilter: SearchFilter
     @State private var showFilters = false
+    @StateObject private var themeManager = ThemeManager.shared
 
     enum SearchFilter: String, CaseIterable {
         case all = "All"
@@ -109,23 +114,26 @@ struct AdvancedSearchBar: View {
         HStack(spacing: 8) {
             HStack {
                 Image(systemName: "magnifyingglass")
-                    .foregroundStyle(ThemeManager.shared.textSecondary)
+                    .foregroundStyle(themeManager.textSecondary)
 
-TextField("Search...".localized(), text: $text)
+                TextField("Search...".localized(), text: $text)
                     .textFieldStyle(.plain)
 
                 if !text.isEmpty {
                     Button(action: { text = "" }) {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(ThemeManager.shared.textSecondary)
+                            .foregroundStyle(themeManager.textSecondary)
                     }
                     .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
-            .background(ThemeManager.shared.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .liquidGlassBackground(cornerRadius: 12, material: .ultraThinMaterial)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(themeManager.separator, lineWidth: 1)
+            )
 
             Menu {
                 ForEach(SearchFilter.allCases, id: \.self) { filter in
@@ -140,10 +148,13 @@ TextField("Search...".localized(), text: $text)
                 }
             } label: {
                 Image(systemName: selectedFilter.icon)
-                    .foregroundStyle(selectedFilter == .all ? ThemeManager.shared.textSecondary : ThemeManager.shared.accent)
+                    .foregroundStyle(selectedFilter == .all ? themeManager.textSecondary : themeManager.accent)
                     .padding(10)
-                    .background(ThemeManager.shared.surface)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .liquidGlassBackground(cornerRadius: 12, material: .ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(themeManager.separator, lineWidth: 1)
+                    )
             }
         }
     }

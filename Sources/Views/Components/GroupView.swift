@@ -61,7 +61,7 @@ struct GroupView: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(isHovered ? themeManager.surface.opacity(0.5) : Color.clear)
+        .background(isHovered ? themeManager.chromeSurfaceElevated : Color.clear)
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())
     }
@@ -93,7 +93,7 @@ struct CompactItemRow: View {
                 HStack(spacing: 2) {
                     ForEach(Array(itemTags.prefix(3))) { tag in
                         Circle()
-                            .fill(Color.hex(tag.color))
+                            .fill(Color.hex(tag.color).opacity(themeManager.tagTintOpacity))
                             .frame(width: 6, height: 6)
                     }
                     if itemTags.count > 3 {
@@ -117,44 +117,88 @@ struct CompactItemRow: View {
 
             if isTopRecent {
                 Image(systemName: "clock")
-                    .font(.system(size: 9))
-                    .foregroundStyle(Color.orange.opacity(0.8))
+                    .font(.system(size: 8.5, weight: .bold))
+                    .foregroundStyle(themeManager.statusBadgeWarningForeground)
+                    .frame(width: 18, height: 16)
+                    .background(themeManager.statusBadgeWarningBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                            .stroke(themeManager.statusBadgeWarningForeground.opacity(0.08), lineWidth: 1)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .shadow(color: themeManager.statusBadgeWarningBackground.opacity(0.10), radius: 2, y: 1)
             }
 
             if isHovered {
                 Button(action: onManageTags) {
                     Image(systemName: "tag")
                         .font(.system(size: 10))
+                        .frame(width: 20, height: 20)
+                        .background(themeManager.iconBadgeBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .shadow(color: themeManager.iconBadgeBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(themeManager.textSecondary)
+                .foregroundStyle(themeManager.iconSecondary)
 
                 Button(action: onAddToProject) {
                     Image(systemName: "folder.badge.plus")
                         .font(.system(size: 10))
+                        .frame(width: 20, height: 20)
+                        .background(themeManager.iconBadgeAccentBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .shadow(color: themeManager.iconBadgeAccentBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(themeManager.accent)
+                .foregroundStyle(themeManager.iconBadgeAccentForeground)
 
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
                         .font(.system(size: 10))
+                        .frame(width: 20, height: 20)
+                        .background(themeManager.iconBadgeAccentBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .shadow(color: themeManager.iconBadgeAccentBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(themeManager.accent)
+                .foregroundStyle(themeManager.iconBadgeAccentForeground)
 
                 Button(action: onDelete) {
                     Image(systemName: "trash")
                         .font(.system(size: 10))
+                        .frame(width: 20, height: 20)
+                        .background(themeManager.iconBadgeDestructiveBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .shadow(color: themeManager.iconBadgeDestructiveBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(.red)
+                .foregroundStyle(themeManager.iconBadgeDestructiveForeground)
                 .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
             }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 3)
-        .background(isHovered ? themeManager.borderSubtle.opacity(0.3) : .clear)
+        .background(isHovered ? themeManager.hoverBackground : .clear)
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(isHovered ? themeManager.separator : Color.clear, lineWidth: 1)
+        )
         .clipShape(RoundedRectangle(cornerRadius: 6))
         .contentShape(Rectangle())
         .onHover { hovering in
@@ -261,23 +305,47 @@ struct GroupPanelItemRow: View {
                 Button(action: onAddToProject) {
                     Image(systemName: "folder.badge.plus")
                         .font(.system(size: 10))
+                        .frame(width: 20, height: 20)
+                        .background(themeManager.iconBadgeAccentBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .shadow(color: themeManager.iconBadgeAccentBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(themeManager.accent)
+                .foregroundStyle(themeManager.iconBadgeAccentForeground)
 
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
                         .font(.system(size: 10))
+                        .frame(width: 20, height: 20)
+                        .background(themeManager.iconBadgeAccentBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .shadow(color: themeManager.iconBadgeAccentBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(themeManager.accent)
+                .foregroundStyle(themeManager.iconBadgeAccentForeground)
 
                 Button(action: onDelete) {
                     Image(systemName: "trash")
                         .font(.system(size: 10))
+                        .frame(width: 20, height: 20)
+                        .background(themeManager.iconBadgeDestructiveBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .shadow(color: themeManager.iconBadgeDestructiveBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(.red)
+                .foregroundStyle(themeManager.iconBadgeDestructiveForeground)
                 .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
             }
         }

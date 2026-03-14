@@ -19,8 +19,7 @@ struct ShortcutRecorderView: View {
             }
         }
         .padding(10)
-        .background(themeManager.surfaceElevated)
-        .clipShape(RoundedRectangle(cornerRadius: 6))
+        .liquidGlassCard(cornerRadius: 6)
         .onTapGesture {
             startRecording()
         }

@@ -22,23 +22,47 @@ struct FloatingItemRow: View {
                 Button(action: onAddToProject) {
                     Image(systemName: "folder.badge.plus")
                         .font(.system(size: 12))
+                        .frame(width: 24, height: 24)
+                        .background(themeManager.iconBadgeAccentBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        .shadow(color: themeManager.iconBadgeAccentBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(themeManager.accent)
+                .foregroundStyle(themeManager.iconBadgeAccentForeground)
 
                 Button(action: onEdit) {
                     Image(systemName: "pencil")
                         .font(.system(size: 12))
+                        .frame(width: 24, height: 24)
+                        .background(themeManager.iconBadgeAccentBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        .shadow(color: themeManager.iconBadgeAccentBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(themeManager.accent)
+                .foregroundStyle(themeManager.iconBadgeAccentForeground)
 
                 Button(action: onDelete) {
                     Image(systemName: "trash")
                         .font(.system(size: 12))
+                        .frame(width: 24, height: 24)
+                        .background(themeManager.iconBadgeDestructiveBackground)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                .stroke(themeManager.iconBadgeStroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        .shadow(color: themeManager.iconBadgeDestructiveBackground.opacity(themeManager.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(.red)
+                .foregroundStyle(themeManager.iconBadgeDestructiveForeground)
                 .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
             }
         }
