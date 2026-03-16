@@ -11,11 +11,6 @@ if [ -f "secrets/api_credentials.sh" ]; then
     source secrets/api_credentials.sh
 fi
 
-# Default values
-API_KEY_PATH="${1:-secrets/AuthKey.p8}"
-API_KEY_ID="${2:-${API_KEY_ID}}"
-API_ISSUER="${3:-${API_ISSUER_ID}}"
-
 if [ $# -lt 1 ]; then
     echo "Usage: $0 <dmg-path> [api-key-path]"
     echo ""
@@ -27,6 +22,9 @@ if [ $# -lt 1 ]; then
 fi
 
 DMG_PATH="$1"
+API_KEY_PATH="${2:-secrets/AuthKey.p8}"
+API_KEY_ID="${3:-${API_KEY_ID}}"
+API_ISSUER="${4:-${API_ISSUER_ID}}"
 
 # Check if DMG exists
 if [ ! -f "$DMG_PATH" ]; then
