@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct AboutView: View {
@@ -6,22 +7,12 @@ struct AboutView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 16) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(
-                            LinearGradient(
-                                colors: [themeManager.accent.opacity(0.8), themeManager.accent],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 80, height: 80)
-                        .shadow(color: themeManager.accent.opacity(0.3), radius: 10, x: 0, y: 4)
-
-                    Image(systemName: "doc.on.clipboard")
-                        .font(.system(size: 36, weight: .medium))
-                        .foregroundStyle(themeManager.isLiquidGlassEnabled ? Color.primary : Color.white)
-                }
+                Image(nsImage: NSApplication.shared.applicationIconImage)
+                    .resizable()
+                    .interpolation(.high)
+                    .frame(width: 80, height: 80)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .shadow(color: themeManager.text.opacity(0.12), radius: 12, x: 0, y: 6)
 
                 VStack(spacing: 4) {
                     Text("ClipFlow".localized())
@@ -60,7 +51,7 @@ struct AboutView: View {
                     value: LanguageManager.shared.currentLanguage.displayName
                 )
             }
-            .background(ThemeManager.shared.surface)
+            .background(themeManager.surface)
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
             Spacer()
