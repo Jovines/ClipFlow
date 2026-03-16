@@ -13,8 +13,8 @@ metadata:
 Complete release workflow:
 1. Update version → xcodegen → commit
 2. Build Release → resign
-3. Create DMG → sign with Developer ID + Sparkle EdDSA
-4. Notarize → staple
+3. Create DMG → sign with Developer ID → notarize → staple
+4. Generate Sparkle EdDSA signature from the final notarized DMG
 5. Create GitHub Release → update appcast
 
 ## When to use me
@@ -29,6 +29,18 @@ Releasing a new version of ClipFlow. Skill will prompt for version number if not
    - Add Key ID and Issuer ID to `secrets/api_credentials.sh`
 3. **Sparkle EdDSA Key**: `secrets/sparkle_private_key.txt` (not in git)
 4. **create-dmg**: `brew install create-dmg`
+
+## Canonical Workflow
+
+Use `./scripts/package_release.sh` for DMG packaging whenever possible. It enforces the correct order for ClipFlow:
+
+1. Sign `ClipFlow.app`
+2. Create `ClipFlow.dmg`
+3. Sign the DMG with Developer ID
+4. Notarize and staple the DMG
+5. Generate the Sparkle signature from the final DMG
+
+Do **not** generate the Sparkle signature before notarization. Notarization/stapling changes the DMG bytes, so any earlier Sparkle signature or length will be invalid in `appcast.xml`.
 
 ## Release Steps
 
@@ -89,20 +101,18 @@ create-dmg \
 codesign --force --sign "Developer ID Application: Your Name (TEAM_ID)" --timestamp ClipFlow.dmg
 ```
 
-### 7. Sign DMG with Sparkle EdDSA
-
-```bash
-SPARKLE_VERSION="2.8.1"
-curl -L -o /tmp/sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
-tar -xf /tmp/sparkle.tar.xz -C /tmp
-/tmp/bin/sign_update -f secrets/sparkle_private_key.txt ClipFlow.dmg > /tmp/sparkle_sig.txt
-cat /tmp/sparkle_sig.txt
-```
-
-### 8. Notarize
+### 7. Notarize
 
 ```bash
 ./scripts/notarize.sh ClipFlow.dmg
+```
+
+### 8. Sign Final DMG with Sparkle EdDSA
+
+```bash
+SIGN_UPDATE=$(./scripts/sign_update.sh)
+"$SIGN_UPDATE" -f secrets/sparkle_private_key.txt ClipFlow.dmg > /tmp/sparkle_sig.txt
+cat /tmp/sparkle_sig.txt
 ```
 
 ### 9. Verify
@@ -110,6 +120,12 @@ cat /tmp/sparkle_sig.txt
 ```bash
 codesign -dv --verbose=4 ClipFlow.app
 spctl -a -vvv ClipFlow.dmg
+```
+
+Or run the full packaging flow in one step:
+
+```bash
+./scripts/package_release.sh
 ```
 
 ### 10. Generate Release Notes
@@ -180,5 +196,7 @@ xcrun stapler staple ClipFlow.dmg
 
 1. Check `SUFeedURL` in `Info.plist`
 2. Verify signature in appcast.xml
-3. `sparkle:version` must use build number (integer)
-4. Test: Settings → "Check for Updates Now"
+3. Verify `length` in `appcast.xml` matches the uploaded GitHub release asset
+4. Ensure the Sparkle signature was generated after notarize/staple, not before
+5. `sparkle:version` must use build number (integer)
+6. Test: Settings → "Check for Updates Now"
