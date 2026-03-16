@@ -19,6 +19,7 @@
 		2524E6BB6091BEF55A67FC35 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DA421858CFFE55FE1B1533 /* OpenAIService.swift */; };
 		2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */; };
 		37743BE3D096EDF86BBDD238 /* SettingsWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */; };
+		37F43B27ADE0E9A974D7A785 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5F20288AFA600ADBAB86A41E /* Assets.xcassets */; };
 		3AB760669D54A8F0E9755B20 /* UpdateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70D8BE02A903A8FAF8ED112 /* UpdateService.swift */; };
 		3AB7E32F2A2782D8EC61E146 /* SearchIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5C68D15CA5FE443AF36F99 /* SearchIndicatorView.swift */; };
 		3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */; };
@@ -106,6 +107,7 @@
 		570F8337E86D4F82253E5F25 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		586557FA753777654C073B06 /* ImageOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOptimizer.swift; sourceTree = "<group>"; };
 		5E65F7E93164C977B289D518 /* TagPillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagPillView.swift; sourceTree = "<group>"; };
+		5F20288AFA600ADBAB86A41E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6524AE550F82666132C51CA1 /* TimeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatter.swift; sourceTree = "<group>"; };
 		65B1A4FBF5647B3D3F8D06AE /* PromptTemplateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplateService.swift; sourceTree = "<group>"; };
 		756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShortcutRecorderView.swift; sourceTree = "<group>"; };
@@ -273,6 +275,7 @@
 		9D713B1513BAC646044B94A4 = {
 			isa = PBXGroup;
 			children = (
+				F5E3D7BF812C07865CEEDD7E /* Resources */,
 				BC546E6A4D4D95ADA02491CC /* Sources */,
 				55617B918B8FE10A56696E32 /* Products */,
 			);
@@ -354,6 +357,14 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		F5E3D7BF812C07865CEEDD7E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				5F20288AFA600ADBAB86A41E /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -362,6 +373,7 @@
 			buildConfigurationList = 1D4D2D6FB33981C2E721858F /* Build configuration list for PBXNativeTarget "ClipFlow" */;
 			buildPhases = (
 				89D59757354E9A91D9EF169A /* Sources */,
+				1D28C11011A08A58D251FEF5 /* Resources */,
 				DF153E66409AA8A4071F571C /* Frameworks */,
 				435557344391500666A5FF0B /* SwiftLint */,
 			);
@@ -421,6 +433,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1D28C11011A08A58D251FEF5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				37F43B27ADE0E9A974D7A785 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		435557344391500666A5FF0B /* SwiftLint */ = {
