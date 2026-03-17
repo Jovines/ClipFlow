@@ -60,6 +60,7 @@ struct TitleBarConfigurator: NSViewRepresentable {
 
 enum SettingsTab: String, CaseIterable, Identifiable {
     case general = "General"
+    case focusTodo = "FocusTodo"
     case aiService = "AIService"
     case language = "Language"
     case cache = "Cache"
@@ -71,6 +72,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     var icon: String {
         switch self {
         case .general: return "gear"
+        case .focusTodo: return "checklist"
         case .aiService: return "brain"
         case .language: return "globe"
         case .cache: return "internaldrive"
@@ -82,6 +84,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     var localizedName: String {
         switch self {
         case .general: return "General".localized()
+        case .focusTodo: return "Focus Todo".localized()
         case .aiService: return "AI Service".localized()
         case .language: return "Language".localized()
         case .cache: return "Cache".localized()
@@ -123,10 +126,17 @@ struct SettingsView: View {
     @AppStorage("maxHistoryItems") private var maxHistoryItems = 100
     @AppStorage("saveImages") private var saveImages = true
     @AppStorage("autoStart") private var autoStart = false
+    @AppStorage("focusTodoEnabled") private var focusTodoEnabled = true
     @AppStorage("recommendationDecayHours") private var recommendationDecayHours = 6.0
     @AppStorage("minUsageCountForRecommendation") private var minUsageCountForRecommendation = 2
+    @AppStorage("focusTodoClipboardPrefillSeconds") private var focusTodoClipboardPrefillSeconds = 20.0
+    @AppStorage("focusTodoCollapsedOpacity") private var focusTodoCollapsedOpacity = 0.36
 
     @State private var shortcut = HotKeyManager.Shortcut.defaultShortcut
+    @State private var todoToggleShortcut = FocusTodoShortcutManager.Action.togglePanel.defaultShortcut
+    @State private var todoPreviousShortcut = FocusTodoShortcutManager.Action.previousTask.defaultShortcut
+    @State private var todoNextShortcut = FocusTodoShortcutManager.Action.nextTask.defaultShortcut
+    @State private var todoDoneShortcut = FocusTodoShortcutManager.Action.markDone.defaultShortcut
     @State private var showConflictAlert = false
     @State private var conflictMessage = ""
     @State private var autoStartStatus: AutoStartStatus = .unknown
@@ -167,12 +177,12 @@ struct SettingsView: View {
     var body: some View {
         HStack(spacing: 0) {
             sidebar
-                .frame(width: 140)
+                .frame(width: 176)
 
             contentView
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 560, height: 500)
+        .frame(width: 620, height: 500)
         .background(settingsWindowBackground)
         .alert("Shortcut Conflict".localized(), isPresented: $showConflictAlert) {
             Button("OK".localized()) {}
@@ -181,6 +191,10 @@ struct SettingsView: View {
         }
         .onAppear {
             shortcut = HotKeyManager.shared.loadSavedShortcut()
+            todoToggleShortcut = FocusTodoShortcutManager.shared.shortcut(for: .togglePanel)
+            todoPreviousShortcut = FocusTodoShortcutManager.shared.shortcut(for: .previousTask)
+            todoNextShortcut = FocusTodoShortcutManager.shared.shortcut(for: .nextTask)
+            todoDoneShortcut = FocusTodoShortcutManager.shared.shortcut(for: .markDone)
             checkAutoStartStatus()
         }
         .onChange(of: autoStart) { _, newValue in
@@ -219,6 +233,8 @@ struct SettingsView: View {
                 switch selectedTab {
                 case .general:
                     generalSettingsContent
+                case .focusTodo:
+                    focusTodoSettingsContent
                 case .aiService:
                     AIProviderSettingsView()
                 case .language:
@@ -491,6 +507,181 @@ struct SettingsView: View {
         }
     }
 
+    private var focusTodoSettingsContent: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "power")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Feature".localized())
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    Toggle(isOn: $focusTodoEnabled) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "checklist")
+                                .font(.system(size: 12))
+                            Text("Enable Focus Todo Overlay".localized())
+                                .font(.system(size: 13))
+                        }
+                    }
+                    .toggleStyle(.checkbox)
+                }
+                .padding(12)
+                .background(settingsCardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "checklist")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Focus Todo Shortcuts".localized())
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(alignment: .leading, spacing: 10) {
+                    shortcutSettingRow(
+                        title: "Toggle Panel".localized(),
+                        shortcut: Binding(
+                            get: { todoToggleShortcut },
+                            set: { newShortcut in
+                                todoToggleShortcut = newShortcut
+                                applyFocusTodoShortcut(newShortcut, action: .togglePanel)
+                            }
+                        )
+                    )
+
+                    shortcutSettingRow(
+                        title: "Switch to Previous Task".localized(),
+                        shortcut: Binding(
+                            get: { todoPreviousShortcut },
+                            set: { newShortcut in
+                                todoPreviousShortcut = newShortcut
+                                applyFocusTodoShortcut(newShortcut, action: .previousTask)
+                            }
+                        )
+                    )
+
+                    shortcutSettingRow(
+                        title: "Switch to Next Task".localized(),
+                        shortcut: Binding(
+                            get: { todoNextShortcut },
+                            set: { newShortcut in
+                                todoNextShortcut = newShortcut
+                                applyFocusTodoShortcut(newShortcut, action: .nextTask)
+                            }
+                        )
+                    )
+
+                    shortcutSettingRow(
+                        title: "Complete Current Task".localized(),
+                        shortcut: Binding(
+                            get: { todoDoneShortcut },
+                            set: { newShortcut in
+                                todoDoneShortcut = newShortcut
+                                applyFocusTodoShortcut(newShortcut, action: .markDone)
+                            }
+                        )
+                    )
+                }
+                .padding(12)
+                .background(settingsCardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .disabled(!focusTodoEnabled)
+                .opacity(focusTodoEnabled ? 1 : 0.5)
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "circle.lefthalf.filled")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Overlay Appearance".localized())
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    HStack {
+                        SettingLabelWithInfo(
+                            label: "Collapsed Transparency".localized(),
+                            description: "Adjust transparency of the collapsed Focus Todo bar.".localized()
+                        )
+                        Spacer()
+                        Text("%1$d%%".localized(Int(focusTodoCollapsedOpacity * 100)))
+                            .font(.system(size: 13, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+
+                    Slider(
+                        value: $focusTodoCollapsedOpacity,
+                        in: 0.2...0.7,
+                        step: 0.01
+                    )
+                    .controlSize(.small)
+                }
+                .padding(12)
+                .background(settingsCardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .disabled(!focusTodoEnabled)
+                .opacity(focusTodoEnabled ? 1 : 0.5)
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.on.clipboard")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Clipboard Prefill".localized())
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    HStack {
+                        SettingLabelWithInfo(
+                            label: "Auto-paste threshold".localized(),
+                            description: "If the most recent copied text is within this many seconds when opening Focus Todo, it will prefill the task input and be selected.".localized()
+                        )
+                        Spacer()
+                        Text("%1$d s".localized(Int(focusTodoClipboardPrefillSeconds)))
+                            .font(.system(size: 13, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+
+                    Slider(
+                        value: $focusTodoClipboardPrefillSeconds,
+                        in: 0...120,
+                        step: 1
+                    )
+                    .controlSize(.small)
+
+                    Text("Set to 0 to disable clipboard auto-paste.".localized())
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(12)
+                .background(settingsCardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .disabled(!focusTodoEnabled)
+                .opacity(focusTodoEnabled ? 1 : 0.5)
+            }
+
+            Spacer()
+        }
+    }
+
     @ViewBuilder
     private var languageSettingsContent: some View {
         VStack(alignment: .leading, spacing: 24) {
@@ -647,6 +838,48 @@ struct SettingsView: View {
             shortcut = HotKeyManager.shared.currentShortcut ?? HotKeyManager.shared.loadSavedShortcut()
             conflictMessage = "Unable to register this shortcut. It may be in use by another application.".localized()
             showConflictAlert = true
+        }
+    }
+
+    private func applyFocusTodoShortcut(_ newShortcut: HotKeyManager.Shortcut, action: FocusTodoShortcutManager.Action) {
+        if let validationError = HotKeyManager.shared.validationError(for: newShortcut) {
+            restoreFocusTodoShortcut(for: action)
+            conflictMessage = validationError
+            showConflictAlert = true
+            return
+        }
+
+        if FocusTodoShortcutManager.shared.hasDuplicate(with: newShortcut, excluding: action) {
+            restoreFocusTodoShortcut(for: action)
+            conflictMessage = "This shortcut is already used by another Focus Todo action.".localized()
+            showConflictAlert = true
+            return
+        }
+
+        FocusTodoShortcutManager.shared.update(shortcut: newShortcut, for: action)
+    }
+
+    private func restoreFocusTodoShortcut(for action: FocusTodoShortcutManager.Action) {
+        let savedShortcut = FocusTodoShortcutManager.shared.shortcut(for: action)
+        switch action {
+        case .togglePanel:
+            todoToggleShortcut = savedShortcut
+        case .previousTask:
+            todoPreviousShortcut = savedShortcut
+        case .nextTask:
+            todoNextShortcut = savedShortcut
+        case .markDone:
+            todoDoneShortcut = savedShortcut
+        }
+    }
+
+    private func shortcutSettingRow(title: String, shortcut: Binding<HotKeyManager.Shortcut>) -> some View {
+        HStack {
+            Text(title)
+                .font(.system(size: 13))
+            Spacer()
+            ShortcutRecorderView(shortcut: shortcut)
+                .frame(width: 220)
         }
     }
 }

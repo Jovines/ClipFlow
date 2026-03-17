@@ -1,9 +1,12 @@
 import Cocoa
 import SwiftUI
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     private let windowManager = FloatingWindowManager.shared
+    private let focusTodoWindowManager = FocusTodoWindowManager.shared
+    private var userDefaultsObserver: NSObjectProtocol?
     private var hasCheckedPermission = false
     private var isFloatingWindowActive = false
 
@@ -12,6 +15,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         checkAndRequestAccessibilityPermission()
         setupWindowFocusMonitoring()
         setupWindowNotifications()
+        setupFocusTodoFeatureObserver()
+        syncFocusTodoFeatureState()
     }
 
     private func setupWindowNotifications() {
@@ -31,6 +36,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         ClipboardMonitor.shared.stop()
         windowManager.cleanup()
+        focusTodoWindowManager.cleanup()
+        if let userDefaultsObserver {
+            NotificationCenter.default.removeObserver(userDefaultsObserver)
+        }
+        userDefaultsObserver = nil
+    }
+
+    private func setupFocusTodoFeatureObserver() {
+        guard userDefaultsObserver == nil else { return }
+        userDefaultsObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.syncFocusTodoFeatureState()
+            }
+        }
+    }
+
+    private func syncFocusTodoFeatureState() {
+        let isEnabled = UserDefaults.standard.object(forKey: "focusTodoEnabled") as? Bool ?? true
+        if isEnabled {
+            focusTodoWindowManager.start()
+        } else {
+            focusTodoWindowManager.cleanup()
+        }
     }
     
     func applicationDidBecomeActive(_ notification: Notification) {

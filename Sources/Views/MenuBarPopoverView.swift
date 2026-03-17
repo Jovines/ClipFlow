@@ -4,6 +4,7 @@ struct MenuBarPopoverView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismiss) private var dismiss
     @StateObject private var themeManager = ThemeManager.shared
+    @AppStorage("focusTodoEnabled") private var focusTodoEnabled = true
 
     var body: some View {
         VStack(spacing: 0) {
@@ -22,6 +23,18 @@ struct MenuBarPopoverView: View {
                 .background(themeManager.borderSubtle)
 
             MenuButton(
+                icon: focusTodoEnabled ? "checklist.checked" : "checklist",
+                label: focusTodoEnabled ? "Focus Todo Off".localized() : "Focus Todo On".localized(),
+                action: {
+                    focusTodoEnabled.toggle()
+                }
+            )
+
+            Divider()
+                .padding(.horizontal, 8)
+                .background(themeManager.borderSubtle)
+
+            MenuButton(
                 icon: "power",
                 label: "Quit".localized(comment: "Menu item"),
                 action: {
@@ -30,7 +43,7 @@ struct MenuBarPopoverView: View {
             )
         }
         .padding(.vertical, 4)
-        .frame(width: 160)
+        .frame(width: 190)
         .preferredColorScheme(themeManager.colorScheme)
     }
 }

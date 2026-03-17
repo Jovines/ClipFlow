@@ -17,6 +17,7 @@
 		1E27C63FBF4428172AF9D547 /* ProjectModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A0D6EA8A4C9FCE56366FE5 /* ProjectModeView.swift */; };
 		1F658F6458027E7978360C1F /* ImagePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B85F0DF320B3BCDB326EEF /* ImagePreviewView.swift */; };
 		2524E6BB6091BEF55A67FC35 /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79DA421858CFFE55FE1B1533 /* OpenAIService.swift */; };
+		2D86ED59AA3365302882014E /* FocusTodoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED991AEDB0468EE02851D24 /* FocusTodoService.swift */; };
 		2F492803D635C18750F98BBC /* ShortcutRecorderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 756C41B94C5F060DD792D03C /* ShortcutRecorderView.swift */; };
 		37743BE3D096EDF86BBDD238 /* SettingsWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */; };
 		37F43B27ADE0E9A974D7A785 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5F20288AFA600ADBAB86A41E /* Assets.xcassets */; };
@@ -24,6 +25,8 @@
 		3AB7E32F2A2782D8EC61E146 /* SearchIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5C68D15CA5FE443AF36F99 /* SearchIndicatorView.swift */; };
 		3B7FC1504D8FFFDDD7F3FAB8 /* HotKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */; };
 		3E3307C5175AD0F1D57F5FCC /* ProjectModeContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDF9EE54435FAA70FA993FA3 /* ProjectModeContainerView.swift */; };
+		3EAF001DD64084D2DF065AC1 /* FocusTodoWindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45D60549F9E4F47246D77620 /* FocusTodoWindowManager.swift */; };
+		3F2C6169FE7CF4A33E893FEE /* FocusTodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA943626A0F5FA8D3C89C6D3 /* FocusTodoItem.swift */; };
 		416CF85EA669A7AE7A718464 /* LanguageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1FF5CAE6EF1A0F9BAB49B74 /* LanguageManager.swift */; };
 		423891FB4C39BA5FDF08B1BF /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B153DF2BA49164525C42A0 /* AppDelegate.swift */; };
 		42F280A7B1380E2C3746779C /* FloatingItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B47801E615928703BA4682AD /* FloatingItemRow.swift */; };
@@ -33,6 +36,7 @@
 		558BE8AA87AC02DF13B09F68 /* EditorPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC18090E3D1989DB7938BC3D /* EditorPanelView.swift */; };
 		59AB3A450255EAC2496E9B35 /* ProjectSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2174DC89E3CFBACFE2B21C70 /* ProjectSelectorView.swift */; };
 		5A685B205DDA229166C8F59A /* ImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8272FC6C30E6E5A33103EB5F /* ImageCacheManager.swift */; };
+		5F46600495577968AC029E6B /* FocusTodoBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3604EDFF97A05C7E5BBAC1 /* FocusTodoBarView.swift */; };
 		5FC7B2B68756A340589CF3E3 /* FloatingWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */; };
 		600791DBFC092610668FFB59 /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03A12D83C57164491EEDBE41 /* AboutView.swift */; };
 		693965C3F410A5655BF0EC01 /* TagPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D92728CAB3D845A3B855AC /* TagPickerView.swift */; };
@@ -70,6 +74,7 @@
 		D09143B997DB472D354CFA05 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88188FA9FF589402AFC4C99A /* NotificationService.swift */; };
 		D0FD714EEA703D38257AC9A5 /* ProviderPresetSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8706162E93619342AD1D5A08 /* ProviderPresetSheet.swift */; };
 		D3837EE4A5FB8CE4BBF2E01F /* CacheManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F03415EE3AEA5A43EAE60A2 /* CacheManagementView.swift */; };
+		D50E18F566AC4B78BEFB2FF9 /* FocusTodoShortcutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E87BB6468C65F9DADE010124 /* FocusTodoShortcutManager.swift */; };
 		D8BBB83FBB834C110DD1A893 /* PromptTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32FBC1064BBFAFBE9D488D21 /* PromptTemplate.swift */; };
 		DC537CD0D58974EE0D197D2A /* PresetRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB8ABDF6BA2D425A5A116AE6 /* PresetRow.swift */; };
 		DE9F42E5AB45EA8F63DDE202 /* ImageOptimizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586557FA753777654C073B06 /* ImageOptimizer.swift */; };
@@ -101,8 +106,10 @@
 		3991C8C49F3C6C3A9AA0EDCA /* ProjectButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectButton.swift; sourceTree = "<group>"; };
 		3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPopoverView.swift; sourceTree = "<group>"; };
 		41DEC69AF906C2D536A88877 /* TagSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSidebarView.swift; sourceTree = "<group>"; };
+		45D60549F9E4F47246D77620 /* FocusTodoWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTodoWindowManager.swift; sourceTree = "<group>"; };
 		49493FC09DDDFB3A81EF6D61 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
 		4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardMonitor.swift; sourceTree = "<group>"; };
+		4C3604EDFF97A05C7E5BBAC1 /* FocusTodoBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTodoBarView.swift; sourceTree = "<group>"; };
 		53A0D6EA8A4C9FCE56366FE5 /* ProjectModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectModeView.swift; sourceTree = "<group>"; };
 		570F8337E86D4F82253E5F25 /* Project.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Project.swift; sourceTree = "<group>"; };
 		586557FA753777654C073B06 /* ImageOptimizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOptimizer.swift; sourceTree = "<group>"; };
@@ -145,8 +152,11 @@
 		DB7D34E47BB34B91999777F7 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		DB8ABDF6BA2D425A5A116AE6 /* PresetRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetRow.swift; sourceTree = "<group>"; };
 		DE9A40E1541CBBEB56F88643 /* ProjectPromptSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectPromptSettingsView.swift; sourceTree = "<group>"; };
+		DED991AEDB0468EE02851D24 /* FocusTodoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTodoService.swift; sourceTree = "<group>"; };
 		E614E0B350221DC20564FFE6 /* Color+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+Hex.swift"; sourceTree = "<group>"; };
+		E87BB6468C65F9DADE010124 /* FocusTodoShortcutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTodoShortcutManager.swift; sourceTree = "<group>"; };
 		E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingWindowView.swift; sourceTree = "<group>"; };
+		EA943626A0F5FA8D3C89C6D3 /* FocusTodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTodoItem.swift; sourceTree = "<group>"; };
 		EC3A193662A798F38A905321 /* ProjectModeBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectModeBar.swift; sourceTree = "<group>"; };
 		EEB25C362C23BB1353F84958 /* ModeIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeIndicatorView.swift; sourceTree = "<group>"; };
 		F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardItem.swift; sourceTree = "<group>"; };
@@ -175,6 +185,9 @@
 			children = (
 				4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */,
 				1CE72248AB11DA260D0367CA /* FloatingWindowManager.swift */,
+				DED991AEDB0468EE02851D24 /* FocusTodoService.swift */,
+				E87BB6468C65F9DADE010124 /* FocusTodoShortcutManager.swift */,
+				45D60549F9E4F47246D77620 /* FocusTodoWindowManager.swift */,
 				2DDBF19E680ADCE34D051275 /* HotKeyManager.swift */,
 				DB7D34E47BB34B91999777F7 /* KeychainManager.swift */,
 				C1FF5CAE6EF1A0F9BAB49B74 /* LanguageManager.swift */,
@@ -204,6 +217,7 @@
 			children = (
 				77BE29F8D89D216AF58F99DF /* AIProviderConfig.swift */,
 				F6590A7FBCA0E3372D48BBF5 /* ClipboardItem.swift */,
+				EA943626A0F5FA8D3C89C6D3 /* FocusTodoItem.swift */,
 				570F8337E86D4F82253E5F25 /* Project.swift */,
 				32FBC1064BBFAFBE9D488D21 /* PromptTemplate.swift */,
 			);
@@ -345,6 +359,7 @@
 				C9BD6759A4218875050954FC /* ContentView.swift */,
 				A19822AF54BE8A77A60D78D5 /* FloatingWindow+NSUI.swift */,
 				E91DB8DA8551879506B79B69 /* FloatingWindowView.swift */,
+				4C3604EDFF97A05C7E5BBAC1 /* FocusTodoBarView.swift */,
 				3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */,
 				93E6F611F5CEAB8D5193F057 /* SettingsView.swift */,
 				19FBE5F6BD171CEB03DB6724 /* UpdateSettingsView.swift */,
@@ -494,6 +509,11 @@
 				7759F51D7AC8EB655E0AFD07 /* FloatingWindow+NSUI.swift in Sources */,
 				F419A4DFE952EF99C6D812E3 /* FloatingWindowManager.swift in Sources */,
 				5FC7B2B68756A340589CF3E3 /* FloatingWindowView.swift in Sources */,
+				5F46600495577968AC029E6B /* FocusTodoBarView.swift in Sources */,
+				3F2C6169FE7CF4A33E893FEE /* FocusTodoItem.swift in Sources */,
+				2D86ED59AA3365302882014E /* FocusTodoService.swift in Sources */,
+				D50E18F566AC4B78BEFB2FF9 /* FocusTodoShortcutManager.swift in Sources */,
+				3EAF001DD64084D2DF065AC1 /* FocusTodoWindowManager.swift in Sources */,
 				7E484A64DFF670B5A2CE23AC /* GroupPanelCoordinator.swift in Sources */,
 				1B503E15C756DDA8D2A103C4 /* GroupPanelView.swift in Sources */,
 				88D21642610FE75C79F1FAA1 /* GroupView.swift in Sources */,
