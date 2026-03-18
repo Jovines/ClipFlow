@@ -65,11 +65,12 @@ echo "Release artifact ready: $DMG_PATH"
 echo "$SPARKLE_OUTPUT"
 echo ""
 echo "Appcast enclosure snippet:"
-echo "$SPARKLE_OUTPUT" | python3 - "$DMG_PATH" <<'PY'
+SPARKLE_OUTPUT="$SPARKLE_OUTPUT" python3 - "$DMG_PATH" <<'PY'
 import re
 import sys
+import os
 
-line = sys.stdin.read().strip()
+line = os.environ.get("SPARKLE_OUTPUT", "").strip()
 dmg_path = sys.argv[1]
 sig = re.search(r'sparkle:edSignature="([^"]+)"', line)
 length = re.search(r'length="([^"]+)"', line)
