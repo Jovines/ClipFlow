@@ -623,7 +623,7 @@ struct SettingsView: View {
 
                     Slider(
                         value: $focusTodoCollapsedOpacity,
-                        in: 0.2...0.7,
+                        in: 0.05...0.7,
                         step: 0.01
                     )
                     .controlSize(.small)

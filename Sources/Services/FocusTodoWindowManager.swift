@@ -12,15 +12,16 @@ final class FocusTodoWindowManager: ObservableObject {
     private var localKeyMonitor: Any?
     private var globalKeyMonitor: Any?
     private var globalMouseMonitor: Any?
-    private var globalMouseDragMonitor: Any?
+    private var globalScrollMonitor: Any?
     private var screenChangeObserver: Any?
     private var windowMoveObserver: NSObjectProtocol?
     private var snapDebounceWorkItem: DispatchWorkItem?
     private var suppressMoveSnapUntil = Date.distantPast
-    private var isCollapsedDragging = false
-    private var hasMovedDuringCollapsedDrag = false
-    private var collapsedDragStartMouseLocation = NSPoint.zero
-    private var collapsedDragStartWindowOrigin = NSPoint.zero
+    private var lastScrollSnapTime = Date.distantPast
+    private var collapsedScrollControlUntil = Date.distantPast
+    private var collapsedScrollAnchorLocation: NSPoint?
+    private var isCollapsedScrollGestureLocked = false
+    private var lastCollapsedScrollEventTime = Date.distantPast
 
     private enum SnapPosition: String, CaseIterable {
         case topLeft
@@ -88,10 +89,10 @@ final class FocusTodoWindowManager: ObservableObject {
         }
         globalMouseMonitor = nil
 
-        if let globalMouseDragMonitor {
-            NSEvent.removeMonitor(globalMouseDragMonitor)
+        if let globalScrollMonitor {
+            NSEvent.removeMonitor(globalScrollMonitor)
         }
-        globalMouseDragMonitor = nil
+        globalScrollMonitor = nil
 
         if let screenChangeObserver {
             NotificationCenter.default.removeObserver(screenChangeObserver)
@@ -214,21 +215,10 @@ final class FocusTodoWindowManager: ObservableObject {
     }
 
     private func setupMouseMonitor() {
-        guard globalMouseMonitor == nil, globalMouseDragMonitor == nil else { return }
+        guard globalMouseMonitor == nil, globalScrollMonitor == nil else { return }
 
         globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
             guard let self, let window = self.window else {
-                return
-            }
-
-            if event.type == .leftMouseDown,
-               !self.todoService.isPanelExpanded,
-               window.frame.contains(event.locationInWindow) {
-                self.isCollapsedDragging = true
-                self.hasMovedDuringCollapsedDrag = false
-                self.collapsedDragStartMouseLocation = event.locationInWindow
-                self.collapsedDragStartWindowOrigin = window.frame.origin
-                self.todoService.setCollapsedDragging(true)
                 return
             }
 
@@ -243,38 +233,145 @@ final class FocusTodoWindowManager: ObservableObject {
             }
         }
 
-        globalMouseDragMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDragged, .leftMouseUp]) { [weak self] event in
-            guard let self,
-                  self.isCollapsedDragging,
-                  !self.todoService.isPanelExpanded,
-                  let window = self.window else {
+        globalScrollMonitor = NSEvent.addGlobalMonitorForEvents(matching: .scrollWheel) { [weak self] event in
+            guard let self else { return }
+            Task { @MainActor in
+                self.handleCollapsedScroll(event)
+            }
+        }
+    }
+
+    private func handleCollapsedScroll(_ event: NSEvent) {
+        guard !todoService.isPanelExpanded,
+              let window else {
+            return
+        }
+
+        let now = Date()
+        let pointerInside = window.frame.contains(event.locationInWindow)
+        let hasActiveScrollControl = now <= collapsedScrollControlUntil
+        if pointerInside {
+            collapsedScrollAnchorLocation = event.locationInWindow
+            collapsedScrollControlUntil = now.addingTimeInterval(1.4)
+        } else if hasActiveScrollControl {
+            guard let anchor = collapsedScrollAnchorLocation else {
+                collapsedScrollControlUntil = .distantPast
+                isCollapsedScrollGestureLocked = false
                 return
             }
 
-            if event.type == .leftMouseDragged {
-                let current = event.locationInWindow
-                let deltaX = current.x - self.collapsedDragStartMouseLocation.x
-                let deltaY = current.y - self.collapsedDragStartMouseLocation.y
-
-                if abs(deltaX) > 1 || abs(deltaY) > 1 {
-                    self.hasMovedDuringCollapsedDrag = true
-                }
-
-                let newOrigin = NSPoint(
-                    x: self.collapsedDragStartWindowOrigin.x + deltaX,
-                    y: self.collapsedDragStartWindowOrigin.y + deltaY
-                )
-                window.setFrameOrigin(newOrigin)
-            } else {
-                self.isCollapsedDragging = false
-                self.todoService.setCollapsedDragging(false)
-                if self.hasMovedDuringCollapsedDrag {
-                    Task { @MainActor in
-                        self.snapToNearestPositionAfterDrag()
-                    }
-                }
-                self.hasMovedDuringCollapsedDrag = false
+            let movedDistance = hypot(event.locationInWindow.x - anchor.x, event.locationInWindow.y - anchor.y)
+            if movedDistance > 2.5 {
+                collapsedScrollControlUntil = .distantPast
+                collapsedScrollAnchorLocation = nil
+                isCollapsedScrollGestureLocked = false
+                return
             }
+        } else {
+            return
+        }
+
+        let gestureIdleGap = now.timeIntervalSince(lastCollapsedScrollEventTime)
+        if gestureIdleGap > 0.22 {
+            isCollapsedScrollGestureLocked = false
+        }
+
+        if event.hasPreciseScrollingDeltas {
+            if event.phase == .began {
+                isCollapsedScrollGestureLocked = false
+            }
+            if now.timeIntervalSince(lastScrollSnapTime) > 0.9 {
+                isCollapsedScrollGestureLocked = false
+            }
+        } else {
+            isCollapsedScrollGestureLocked = false
+        }
+        lastCollapsedScrollEventTime = now
+
+        guard !isCollapsedScrollGestureLocked else { return }
+
+        guard now.timeIntervalSince(lastScrollSnapTime) > 0.16 else { return }
+
+        let dx = adjustedScrollDelta(event.scrollingDeltaX, isInverted: event.isDirectionInvertedFromDevice)
+        let dy = adjustedScrollDelta(event.scrollingDeltaY, isInverted: event.isDirectionInvertedFromDevice)
+
+        let threshold: CGFloat = event.hasPreciseScrollingDeltas ? 3 : 0.5
+        guard abs(dx) > threshold || abs(dy) > threshold else { return }
+
+        var row = rowIndex(for: snapPosition)
+        var column = columnIndex(for: snapPosition)
+
+        if abs(dy) >= abs(dx) {
+            if dy > 0 {
+                row = max(0, row - 1)
+            } else {
+                row = min(2, row + 1)
+            }
+        } else {
+            if dx > 0 {
+                column = max(0, column - 1)
+            } else {
+                column = min(2, column + 1)
+            }
+        }
+
+        let nextPosition = snapPositionFor(row: row, column: column)
+        guard nextPosition != snapPosition else { return }
+
+        snapPosition = nextPosition
+        lastScrollSnapTime = now
+        isCollapsedScrollGestureLocked = true
+        collapsedScrollControlUntil = now.addingTimeInterval(1.4)
+        todoService.notifyCollapsedInteraction()
+        refreshLayout()
+    }
+
+    private func adjustedScrollDelta(_ delta: CGFloat, isInverted: Bool) -> CGFloat {
+        isInverted ? -delta : delta
+    }
+
+    private func rowIndex(for position: SnapPosition) -> Int {
+        switch position {
+        case .topLeft, .topCenter, .topRight:
+            return 0
+        case .middleLeft, .middleCenter, .middleRight:
+            return 1
+        case .bottomLeft, .bottomCenter, .bottomRight:
+            return 2
+        }
+    }
+
+    private func columnIndex(for position: SnapPosition) -> Int {
+        switch position {
+        case .topLeft, .middleLeft, .bottomLeft:
+            return 0
+        case .topCenter, .middleCenter, .bottomCenter:
+            return 1
+        case .topRight, .middleRight, .bottomRight:
+            return 2
+        }
+    }
+
+    private func snapPositionFor(row: Int, column: Int) -> SnapPosition {
+        switch (max(0, min(2, row)), max(0, min(2, column))) {
+        case (0, 0):
+            return .topLeft
+        case (0, 1):
+            return .topCenter
+        case (0, 2):
+            return .topRight
+        case (1, 0):
+            return .middleLeft
+        case (1, 1):
+            return .middleCenter
+        case (1, 2):
+            return .middleRight
+        case (2, 0):
+            return .bottomLeft
+        case (2, 1):
+            return .bottomCenter
+        default:
+            return .bottomRight
         }
     }
 

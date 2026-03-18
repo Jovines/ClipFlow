@@ -185,12 +185,6 @@ struct FocusTodoBarView: View {
                             .shadow(color: .black.opacity(0.28), radius: 1.2, y: 0.6)
                             .opacity(collapsedNextTaskTitle == nil ? 0 : 1)
                     }
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 1)
-                    .background(
-                        RoundedRectangle(cornerRadius: 5, style: .continuous)
-                            .fill(themeManager.chromeSurfaceElevated.opacity(collapsedTextBackdropOpacity))
-                    )
                 } else {
                     Text("No task".localized)
                         .font(.system(size: 9.5, weight: .medium))
@@ -208,16 +202,38 @@ struct FocusTodoBarView: View {
                     .lineLimit(1)
                     .frame(maxWidth: 120, alignment: .trailing)
             } else {
-                VStack(alignment: .trailing, spacing: -1) {
-                    Text("Pending: %1$d".localized(collapsedPendingCount))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(themeManager.textSecondary)
-                        .shadow(color: .black.opacity(0.22), radius: 1.1, y: 0.6)
+                VStack(alignment: .trailing, spacing: 1) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock.badge.checkmark")
+                            .font(.system(size: 8, weight: .medium))
+                            .foregroundStyle(themeManager.textTertiary)
 
-                    Text("Open: %@".localized(togglePanelShortcutDisplay))
-                        .font(.system(size: 7, weight: .regular))
-                        .foregroundStyle(themeManager.textTertiary)
-                        .shadow(color: .black.opacity(0.20), radius: 1.0, y: 0.5)
+                        Text("\(collapsedPendingCount)")
+                            .font(.system(size: 8.5, weight: .semibold, design: .rounded))
+                            .foregroundStyle(themeManager.textSecondary)
+                            .monospacedDigit()
+                            .padding(.horizontal, 5)
+                            .padding(.vertical, 1)
+                            .background(
+                                Capsule(style: .continuous)
+                                    .fill(themeManager.chromeSurfaceElevated.opacity(0.65))
+                            )
+                    }
+                    .shadow(color: .black.opacity(0.18), radius: 1.0, y: 0.5)
+
+                    HStack(spacing: 4) {
+                        Image(systemName: "keyboard")
+                            .font(.system(size: 7.5, weight: .medium))
+                        Text(togglePanelShortcutDisplay)
+                            .font(.system(size: 8.5, weight: .semibold, design: .rounded))
+                    }
+                    .foregroundStyle(themeManager.textSecondary)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 2)
+                    .background(
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                            .fill(themeManager.chromeSurfaceElevated.opacity(0.78))
+                    )
                 }
             }
 
@@ -413,7 +429,7 @@ struct FocusTodoBarView: View {
                     .opacity(todoService.isPanelExpanded ? 0.88 : effectiveCollapsedOpacity)
             } else {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(themeManager.surface.opacity(todoService.isPanelExpanded ? 0.90 : max(0.12, effectiveCollapsedOpacity - 0.08)))
+                    .fill(themeManager.surface.opacity(todoService.isPanelExpanded ? 0.90 : max(0.03, effectiveCollapsedOpacity - 0.08)))
             }
         }
     }
@@ -479,18 +495,11 @@ struct FocusTodoBarView: View {
     }
 
     private var effectiveCollapsedOpacity: Double {
-        let dragBoost = todoService.isCollapsedDragging ? 0.26 : 0
-        return min(0.9, max(0.2, collapsedOpacity + max(dragBoost, collapsedInteractionBoost)))
+        min(0.9, max(0.05, collapsedOpacity + collapsedInteractionBoost))
     }
 
     private var collapsedStrokeOpacity: Double {
         min(0.55, max(0.18, 0.16 + effectiveCollapsedOpacity * 0.26))
-    }
-
-    private var collapsedTextBackdropOpacity: Double {
-        let base = 0.22
-        let compensation = max(0, 0.42 - effectiveCollapsedOpacity) * 0.6
-        return min(0.38, base + compensation)
     }
 
     private func triggerCollapsedInteractionFeedback() {

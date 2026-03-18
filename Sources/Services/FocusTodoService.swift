@@ -10,7 +10,6 @@ final class FocusTodoService: ObservableObject {
     @Published var isPanelExpanded = false
     @Published private(set) var activeSwitchSerial = 0
     @Published private(set) var collapsedInteractionSerial = 0
-    @Published private(set) var isCollapsedDragging = false
     @Published private(set) var measuredCollapsedHeight: CGFloat = 42
     @Published private(set) var measuredExpandedHeight: CGFloat = 286
 
@@ -145,11 +144,6 @@ final class FocusTodoService: ObservableObject {
     func notifyCollapsedInteraction() {
         guard !isPanelExpanded else { return }
         collapsedInteractionSerial += 1
-    }
-
-    func setCollapsedDragging(_ dragging: Bool) {
-        guard isCollapsedDragging != dragging else { return }
-        isCollapsedDragging = dragging
     }
 
     func updateMeasuredHeight(_ height: CGFloat, expanded: Bool) {
