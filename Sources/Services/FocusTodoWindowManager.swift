@@ -116,7 +116,7 @@ final class FocusTodoWindowManager: ObservableObject {
         guard let window else { return }
         let targetWidth = todoService.isPanelExpanded ? expandedWidth : targetCollapsedWidth
         let targetHeight = todoService.isPanelExpanded
-            ? max(220, todoService.measuredExpandedHeight)
+            ? max(320, todoService.measuredExpandedHeight)
             : max(30, todoService.measuredCollapsedHeight)
         let targetFrame = frameForCurrentScreen(width: targetWidth, height: targetHeight, using: screenForWindowFrame(window.frame))
         suppressMoveSnapUntil = Date().addingTimeInterval(animated ? 0.28 : 0.08)

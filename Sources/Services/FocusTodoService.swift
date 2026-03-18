@@ -11,7 +11,7 @@ final class FocusTodoService: ObservableObject {
     @Published private(set) var activeSwitchSerial = 0
     @Published private(set) var collapsedInteractionSerial = 0
     @Published private(set) var measuredCollapsedHeight: CGFloat = 42
-    @Published private(set) var measuredExpandedHeight: CGFloat = 286
+    @Published private(set) var measuredExpandedHeight: CGFloat = 340
 
     private let itemsKey = FocusTodoPreferences.itemsKey
     private let activeIdKey = FocusTodoPreferences.activeItemIdKey
