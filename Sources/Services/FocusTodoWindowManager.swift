@@ -12,10 +12,15 @@ final class FocusTodoWindowManager: ObservableObject {
     private var localKeyMonitor: Any?
     private var globalKeyMonitor: Any?
     private var globalMouseMonitor: Any?
+    private var globalMouseDragMonitor: Any?
     private var screenChangeObserver: Any?
     private var windowMoveObserver: NSObjectProtocol?
     private var snapDebounceWorkItem: DispatchWorkItem?
     private var suppressMoveSnapUntil = Date.distantPast
+    private var isCollapsedDragging = false
+    private var hasMovedDuringCollapsedDrag = false
+    private var collapsedDragStartMouseLocation = NSPoint.zero
+    private var collapsedDragStartWindowOrigin = NSPoint.zero
 
     private enum SnapPosition: String, CaseIterable {
         case topLeft
@@ -31,18 +36,19 @@ final class FocusTodoWindowManager: ObservableObject {
 
     private var snapPosition: SnapPosition {
         get {
-            guard let value = UserDefaults.standard.string(forKey: "focusTodoSnapPosition"),
+            guard let value = UserDefaults.standard.string(forKey: FocusTodoPreferences.snapPositionKey),
                   let position = SnapPosition(rawValue: value) else {
                 return .topRight
             }
             return position
         }
         set {
-            UserDefaults.standard.set(newValue.rawValue, forKey: "focusTodoSnapPosition")
+            UserDefaults.standard.set(newValue.rawValue, forKey: FocusTodoPreferences.snapPositionKey)
         }
     }
 
     private let collapsedWidth: CGFloat = 280
+    private let collapsedMinimalWidth: CGFloat = 178
     private let expandedWidth: CGFloat = 460
     private let topMargin: CGFloat = 6
     private let bottomMargin: CGFloat = 8
@@ -82,6 +88,11 @@ final class FocusTodoWindowManager: ObservableObject {
         }
         globalMouseMonitor = nil
 
+        if let globalMouseDragMonitor {
+            NSEvent.removeMonitor(globalMouseDragMonitor)
+        }
+        globalMouseDragMonitor = nil
+
         if let screenChangeObserver {
             NotificationCenter.default.removeObserver(screenChangeObserver)
         }
@@ -102,14 +113,14 @@ final class FocusTodoWindowManager: ObservableObject {
 
     func refreshLayout(animated: Bool = true) {
         guard let window else { return }
-        let targetWidth = todoService.isPanelExpanded ? expandedWidth : collapsedWidth
+        let targetWidth = todoService.isPanelExpanded ? expandedWidth : targetCollapsedWidth
         let targetHeight = todoService.isPanelExpanded
             ? max(220, todoService.measuredExpandedHeight)
             : max(30, todoService.measuredCollapsedHeight)
         let targetFrame = frameForCurrentScreen(width: targetWidth, height: targetHeight, using: screenForWindowFrame(window.frame))
         suppressMoveSnapUntil = Date().addingTimeInterval(animated ? 0.28 : 0.08)
 
-        window.ignoresMouseEvents = false
+        window.ignoresMouseEvents = !todoService.isPanelExpanded
 
         if animated {
             NSAnimationContext.runAnimationGroup { context in
@@ -125,7 +136,7 @@ final class FocusTodoWindowManager: ObservableObject {
         guard window == nil else { return }
 
         let initialHeight = max(30, todoService.measuredCollapsedHeight)
-        let frame = frameForCurrentScreen(width: collapsedWidth, height: initialHeight)
+        let frame = frameForCurrentScreen(width: targetCollapsedWidth, height: initialHeight)
         let barView = FocusTodoBarView()
         let hosting = NSHostingController(rootView: barView)
         let panel = FocusTodoWindow(
@@ -142,19 +153,8 @@ final class FocusTodoWindowManager: ObservableObject {
         panel.level = .statusBar
         panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]
         panel.hidesOnDeactivate = false
-        panel.ignoresMouseEvents = false
+        panel.ignoresMouseEvents = true
         panel.isMovableByWindowBackground = true
-        panel.onDragEnded = { [weak self] (didDrag: Bool) in
-            Task { @MainActor in
-                guard let self, didDrag else { return }
-                self.snapToNearestPositionAfterDrag()
-            }
-        }
-        panel.onDragStateChanged = { [weak self] (isDragging: Bool) in
-            Task { @MainActor in
-                self?.todoService.setCollapsedDragging(isDragging)
-            }
-        }
 
         window = panel
         hostingController = hosting
@@ -164,6 +164,10 @@ final class FocusTodoWindowManager: ObservableObject {
         guard let window else { return }
         window.orderFrontRegardless()
         window.orderFront(nil)
+    }
+
+    private var targetCollapsedWidth: CGFloat {
+        todoService.activeItem == nil ? collapsedMinimalWidth : collapsedWidth
     }
 
     private func setupScreenObserver() {
@@ -210,14 +214,25 @@ final class FocusTodoWindowManager: ObservableObject {
     }
 
     private func setupMouseMonitor() {
-        guard globalMouseMonitor == nil else { return }
+        guard globalMouseMonitor == nil, globalMouseDragMonitor == nil else { return }
 
         globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
-            guard let self,
-                  self.todoService.isPanelExpanded,
-                  let window = self.window else {
+            guard let self, let window = self.window else {
                 return
             }
+
+            if event.type == .leftMouseDown,
+               !self.todoService.isPanelExpanded,
+               window.frame.contains(event.locationInWindow) {
+                self.isCollapsedDragging = true
+                self.hasMovedDuringCollapsedDrag = false
+                self.collapsedDragStartMouseLocation = event.locationInWindow
+                self.collapsedDragStartWindowOrigin = window.frame.origin
+                self.todoService.setCollapsedDragging(true)
+                return
+            }
+
+            guard self.todoService.isPanelExpanded else { return }
 
             let clickPoint = event.locationInWindow
             if window.frame.contains(clickPoint) == false {
@@ -225,6 +240,40 @@ final class FocusTodoWindowManager: ObservableObject {
                     self.todoService.setPanelExpanded(false)
                     self.refreshLayout()
                 }
+            }
+        }
+
+        globalMouseDragMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDragged, .leftMouseUp]) { [weak self] event in
+            guard let self,
+                  self.isCollapsedDragging,
+                  !self.todoService.isPanelExpanded,
+                  let window = self.window else {
+                return
+            }
+
+            if event.type == .leftMouseDragged {
+                let current = event.locationInWindow
+                let deltaX = current.x - self.collapsedDragStartMouseLocation.x
+                let deltaY = current.y - self.collapsedDragStartMouseLocation.y
+
+                if abs(deltaX) > 1 || abs(deltaY) > 1 {
+                    self.hasMovedDuringCollapsedDrag = true
+                }
+
+                let newOrigin = NSPoint(
+                    x: self.collapsedDragStartWindowOrigin.x + deltaX,
+                    y: self.collapsedDragStartWindowOrigin.y + deltaY
+                )
+                window.setFrameOrigin(newOrigin)
+            } else {
+                self.isCollapsedDragging = false
+                self.todoService.setCollapsedDragging(false)
+                if self.hasMovedDuringCollapsedDrag {
+                    Task { @MainActor in
+                        self.snapToNearestPositionAfterDrag()
+                    }
+                }
+                self.hasMovedDuringCollapsedDrag = false
             }
         }
     }
@@ -369,36 +418,6 @@ final class FocusTodoWindowManager: ObservableObject {
 }
 
 private final class FocusTodoWindow: NSPanel {
-    var onDragEnded: ((Bool) -> Void)?
-    var onDragStateChanged: ((Bool) -> Void)?
-    private var mouseDownOrigin = NSPoint.zero
-    private var isDraggingFromMouseDown = false
-
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { false }
-
-    override func mouseDown(with event: NSEvent) {
-        mouseDownOrigin = frame.origin
-        isDraggingFromMouseDown = false
-        super.mouseDown(with: event)
-    }
-
-    override func mouseDragged(with event: NSEvent) {
-        if !isDraggingFromMouseDown {
-            isDraggingFromMouseDown = true
-            onDragStateChanged?(true)
-        }
-        super.mouseDragged(with: event)
-    }
-
-    override func mouseUp(with event: NSEvent) {
-        super.mouseUp(with: event)
-        let didDrag = isDraggingFromMouseDown
-
-        if isDraggingFromMouseDown {
-            onDragStateChanged?(false)
-        }
-
-        onDragEnded?(didDrag)
-    }
 }

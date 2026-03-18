@@ -14,8 +14,8 @@ final class FocusTodoService: ObservableObject {
     @Published private(set) var measuredCollapsedHeight: CGFloat = 42
     @Published private(set) var measuredExpandedHeight: CGFloat = 286
 
-    private let itemsKey = "focusTodo.items"
-    private let activeIdKey = "focusTodo.activeItemId"
+    private let itemsKey = FocusTodoPreferences.itemsKey
+    private let activeIdKey = FocusTodoPreferences.activeItemIdKey
 
     var activeItem: FocusTodoItem? {
         guard let activeItemId else { return nil }

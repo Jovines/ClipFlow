@@ -10,7 +10,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .system: return "System (Liquid Glass)"
+        case .system: return "System (Adaptive Glass)"
         case .flexoki: return "Flexoki"
         case .nord: return "Nord"
         }

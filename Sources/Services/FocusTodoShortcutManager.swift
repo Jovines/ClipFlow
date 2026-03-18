@@ -77,7 +77,7 @@ final class FocusTodoShortcutManager: ObservableObject {
 
     @Published private(set) var configuration: Configuration
 
-    private let userDefaultsKey = "focusTodo.shortcuts"
+    private let userDefaultsKey = FocusTodoPreferences.shortcutsKey
 
     private init() {
         if let data = UserDefaults.standard.data(forKey: userDefaultsKey),

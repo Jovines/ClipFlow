@@ -57,7 +57,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func syncFocusTodoFeatureState() {
-        let isEnabled = UserDefaults.standard.object(forKey: "focusTodoEnabled") as? Bool ?? true
+        let isEnabled = UserDefaults.standard.object(forKey: FocusTodoPreferences.isEnabledKey) as? Bool ?? true
         if isEnabled {
             focusTodoWindowManager.start()
         } else {

@@ -28,7 +28,7 @@ enum ThemeOption: String, CaseIterable, Identifiable {
 }
 
 enum ColorSchemeOption: String, CaseIterable, Identifiable {
-    case system = "System (Liquid Glass)"
+    case system = "System (Adaptive Glass)"
     case flexoki = "Flexoki"
     case nord = "Nord"
 
@@ -126,11 +126,11 @@ struct SettingsView: View {
     @AppStorage("maxHistoryItems") private var maxHistoryItems = 100
     @AppStorage("saveImages") private var saveImages = true
     @AppStorage("autoStart") private var autoStart = false
-    @AppStorage("focusTodoEnabled") private var focusTodoEnabled = true
+    @AppStorage(FocusTodoPreferences.isEnabledKey) private var focusTodoEnabled = true
     @AppStorage("recommendationDecayHours") private var recommendationDecayHours = 6.0
     @AppStorage("minUsageCountForRecommendation") private var minUsageCountForRecommendation = 2
-    @AppStorage("focusTodoClipboardPrefillSeconds") private var focusTodoClipboardPrefillSeconds = 20.0
-    @AppStorage("focusTodoCollapsedOpacity") private var focusTodoCollapsedOpacity = 0.36
+    @AppStorage(FocusTodoPreferences.clipboardPrefillSecondsKey) private var focusTodoClipboardPrefillSeconds = FocusTodoPreferences.defaultClipboardPrefillSeconds
+    @AppStorage(FocusTodoPreferences.collapsedOpacityKey) private var focusTodoCollapsedOpacity = FocusTodoPreferences.defaultCollapsedOpacity
 
     @State private var shortcut = HotKeyManager.Shortcut.defaultShortcut
     @State private var todoToggleShortcut = FocusTodoShortcutManager.Action.togglePanel.defaultShortcut

@@ -7,8 +7,9 @@ struct FocusTodoBarView: View {
     @StateObject private var themeManager = ThemeManager.shared
     @StateObject private var todoService = FocusTodoService.shared
     @StateObject private var clipboardMonitor = ClipboardMonitor.shared
-    @AppStorage("focusTodoClipboardPrefillSeconds") private var clipboardPrefillSeconds = 20.0
-    @AppStorage("focusTodoCollapsedOpacity") private var collapsedOpacity = 0.36
+    @StateObject private var shortcutManager = FocusTodoShortcutManager.shared
+    @AppStorage(FocusTodoPreferences.clipboardPrefillSecondsKey) private var clipboardPrefillSeconds = FocusTodoPreferences.defaultClipboardPrefillSeconds
+    @AppStorage(FocusTodoPreferences.collapsedOpacityKey) private var collapsedOpacity = FocusTodoPreferences.defaultCollapsedOpacity
     @State private var newTaskTitle = ""
     @State private var activeTitleTransitionSerial = 0
     @State private var collapsedInteractionBoost = 0.0
@@ -44,6 +45,18 @@ struct FocusTodoBarView: View {
 
     private var collapsedPendingRing: [FocusTodoItem] {
         todoService.items.filter { $0.state == .pending }
+    }
+
+    private var collapsedPendingCount: Int {
+        collapsedPendingRing.count
+    }
+
+    private var hasCollapsedActiveTask: Bool {
+        todoService.activeItem != nil
+    }
+
+    private var togglePanelShortcutDisplay: String {
+        shortcutManager.shortcut(for: .togglePanel).displayString
     }
 
     private var collapsedPreviousTaskTitle: String? {
@@ -127,6 +140,11 @@ struct FocusTodoBarView: View {
             todoService.updateMeasuredHeight(height, expanded: todoService.isPanelExpanded)
             FocusTodoWindowManager.shared.refreshLayout(animated: false)
         }
+        .onChange(of: todoService.activeItemId) { _, _ in
+            if !todoService.isPanelExpanded {
+                FocusTodoWindowManager.shared.refreshLayout()
+            }
+        }
     }
 
     private var headerBar: some View {
@@ -149,29 +167,36 @@ struct FocusTodoBarView: View {
                     animatedActiveTitleText()
                 }
             } else {
-                VStack(alignment: .leading, spacing: -1) {
-                    Text(collapsedPreviousTaskTitle.map { "↑ %@".localized($0) } ?? "")
-                        .font(.system(size: 6.5, weight: .regular))
-                        .lineLimit(1)
-                        .foregroundStyle(themeManager.textTertiary)
-                        .shadow(color: .black.opacity(0.28), radius: 1.2, y: 0.6)
-                        .opacity(collapsedPreviousTaskTitle == nil ? 0 : 1)
+                if hasCollapsedActiveTask {
+                    VStack(alignment: .leading, spacing: -1) {
+                        Text(collapsedPreviousTaskTitle.map { "↑ %@".localized($0) } ?? "")
+                            .font(.system(size: 6.5, weight: .regular))
+                            .lineLimit(1)
+                            .foregroundStyle(themeManager.textTertiary)
+                            .shadow(color: .black.opacity(0.28), radius: 1.2, y: 0.6)
+                            .opacity(collapsedPreviousTaskTitle == nil ? 0 : 1)
 
-                    animatedActiveTitleText(fontSize: 10.5)
+                        animatedActiveTitleText(fontSize: 10.5)
 
-                    Text(collapsedNextTaskTitle.map { "↓ %@".localized($0) } ?? "")
-                        .font(.system(size: 6.5, weight: .regular))
-                        .lineLimit(1)
-                        .foregroundStyle(themeManager.textTertiary)
-                        .shadow(color: .black.opacity(0.28), radius: 1.2, y: 0.6)
-                        .opacity(collapsedNextTaskTitle == nil ? 0 : 1)
+                        Text(collapsedNextTaskTitle.map { "↓ %@".localized($0) } ?? "")
+                            .font(.system(size: 6.5, weight: .regular))
+                            .lineLimit(1)
+                            .foregroundStyle(themeManager.textTertiary)
+                            .shadow(color: .black.opacity(0.28), radius: 1.2, y: 0.6)
+                            .opacity(collapsedNextTaskTitle == nil ? 0 : 1)
+                    }
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 1)
+                    .background(
+                        RoundedRectangle(cornerRadius: 5, style: .continuous)
+                            .fill(themeManager.chromeSurfaceElevated.opacity(collapsedTextBackdropOpacity))
+                    )
+                } else {
+                    Text("No task".localized)
+                        .font(.system(size: 9.5, weight: .medium))
+                        .foregroundStyle(themeManager.textSecondary)
+                        .shadow(color: .black.opacity(0.18), radius: 1.0, y: 0.5)
                 }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 1)
-                .background(
-                    RoundedRectangle(cornerRadius: 5, style: .continuous)
-                        .fill(themeManager.chromeSurfaceElevated.opacity(collapsedTextBackdropOpacity))
-                )
             }
 
             Spacer()
@@ -183,10 +208,17 @@ struct FocusTodoBarView: View {
                     .lineLimit(1)
                     .frame(maxWidth: 120, alignment: .trailing)
             } else {
-                Text("Pending: %1$d".localized(todoService.queuedItems.count))
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(themeManager.textSecondary)
-                    .shadow(color: .black.opacity(0.22), radius: 1.1, y: 0.6)
+                VStack(alignment: .trailing, spacing: -1) {
+                    Text("Pending: %1$d".localized(collapsedPendingCount))
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(themeManager.textSecondary)
+                        .shadow(color: .black.opacity(0.22), radius: 1.1, y: 0.6)
+
+                    Text("Open: %@".localized(togglePanelShortcutDisplay))
+                        .font(.system(size: 7, weight: .regular))
+                        .foregroundStyle(themeManager.textTertiary)
+                        .shadow(color: .black.opacity(0.20), radius: 1.0, y: 0.5)
+                }
             }
 
             if isExpanded {

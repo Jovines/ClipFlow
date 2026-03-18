@@ -4,7 +4,7 @@ struct MenuBarPopoverView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.dismiss) private var dismiss
     @StateObject private var themeManager = ThemeManager.shared
-    @AppStorage("focusTodoEnabled") private var focusTodoEnabled = true
+    @AppStorage(FocusTodoPreferences.isEnabledKey) private var focusTodoEnabled = true
 
     var body: some View {
         VStack(spacing: 0) {
