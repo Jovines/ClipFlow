@@ -3652,6 +3652,294 @@
                 }
             }
         },
+        "Collapsed Mode Gesture Guide": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Collapsed Mode Gesture Guide"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "收起态手势说明"
+                    }
+                }
+            }
+        },
+        "When Focus Todo is collapsed, swipe left or right on the bar to move the active task position.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "When Focus Todo is collapsed, swipe left or right on the bar to move the active task position."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "当 Focus Todo 处于收起态时，在条形区域左右滑动即可调整当前任务位置。"
+                    }
+                }
+            }
+        },
+        "Tip: Trackpad two-finger horizontal swipe and mouse horizontal wheel both work here.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Tip: Trackpad two-finger horizontal swipe and mouse horizontal wheel both work here."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "提示：触控板双指横向滑动和鼠标横向滚轮在这里都可用。"
+                    }
+                }
+            }
+        },
+        "This animation loops automatically to show the gesture direction.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "This animation loops automatically to show the gesture direction."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "该动画会自动循环，帮助你快速理解滑动方向。"
+                    }
+                }
+            }
+        },
+        "Swipe to previous": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Swipe to previous"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "向左滑到上一个"
+                    }
+                }
+            }
+        },
+        "Swipe to next": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Swipe to next"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "向右滑到下一个"
+                    }
+                }
+            }
+        },
+        "When Focus Todo is collapsed, swipe on the bar to move it across 9 screen positions.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "When Focus Todo is collapsed, swipe on the bar to move it across 9 screen positions."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "当 Focus Todo 处于收起态时，在条形区域滑动可将其移动到屏幕的 9 个位置。"
+                    }
+                }
+            }
+        },
+        "Tip: Swipe left/right to switch columns, and swipe up/down to switch rows.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Tip: Swipe left/right to switch columns, and swipe up/down to switch rows."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "提示：左右滑切换列，上下滑切换行。"
+                    }
+                }
+            }
+        },
+        "This square demo loops automatically to show how each swipe snaps to a new position.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "This square demo loops automatically to show how each swipe snaps to a new position."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "这个方形演示会自动循环，展示每次滑动如何吸附到新的位置。"
+                    }
+                }
+            }
+        },
+        "Swipe to move across 9 positions": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Swipe to move across 9 positions"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "滑动可在 9 个位置间移动"
+                    }
+                }
+            }
+        },
+        "Left/Right: switch columns": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Left/Right: switch columns"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "左右：切换列"
+                    }
+                }
+            }
+        },
+        "Up/Down: switch rows": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Up/Down: switch rows"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "上下：切换行"
+                    }
+                }
+            }
+        },
+        "Swipe to snap across 9 positions.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Swipe to snap across 9 positions."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "滑动即可吸附到 9 个位置。"
+                    }
+                }
+            }
+        },
+        "Left/right switches columns, up/down switches rows.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Left/right switches columns, up/down switches rows."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "左右切列，上下切行。"
+                    }
+                }
+            }
+        },
+        "Demo loops through all positions.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Demo loops through all positions."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "演示会循环经过所有位置。"
+                    }
+                }
+            }
+        },
+        "9 positions": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "9 positions"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "9 个位置"
+                    }
+                }
+            }
+        },
+        "L/R: columns": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "L/R: columns"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "左右：列"
+                    }
+                }
+            }
+        },
+        "U/D: rows": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "U/D: rows"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "上下：行"
+                    }
+                }
+            }
+        },
         "Delete": {
             "localizations": {
                 "en": {

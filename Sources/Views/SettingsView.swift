@@ -627,6 +627,27 @@ struct SettingsView: View {
                         step: 0.01
                     )
                     .controlSize(.small)
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Collapsed Mode Gesture Guide".localized())
+                            .font(.system(size: 13, weight: .medium))
+
+                        Text("Swipe to snap across 9 positions.".localized())
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+
+                        Text("Left/right switches columns, up/down switches rows.".localized())
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+
+                        FocusTodoCollapsedSwipeDemoView()
+
+                        Text("Demo loops through all positions.".localized())
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .padding(12)
                 .background(settingsCardBackground)

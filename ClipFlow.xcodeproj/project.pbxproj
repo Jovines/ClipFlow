@@ -60,6 +60,7 @@
 		9B47F3D3CFBB0910547AE774 /* AIProviderConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77BE29F8D89D216AF58F99DF /* AIProviderConfig.swift */; };
 		A0F2873D9D188EF0D5F0722D /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 68831CD9967B1E3EE37739AF /* Sparkle */; };
 		A236200E086F7C13AF734BFD /* LiquidGlassModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EC8442DF8FF5DBC81DAABCB /* LiquidGlassModifiers.swift */; };
+		A48818E58CF106235D263589 /* FocusTodoCollapsedSwipeDemoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C86EA936E526A27DA754C1E /* FocusTodoCollapsedSwipeDemoView.swift */; };
 		A50B4651177E9CD24FB53331 /* Localization+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C09A1F6C6FD4FEFBCF8CF774 /* Localization+Extensions.swift */; };
 		AAD345510434854B5AFEC8AA /* AddToProjectSelectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03C1763E894D72D45EDB506E /* AddToProjectSelectorView.swift */; };
 		B7BCC43E5C0AFCA8E4B7BE77 /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9F98039A60F8497CD28BF1C /* AppColors.swift */; };
@@ -107,6 +108,7 @@
 		38EAB7727A0888888E89FCDF /* GroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupView.swift; sourceTree = "<group>"; };
 		3991C8C49F3C6C3A9AA0EDCA /* ProjectButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectButton.swift; sourceTree = "<group>"; };
 		3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarPopoverView.swift; sourceTree = "<group>"; };
+		3C86EA936E526A27DA754C1E /* FocusTodoCollapsedSwipeDemoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTodoCollapsedSwipeDemoView.swift; sourceTree = "<group>"; };
 		41DEC69AF906C2D536A88877 /* TagSidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSidebarView.swift; sourceTree = "<group>"; };
 		45D60549F9E4F47246D77620 /* FocusTodoWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTodoWindowManager.swift; sourceTree = "<group>"; };
 		49493FC09DDDFB3A81EF6D61 /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
@@ -339,6 +341,7 @@
 				E614E0B350221DC20564FFE6 /* Color+Hex.swift */,
 				1EAB4DFF745C159D542E8DB9 /* EmptyStateView.swift */,
 				B47801E615928703BA4682AD /* FloatingItemRow.swift */,
+				3C86EA936E526A27DA754C1E /* FocusTodoCollapsedSwipeDemoView.swift */,
 				C33501453ADC1CC85DF1D657 /* GroupPanelCoordinator.swift */,
 				38EAB7727A0888888E89FCDF /* GroupView.swift */,
 				27B85F0DF320B3BCDB326EEF /* ImagePreviewView.swift */,
@@ -513,6 +516,7 @@
 				F419A4DFE952EF99C6D812E3 /* FloatingWindowManager.swift in Sources */,
 				5FC7B2B68756A340589CF3E3 /* FloatingWindowView.swift in Sources */,
 				5F46600495577968AC029E6B /* FocusTodoBarView.swift in Sources */,
+				A48818E58CF106235D263589 /* FocusTodoCollapsedSwipeDemoView.swift in Sources */,
 				3F2C6169FE7CF4A33E893FEE /* FocusTodoItem.swift in Sources */,
 				41266889B12425F0A83A3FEF /* FocusTodoPreferences.swift in Sources */,
 				2D86ED59AA3365302882014E /* FocusTodoService.swift in Sources */,
