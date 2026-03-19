@@ -4,14 +4,39 @@ enum ClipboardContentDetector {
     static func hasReadableContent(from pasteboard: NSPasteboard) -> Bool {
         let types = pasteboard.types ?? []
 
-        if types.contains(.tiff) || types.contains(.png) {
+        let directReadableTypes: Set<NSPasteboard.PasteboardType> = [
+            .string,
+            .rtf,
+            .rtfd,
+            .html,
+            .URL,
+            .fileURL,
+            .png,
+            .tiff,
+            .pdf
+        ]
+
+        if types.contains(where: { directReadableTypes.contains($0) }) {
             return true
         }
 
-        if types.contains(.string) {
-            if let string = pasteboard.string(forType: .string), !string.isEmpty {
-                return true
-            }
+        if pasteboard.canReadObject(forClasses: [NSImage.self], options: nil) {
+            return true
+        }
+
+        if pasteboard.canReadObject(forClasses: [NSString.self], options: nil) {
+            return true
+        }
+
+        let fileURLOptions: [NSPasteboard.ReadingOptionKey: Any] = [
+            .urlReadingFileURLsOnly: true
+        ]
+        if pasteboard.canReadObject(forClasses: [NSURL.self], options: fileURLOptions) {
+            return true
+        }
+
+        if let string = pasteboard.string(forType: .string), !string.isEmpty {
+            return true
         }
 
         return false

@@ -469,7 +469,9 @@ struct FloatingWindowView: View {
     }
 
     private func handleItemSelection(_ item: ClipboardItem) {
-        if item.contentType == .image {
+        let shouldPreviewImage = item.contentType == .image && NSEvent.modifierFlags.contains(.option)
+
+        if shouldPreviewImage {
             selectedItem = item
             showImagePreview = true
         } else {

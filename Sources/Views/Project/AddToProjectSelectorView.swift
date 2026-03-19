@@ -38,11 +38,21 @@ struct AddToProjectSelectorView: View {
 
             // Content Preview
             HStack(spacing: 8) {
-                Image(systemName: clipboardItem.contentType == .text ? "doc.text" : "photo")
+                Image(systemName: previewIcon)
                     .foregroundStyle(.secondary)
                     .font(.caption)
 
-                Text(clipboardItem.content)
+                if let richTextFormat = clipboardItem.richTextFormatLabel {
+                    Text(richTextFormat)
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(ThemeManager.shared.accent)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 1)
+                        .background(ThemeManager.shared.accent.opacity(0.12))
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                }
+
+                Text(previewText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -123,6 +133,19 @@ struct AddToProjectSelectorView: View {
                     ClipFlowLogger.error("Failed to add to project: \(error)")
                 }
             }
+        }
+    }
+
+    private var previewIcon: String {
+        clipboardItem.displayIconName
+    }
+
+    private var previewText: String {
+        switch clipboardItem.contentType {
+        case .text, .image:
+            return clipboardItem.content
+        case .file:
+            return clipboardItem.fileDisplayText
         }
     }
 }

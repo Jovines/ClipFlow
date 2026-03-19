@@ -69,6 +69,8 @@ final class DatabaseManager: @unchecked Sendable {
             t.column("contentType", .text).notNull()
             t.column("imagePath", .text)
             t.column("thumbnailPath", .text)
+            t.column("richTextPath", .text)
+            t.column("richTextType", .text)
             t.column("createdAt", .datetime).notNull()
             t.column("contentHash", .integer).notNull().defaults(to: 0)
         }
@@ -137,6 +139,7 @@ final class DatabaseManager: @unchecked Sendable {
         try migrateTags(db: db)
         try migrateRecommendationFields(db: db)
         try migrateNoteField(db: db)
+        try migrateRichTextFields(db: db)
     }
 
     private static func migrateRecommendationFields(db: Database) throws {
@@ -162,6 +165,26 @@ final class DatabaseManager: @unchecked Sendable {
         if noteColumnExists == 0 {
             try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN note TEXT")
             print("[Database] Migration: Added note column to clipboard_items table")
+        }
+    }
+
+    private static func migrateRichTextFields(db: Database) throws {
+        let richTextPathColumnExists = try Int.fetchOne(db, sql: """
+            SELECT COUNT(*) FROM pragma_table_info('clipboard_items') WHERE name = 'richTextPath'
+            """) ?? 0
+
+        if richTextPathColumnExists == 0 {
+            try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN richTextPath TEXT")
+            print("[Database] Migration: Added richTextPath column to clipboard_items table")
+        }
+
+        let richTextTypeColumnExists = try Int.fetchOne(db, sql: """
+            SELECT COUNT(*) FROM pragma_table_info('clipboard_items') WHERE name = 'richTextType'
+            """) ?? 0
+
+        if richTextTypeColumnExists == 0 {
+            try db.execute(sql: "ALTER TABLE clipboard_items ADD COLUMN richTextType TEXT")
+            print("[Database] Migration: Added richTextType column to clipboard_items table")
         }
     }
 
@@ -254,6 +277,8 @@ final class DatabaseManager: @unchecked Sendable {
         contentType: ClipboardItem.ContentType,
         imagePath: String? = nil,
         thumbnailPath: String? = nil,
+        richTextPath: String? = nil,
+        richTextType: ClipboardItem.RichTextType? = nil,
         contentHash: Int = 0
     ) throws -> ClipboardItem {
         let itemId = id ?? UUID()
@@ -263,6 +288,8 @@ final class DatabaseManager: @unchecked Sendable {
             contentType: contentType,
             imagePath: imagePath,
             thumbnailPath: thumbnailPath,
+            richTextPath: richTextPath,
+            richTextType: richTextType,
             contentHash: contentHash
         )
 
@@ -311,7 +338,9 @@ final class DatabaseManager: @unchecked Sendable {
         id: UUID,
         content: String? = nil,
         imagePath: String? = nil,
-        thumbnailPath: String? = nil
+        thumbnailPath: String? = nil,
+        richTextPath: String? = nil,
+        richTextType: ClipboardItem.RichTextType? = nil
     ) throws {
         try dbPool.write { db in
             guard var item = try ClipboardItem.fetchOne(db, key: ["id": id.uuidString]) else { return }
@@ -325,6 +354,12 @@ final class DatabaseManager: @unchecked Sendable {
             if let thumbnailPath = thumbnailPath {
                 item.thumbnailPath = thumbnailPath
             }
+            if let richTextPath = richTextPath {
+                item.richTextPath = richTextPath
+            }
+            if let richTextType = richTextType {
+                item.richTextType = richTextType
+            }
 
             try item.update(db)
         }
@@ -334,6 +369,8 @@ final class DatabaseManager: @unchecked Sendable {
         try dbPool.write { db in
             guard var item = try ClipboardItem.fetchOne(db, key: ["id": id.uuidString]) else { return }
             item.content = content
+            item.richTextPath = nil
+            item.richTextType = nil
             try item.update(db)
         }
     }

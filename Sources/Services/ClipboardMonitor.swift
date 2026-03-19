@@ -82,12 +82,22 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
                 self.pasteboard.clearContents()
                 switch item.contentType {
                 case .text:
-                    self.pasteboard.setString(item.content, forType: .string)
+                    self.writeTextItemToPasteboard(item)
                 case .image:
                     if let imagePath = item.imagePath,
                        let imageData = ImageCacheManager.shared.loadImage(forKey: imagePath),
                        let image = NSImage(data: imageData) {
                         self.pasteboard.writeObjects([image])
+                    }
+                case .file:
+                    let fileURLs = item.fileURLs.filter { FileManager.default.fileExists(atPath: $0.path) }
+                    if !fileURLs.isEmpty {
+                        let didWrite = self.pasteboard.writeObjects(fileURLs as [NSURL])
+                        if !didWrite {
+                            self.pasteboard.setString(item.content, forType: .string)
+                        }
+                    } else {
+                        self.pasteboard.setString(item.content, forType: .string)
                     }
                 }
 
@@ -139,14 +149,7 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
         ClipFlowLogger.info("[deleteItem] 开始删除 item: id=\(item.id.uuidString), content=\(item.content.prefix(50))")
         if let index = capturedItems.firstIndex(where: { $0.id == item.id }) {
             ClipFlowLogger.info("[deleteItem] 在 capturedItems 中找到 index=\(index)")
-            if let imagePath = item.imagePath {
-                ImageCacheManager.shared.deleteImage(forKey: imagePath)
-                ClipFlowLogger.info("[deleteItem] 删除图片: \(imagePath)")
-            }
-            if let thumbnailPath = item.thumbnailPath {
-                ImageCacheManager.shared.deleteImage(forKey: thumbnailPath)
-                ClipFlowLogger.info("[deleteItem] 删除缩略图: \(thumbnailPath)")
-            }
+            cleanupCachedAssets(for: item)
             do {
                 try database.deleteClipboardItem(id: item.id)
                 capturedItems.remove(at: index)
@@ -166,7 +169,9 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
                     id: item.id,
                     content: item.content,
                     imagePath: item.imagePath,
-                    thumbnailPath: item.thumbnailPath
+                    thumbnailPath: item.thumbnailPath,
+                    richTextPath: item.richTextPath,
+                    richTextType: item.richTextType
                 )
                 capturedItems[index] = item
             } catch {
@@ -178,8 +183,13 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
     func updateItemContent(id: UUID, newContent: String) {
         if let index = capturedItems.firstIndex(where: { $0.id == id }) {
             do {
+                if let richTextPath = capturedItems[index].richTextPath {
+                    ImageCacheManager.shared.deleteData(forKey: richTextPath)
+                }
                 try database.updateItemContent(id: id, content: newContent)
                 capturedItems[index].content = newContent
+                capturedItems[index].richTextPath = nil
+                capturedItems[index].richTextType = nil
             } catch {
                 ClipFlowLogger.error("Failed to update item content: \(error)")
             }
@@ -417,41 +427,216 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
     }
 
     private func readFromPasteboard() -> ClipboardItem? {
-        let shouldSaveImages = UserDefaults.standard.bool(forKey: "saveImages")
+        let shouldSaveImages = UserDefaults.standard.object(forKey: "saveImages") as? Bool ?? true
 
-        if let image = pasteboard.readObjects(forClasses: [NSImage.self], options: nil)?.first as? NSImage {
-            guard shouldSaveImages else {
-                ClipFlowLogger.debug("Image capture skipped - saveImages is disabled")
-                return nil
-            }
-
-            guard let compressedData = ImageOptimizer.compressImage(image),
-                  let thumbnailData = ImageOptimizer.generateThumbnail(from: image) else {
-                return nil
-            }
-
-            let imageKey = UUID().uuidString
-            _ = ImageCacheManager.shared.saveImage(compressedData, forKey: imageKey)
-            _ = ImageCacheManager.shared.saveImage(thumbnailData, forKey: "\(imageKey)_thumb")
-
-            return ClipboardItem(
-                content: "Image".localized(),
-                contentType: .image,
-                imagePath: imageKey,
-                thumbnailPath: "\(imageKey)_thumb",
-                contentHash: compressedData.hashValue
-            )
+        if let imageItem = readImageItem(shouldSaveImages: shouldSaveImages) {
+            return imageItem
         }
 
-        if let string = pasteboard.string(forType: .string), !string.isEmpty {
+        if let fileItem = readFileItem() {
+            return fileItem
+        }
+
+        if let textItem = readTextItem() {
+            return textItem
+        }
+
+        return nil
+    }
+
+    private func readImageItem(shouldSaveImages: Bool) -> ClipboardItem? {
+        guard let image = NSImage(pasteboard: pasteboard) else { return nil }
+
+        guard shouldSaveImages else {
+            ClipFlowLogger.debug("Image capture skipped - saveImages is disabled")
+            return nil
+        }
+
+        guard let compressedData = ImageOptimizer.compressImage(image),
+              let thumbnailData = ImageOptimizer.generateThumbnail(from: image) else {
+            return nil
+        }
+
+        let imageKey = UUID().uuidString
+        _ = ImageCacheManager.shared.saveImage(compressedData, forKey: imageKey)
+        _ = ImageCacheManager.shared.saveImage(thumbnailData, forKey: "\(imageKey)_thumb")
+
+        return ClipboardItem(
+            content: "Image".localized(),
+            contentType: .image,
+            imagePath: imageKey,
+            thumbnailPath: "\(imageKey)_thumb",
+            contentHash: compressedData.hashValue
+        )
+    }
+
+    private func readFileItem() -> ClipboardItem? {
+        let options: [NSPasteboard.ReadingOptionKey: Any] = [
+            .urlReadingFileURLsOnly: true
+        ]
+
+        guard let rawURLs = pasteboard.readObjects(forClasses: [NSURL.self], options: options) as? [URL] else {
+            return nil
+        }
+
+        var seenPaths = Set<String>()
+        var orderedPaths: [String] = []
+
+        for url in rawURLs {
+            let standardizedPath = url.standardizedFileURL.path
+            guard !standardizedPath.isEmpty else { continue }
+
+            if seenPaths.insert(standardizedPath).inserted {
+                orderedPaths.append(standardizedPath)
+            }
+        }
+
+        guard !orderedPaths.isEmpty else { return nil }
+
+        let content = orderedPaths.joined(separator: "\n")
+        return ClipboardItem(
+            content: content,
+            contentType: .file,
+            contentHash: content.hashValue
+        )
+    }
+
+    private func readTextItem() -> ClipboardItem? {
+        if let richTextItem = readRichTextItem() {
+            return richTextItem
+        }
+
+        if let plainText = readPlainTextContent() {
             return ClipboardItem(
-                content: string,
+                content: plainText,
                 contentType: .text,
-                contentHash: string.hashValue
+                contentHash: plainText.hashValue
             )
         }
 
         return nil
+    }
+
+    private func readRichTextItem() -> ClipboardItem? {
+        let candidates: [(type: ClipboardItem.RichTextType, pasteboardType: NSPasteboard.PasteboardType)] = [
+            (.rtfd, .rtfd),
+            (.rtf, .rtf),
+            (.html, .html)
+        ]
+
+        for candidate in candidates {
+            guard let richData = pasteboard.data(forType: candidate.pasteboardType),
+                  let plainText = attributedStringText(from: richData, type: documentType(for: candidate.type)) else {
+                continue
+            }
+
+            let richTextKey = "rich_text_\(UUID().uuidString)"
+            guard ImageCacheManager.shared.saveData(richData, forKey: richTextKey) != nil else {
+                return ClipboardItem(
+                    content: plainText,
+                    contentType: .text,
+                    contentHash: plainText.hashValue
+                )
+            }
+
+            var hasher = Hasher()
+            hasher.combine(plainText)
+            hasher.combine(richData)
+            hasher.combine(candidate.type.rawValue)
+
+            return ClipboardItem(
+                content: plainText,
+                contentType: .text,
+                richTextPath: richTextKey,
+                richTextType: candidate.type,
+                contentHash: hasher.finalize()
+            )
+        }
+
+        return nil
+    }
+
+    private func readPlainTextContent() -> String? {
+        if let plainString = pasteboard.string(forType: .string),
+           !plainString.isEmpty {
+            return plainString
+        }
+
+        if let urlString = pasteboard.string(forType: .URL),
+           !urlString.isEmpty {
+            return urlString
+        }
+
+        if let htmlData = pasteboard.data(forType: .html),
+           let htmlText = attributedStringText(from: htmlData, type: .html) {
+            return htmlText
+        }
+
+        if let rtfData = pasteboard.data(forType: .rtf),
+           let rtfText = attributedStringText(from: rtfData, type: .rtf) {
+            return rtfText
+        }
+
+        if let rtfdData = pasteboard.data(forType: .rtfd),
+           let rtfdText = attributedStringText(from: rtfdData, type: .rtfd) {
+            return rtfdText
+        }
+
+        if let strings = pasteboard.readObjects(forClasses: [NSString.self], options: nil) as? [NSString],
+           let first = strings.first {
+            let fallback = first as String
+            if !fallback.isEmpty {
+                return fallback
+            }
+        }
+
+        return nil
+    }
+
+    private func writeTextItemToPasteboard(_ item: ClipboardItem) {
+        var wroteRichText = false
+
+        if let richTextPath = item.richTextPath,
+           let richTextType = item.richTextType,
+           let richData = ImageCacheManager.shared.loadData(forKey: richTextPath) {
+            wroteRichText = pasteboard.setData(richData, forType: richTextType.pasteboardType)
+        }
+
+        if !wroteRichText || !item.content.isEmpty {
+            pasteboard.setString(item.content, forType: .string)
+        }
+    }
+
+    private func documentType(for richTextType: ClipboardItem.RichTextType) -> NSAttributedString.DocumentType {
+        switch richTextType {
+        case .rtf:
+            return .rtf
+        case .rtfd:
+            return .rtfd
+        case .html:
+            return .html
+        }
+    }
+
+    private func attributedStringText(from data: Data, type: NSAttributedString.DocumentType) -> String? {
+        let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
+            .documentType: type
+        ]
+
+        guard let attributed = try? NSAttributedString(
+            data: data,
+            options: options,
+            documentAttributes: nil
+        ) else {
+            return nil
+        }
+
+        let text = attributed.string
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return nil
+        }
+
+        return text
     }
 
     private func saveToDatabase(_ item: ClipboardItem) -> ClipboardItem? {
@@ -462,6 +647,8 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
                 contentType: item.contentType,
                 imagePath: item.imagePath,
                 thumbnailPath: item.thumbnailPath,
+                richTextPath: item.richTextPath,
+                richTextType: item.richTextType,
                 contentHash: item.contentHash
             )
             return savedItem
@@ -511,13 +698,8 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
             if untaggedItems.count > effectiveMaxItems {
                 let itemsToRemove = Array(untaggedItems.suffix(from: effectiveMaxItems))
 
-                for item in itemsToRemove where item.contentType == .image {
-                    if let imagePath = item.imagePath {
-                        ImageCacheManager.shared.deleteImage(forKey: imagePath)
-                    }
-                    if let thumbnailPath = item.thumbnailPath {
-                        ImageCacheManager.shared.deleteImage(forKey: thumbnailPath)
-                    }
+                for item in itemsToRemove {
+                    cleanupCachedAssets(for: item)
                 }
 
                 let removedIds = Set(itemsToRemove.map { $0.id })
@@ -526,6 +708,23 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
             }
         } catch {
             ClipFlowLogger.error("Failed to cleanup excess items: \(error)")
+        }
+    }
+
+    private func cleanupCachedAssets(for item: ClipboardItem) {
+        if let imagePath = item.imagePath {
+            ImageCacheManager.shared.deleteImage(forKey: imagePath)
+            ClipFlowLogger.info("[cleanupCachedAssets] 删除图片: \(imagePath)")
+        }
+
+        if let thumbnailPath = item.thumbnailPath {
+            ImageCacheManager.shared.deleteImage(forKey: thumbnailPath)
+            ClipFlowLogger.info("[cleanupCachedAssets] 删除缩略图: \(thumbnailPath)")
+        }
+
+        if let richTextPath = item.richTextPath {
+            ImageCacheManager.shared.deleteData(forKey: richTextPath)
+            ClipFlowLogger.info("[cleanupCachedAssets] 删除富文本缓存: \(richTextPath)")
         }
     }
 }

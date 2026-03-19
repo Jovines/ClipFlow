@@ -114,6 +114,16 @@ struct CompactItemRow: View {
                 .foregroundStyle(themeManager.textSecondary)
             }
 
+            if let richTextFormat = item.richTextFormatLabel {
+                Text(richTextFormat)
+                    .font(.system(size: 8, weight: .semibold))
+                    .foregroundStyle(themeManager.accent)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 1)
+                    .background(themeManager.accent.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
+
             if isTopRecent {
                 Image(systemName: "clock")
                     .font(.system(size: 8.5, weight: .bold))
@@ -257,9 +267,11 @@ struct CompactItemRow: View {
             Group {
                 switch item.contentType {
                 case .text:
-                    Image(systemName: "doc.text")
+                    Image(systemName: item.displayIconName)
                 case .image:
                     Image(systemName: "photo")
+                case .file:
+                    Image(systemName: "doc")
                 }
             }
             .foregroundStyle(themeManager.textSecondary)
@@ -281,6 +293,8 @@ struct CompactItemRow: View {
                 Text(cleanedContent)
             case .image:
                 Text("Image".localized())
+            case .file:
+                Text(item.fileDisplayText)
             }
         }
         .font(.system(size: 11))
@@ -327,15 +341,27 @@ struct GroupPanelItemRow: View {
             Group {
                 switch item.contentType {
                 case .text:
-                    Image(systemName: "doc.text")
+                    Image(systemName: item.displayIconName)
                 case .image:
                     Image(systemName: "photo")
+                case .file:
+                    Image(systemName: "doc")
                 }
             }
             .foregroundStyle(themeManager.textSecondary)
             .font(.system(size: 11))
 
             previewText
+
+            if let richTextFormat = item.richTextFormatLabel {
+                Text(richTextFormat)
+                    .font(.system(size: 8, weight: .semibold))
+                    .foregroundStyle(themeManager.accent)
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 1)
+                    .background(themeManager.accent.opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+            }
         }
     }
 
@@ -351,6 +377,8 @@ struct GroupPanelItemRow: View {
                 Text(cleanedContent)
             case .image:
                 Text("Image".localized())
+            case .file:
+                Text(item.fileDisplayText)
             }
         }
         .font(.system(size: 11))

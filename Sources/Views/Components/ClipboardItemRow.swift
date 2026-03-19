@@ -9,7 +9,6 @@ struct ClipboardItemRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: iconName)
-            Image(systemName: iconName)
                 .foregroundStyle(.secondary)
                 .frame(width: 24)
 
@@ -22,6 +21,16 @@ struct ClipboardItemRow: View {
                     Text(TimeFormatter.relativeTime(from: item.createdAt))
                         .font(.caption)
                         .foregroundStyle(.secondary)
+
+                    if let richTextFormat = item.richTextFormatLabel {
+                        Text(richTextFormat)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(themeManager.accent)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(themeManager.accent.opacity(0.12))
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                    }
 
                     if let note = item.note, !note.isEmpty {
                         Text("•")
@@ -56,12 +65,7 @@ struct ClipboardItemRow: View {
     }
 
     private var iconName: String {
-        switch item.contentType {
-        case .text:
-            return "doc.text"
-        case .image:
-            return "photo"
-        }
+        item.displayIconName
     }
 
     private var previewText: String {
@@ -70,6 +74,8 @@ struct ClipboardItemRow: View {
             return item.content
         case .image:
             return "Image".localized()
+        case .file:
+            return item.fileDisplayText
         }
     }
 

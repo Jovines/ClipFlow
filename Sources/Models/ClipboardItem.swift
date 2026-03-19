@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 import GRDB
 
 struct ClipboardItem: Identifiable, Hashable, Codable {
@@ -7,6 +8,8 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
     var contentType: ContentType
     var imagePath: String?
     var thumbnailPath: String?
+    var richTextPath: String?
+    var richTextType: RichTextType?
     var createdAt: Date
     var contentHash: Int
     var usageCount: Int
@@ -17,7 +20,7 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
     var note: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, content, contentType, imagePath, thumbnailPath
+        case id, content, contentType, imagePath, thumbnailPath, richTextPath, richTextType
         case createdAt, contentHash, usageCount, lastUsedAt
         case recommendationScore, recommendedAt, evictedAt, note
     }
@@ -29,6 +32,8 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
         contentType = try container.decode(ContentType.self, forKey: .contentType)
         imagePath = try container.decodeIfPresent(String.self, forKey: .imagePath)
         thumbnailPath = try container.decodeIfPresent(String.self, forKey: .thumbnailPath)
+        richTextPath = try container.decodeIfPresent(String.self, forKey: .richTextPath)
+        richTextType = try container.decodeIfPresent(RichTextType.self, forKey: .richTextType)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         contentHash = try container.decode(Int.self, forKey: .contentHash)
         usageCount = try container.decodeIfPresent(Int.self, forKey: .usageCount) ?? 0
@@ -42,6 +47,24 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
     enum ContentType: String, Codable {
         case text
         case image
+        case file
+    }
+
+    enum RichTextType: String, Codable {
+        case rtf
+        case rtfd
+        case html
+
+        var pasteboardType: NSPasteboard.PasteboardType {
+            switch self {
+            case .rtf:
+                return .rtf
+            case .rtfd:
+                return .rtfd
+            case .html:
+                return .html
+            }
+        }
     }
 
     init(
@@ -50,6 +73,8 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
         contentType: ContentType,
         imagePath: String? = nil,
         thumbnailPath: String? = nil,
+        richTextPath: String? = nil,
+        richTextType: RichTextType? = nil,
         createdAt: Date = Date(),
         contentHash: Int = 0,
         usageCount: Int = 0,
@@ -64,6 +89,8 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
         self.contentType = contentType
         self.imagePath = imagePath
         self.thumbnailPath = thumbnailPath
+        self.richTextPath = richTextPath
+        self.richTextType = richTextType
         self.createdAt = createdAt
         self.contentHash = contentHash
         self.usageCount = usageCount
@@ -76,6 +103,60 @@ struct ClipboardItem: Identifiable, Hashable, Codable {
 
     var hasImage: Bool {
         imagePath != nil
+    }
+
+    var hasRichText: Bool {
+        richTextPath != nil
+    }
+
+    var isRichTextText: Bool {
+        contentType == .text && hasRichText && richTextType != nil
+    }
+
+    var displayIconName: String {
+        switch contentType {
+        case .text:
+            return isRichTextText ? "textformat" : "doc.text"
+        case .image:
+            return "photo"
+        case .file:
+            return "doc"
+        }
+    }
+
+    var richTextFormatLabel: String? {
+        guard isRichTextText, let richTextType else { return nil }
+        return richTextType.rawValue.uppercased()
+    }
+
+    var filePaths: [String] {
+        guard contentType == .file else { return [] }
+
+        return content
+            .split(separator: "\n")
+            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
+
+    var fileURLs: [URL] {
+        filePaths.compactMap { rawPath in
+            if let url = URL(string: rawPath), url.isFileURL {
+                return url.standardizedFileURL
+            }
+            return URL(fileURLWithPath: rawPath).standardizedFileURL
+        }
+    }
+
+    var fileDisplayText: String {
+        let urls = fileURLs
+        guard let firstURL = urls.first else { return content }
+
+        let firstName = firstURL.lastPathComponent
+        if urls.count == 1 {
+            return firstName
+        }
+
+        return "\(firstName) (+\(urls.count - 1))"
     }
 
     static func == (lhs: ClipboardItem, rhs: ClipboardItem) -> Bool {
@@ -140,6 +221,17 @@ extension ClipboardItem.ContentType: DatabaseValueConvertible {
     }
 }
 
+extension ClipboardItem.RichTextType: DatabaseValueConvertible {
+    public var databaseValue: DatabaseValue {
+        rawValue.databaseValue
+    }
+
+    public static func fromDatabaseValue(_ dbValue: DatabaseValue) -> ClipboardItem.RichTextType? {
+        guard let string = String.fromDatabaseValue(dbValue) else { return nil }
+        return ClipboardItem.RichTextType(rawValue: string)
+    }
+}
+
 extension ClipboardItem: FetchableRecord, PersistableRecord {
     static let databaseTableName = "clipboard_items"
 
@@ -149,6 +241,8 @@ extension ClipboardItem: FetchableRecord, PersistableRecord {
         static let contentType = Column(CodingKeys.contentType)
         static let imagePath = Column(CodingKeys.imagePath)
         static let thumbnailPath = Column(CodingKeys.thumbnailPath)
+        static let richTextPath = Column(CodingKeys.richTextPath)
+        static let richTextType = Column(CodingKeys.richTextType)
         static let createdAt = Column(CodingKeys.createdAt)
         static let contentHash = Column(CodingKeys.contentHash)
         static let usageCount = Column(CodingKeys.usageCount)
@@ -165,6 +259,8 @@ extension ClipboardItem: FetchableRecord, PersistableRecord {
         container[Columns.contentType] = contentType
         container[Columns.imagePath] = imagePath
         container[Columns.thumbnailPath] = thumbnailPath
+        container[Columns.richTextPath] = richTextPath
+        container[Columns.richTextType] = richTextType
         container[Columns.createdAt] = createdAt
         container[Columns.contentHash] = contentHash
         container[Columns.usageCount] = usageCount

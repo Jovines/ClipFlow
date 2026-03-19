@@ -49,6 +49,16 @@ struct FloatingItemRow: View {
 
                 HStack(spacing: 4) {
                     timeText
+
+                    if let richTextFormat = item.richTextFormatLabel {
+                        Text(richTextFormat)
+                            .font(.system(size: 8, weight: .semibold))
+                            .foregroundStyle(themeManager.accent)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(themeManager.accent.opacity(0.12))
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                    }
                 }
                 .font(.caption2)
                 .foregroundStyle(themeManager.textSecondary)
@@ -110,11 +120,15 @@ struct FloatingItemRow: View {
         Group {
             switch item.contentType {
             case .text:
-                Image(systemName: "doc.text")
+                Image(systemName: item.displayIconName)
                     .foregroundStyle(themeManager.textSecondary)
                     .font(.system(size: 14))
             case .image:
                 thumbnailView
+            case .file:
+                Image(systemName: "doc")
+                    .foregroundStyle(themeManager.textSecondary)
+                    .font(.system(size: 14))
             }
         }
         .frame(width: 24, height: 24)
@@ -149,6 +163,8 @@ struct FloatingItemRow: View {
                 Text(cleanedContent)
             case .image:
                 Text("Image".localized())
+            case .file:
+                Text(item.fileDisplayText)
             }
         }
     }
@@ -170,6 +186,8 @@ struct FloatingItemRow: View {
             return "\("Text".localized()): \(item.content.prefix(50))"
         case .image:
             return "Image".localized()
+        case .file:
+            return item.fileDisplayText
         }
     }
 }

@@ -43,6 +43,10 @@ final class ImageCacheManager: @unchecked Sendable {
         }
     }
 
+    func saveData(_ data: Data, forKey key: String) -> URL? {
+        saveImage(data, forKey: key)
+    }
+
     func loadImage(forKey key: String) -> Data? {
         let fileURL = cacheDirectory.appendingPathComponent(key)
         guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
@@ -50,9 +54,17 @@ final class ImageCacheManager: @unchecked Sendable {
         return try? Data(contentsOf: fileURL)
     }
 
+    func loadData(forKey key: String) -> Data? {
+        loadImage(forKey: key)
+    }
+
     func deleteImage(forKey key: String) {
         let fileURL = cacheDirectory.appendingPathComponent(key)
         try? fileManager.removeItem(at: fileURL)
+    }
+
+    func deleteData(forKey key: String) {
+        deleteImage(forKey: key)
     }
 
     func clearCache() {
