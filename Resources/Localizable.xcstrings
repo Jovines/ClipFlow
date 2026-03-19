@@ -1,6 +1,22 @@
 {
     "sourceLanguage": "en",
     "strings": {
+        "English": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "English"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "英语"
+                    }
+                }
+            }
+        },
         "General": {
             "localizations": {
                 "en": {
@@ -982,7 +998,7 @@
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Manage Tags"
+                        "value": "Manage tags"
                     }
                 },
                 "zh-Hans": {
@@ -1904,16 +1920,13 @@
                     }
                 }
             }
-        }
-    }
-}
         },
         "No Projects": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "No projects"
+                        "value": "No Projects"
                     }
                 },
                 "zh-Hans": {
@@ -2048,22 +2061,6 @@
                     "stringUnit": {
                         "state": "translated",
                         "value": "继续分析"
-                    }
-                }
-            }
-        },
-        "Manage Tags": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "Manage tags"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "管理标签"
                     }
                 }
             }
@@ -2224,22 +2221,6 @@
                     "stringUnit": {
                         "state": "translated",
                         "value": "搜索项目..."
-                    }
-                }
-            }
-        },
-        "No Projects": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "No Projects"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "暂无项目"
                     }
                 }
             }
@@ -2624,22 +2605,6 @@
                     "stringUnit": {
                         "state": "translated",
                         "value": "AI 分析完成"
-                    }
-                }
-            }
-        },
-        "AI analysis for project \"%1$@\" is complete": {
-            "localizations": {
-                "en": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "AI analysis for project \"%1$@\" is complete"
-                    }
-                },
-                "zh-Hans": {
-                    "stringUnit": {
-                        "state": "translated",
-                        "value": "项目 \"%1$@\" 的 AI 分析已完成"
                     }
                 }
             }
@@ -3940,21 +3905,694 @@
                 }
             }
         },
-        "Delete": {
+        "Focus Todo": {
             "localizations": {
                 "en": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "Delete"
+                        "value": "Focus Todo"
                     }
                 },
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "删除"
+                        "value": "专注待办"
+                    }
+                }
+            }
+        },
+        "Feature": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Feature"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "功能"
+                    }
+                }
+            }
+        },
+        "Enable Focus Todo Overlay": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Enable Focus Todo Overlay"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "启用 Focus Todo 浮层"
+                    }
+                }
+            }
+        },
+        "Focus Todo Shortcuts": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Focus Todo Shortcuts"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Focus Todo 快捷键"
+                    }
+                }
+            }
+        },
+        "Toggle Panel": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Toggle Panel"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "切换面板"
+                    }
+                }
+            }
+        },
+        "Switch to Previous Task": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Switch to Previous Task"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "切换到上一任务"
+                    }
+                }
+            }
+        },
+        "Switch to Next Task": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Switch to Next Task"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "切换到下一任务"
+                    }
+                }
+            }
+        },
+        "Complete Current Task": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Complete Current Task"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "完成当前任务"
+                    }
+                }
+            }
+        },
+        "Overlay Appearance": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Overlay Appearance"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "浮层外观"
+                    }
+                }
+            }
+        },
+        "Collapsed Transparency": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Collapsed Transparency"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "收起透明度"
+                    }
+                }
+            }
+        },
+        "Adjust transparency of the collapsed Focus Todo bar.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Adjust transparency of the collapsed Focus Todo bar."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "调整收起状态 Focus Todo 栏的透明度。"
+                    }
+                }
+            }
+        },
+        "%1$d%%": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d%%"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d%%"
+                    }
+                }
+            }
+        },
+        "Clipboard Prefill": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Clipboard Prefill"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "剪贴板预填充"
+                    }
+                }
+            }
+        },
+        "Auto-paste threshold": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Auto-paste threshold"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "自动粘贴阈值"
+                    }
+                }
+            }
+        },
+        "If the most recent copied text is within this many seconds when opening Focus Todo, it will prefill the task input and be selected.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "If the most recent copied text is within this many seconds when opening Focus Todo, it will prefill the task input and be selected."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "如果打开 Focus Todo 时最近复制的文本在此秒数内，将自动填入任务输入框并选中。"
+                    }
+                }
+            }
+        },
+        "%1$d s": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d s"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d 秒"
+                    }
+                }
+            }
+        },
+        "Set to 0 to disable clipboard auto-paste.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Set to 0 to disable clipboard auto-paste."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "设为 0 可禁用剪贴板自动粘贴。"
+                    }
+                }
+            }
+        },
+        "Current Language": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Current Language"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "当前语言"
+                    }
+                }
+            }
+        },
+        "Select Language": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Select Language"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "选择语言"
+                    }
+                }
+            }
+        },
+        "Please restart ClipFlow to apply the language change.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Please restart ClipFlow to apply the language change."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "请重启 ClipFlow 以应用语言更改。"
+                    }
+                }
+            }
+        },
+        "This shortcut is already used by another Focus Todo action.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "This shortcut is already used by another Focus Todo action."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "该快捷键已被其他 Focus Todo 操作使用。"
+                    }
+                }
+            }
+        },
+        "Focus Todo Off": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Focus Todo Off"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "关闭 Focus Todo"
+                    }
+                }
+            }
+        },
+        "Focus Todo On": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Focus Todo On"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "开启 Focus Todo"
+                    }
+                }
+            }
+        },
+        "Now": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Now"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "当前"
+                    }
+                }
+            }
+        },
+        "No task": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No task"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "无任务"
+                    }
+                }
+            }
+        },
+        "No task in progress": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No task in progress"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "当前无进行中的任务"
+                    }
+                }
+            }
+        },
+        "Next: %@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Next: %@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "下一项：%@"
+                    }
+                }
+            }
+        },
+        "Next Up": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Next Up"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "接下来"
+                    }
+                }
+            }
+        },
+        "Paused": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Paused"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "已暂停"
+                    }
+                }
+            }
+        },
+        "Done Today": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Done Today"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "今日完成"
+                    }
+                }
+            }
+        },
+        "Done History": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Done History"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "历史已完成"
+                    }
+                }
+            }
+        },
+        "Empty": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Empty"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "空"
+                    }
+                }
+            }
+        },
+        "Quick add task": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Quick add task"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "快速添加任务"
+                    }
+                }
+            }
+        },
+        "↑ %@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "↑ %@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "↑ %@"
+                    }
+                }
+            }
+        },
+        "↓ %@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "↓ %@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "↓ %@"
+                    }
+                }
+            }
+        },
+        "In collapsed mode, move the pointer over the Focus Todo bar and swipe on the trackpad.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "In collapsed mode, move the pointer over the Focus Todo bar and swipe on the trackpad."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "在收起状态下，将鼠标指针移动到 Focus Todo 栏上，然后在触控板上滑动。"
+                    }
+                }
+            }
+        },
+        "Rewrite": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Rewrite"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "重写"
+                    }
+                }
+            }
+        },
+        "Generating rewrite suggestions...": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Generating rewrite suggestions..."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "正在生成重写候选..."
+                    }
+                }
+            }
+        },
+        "Select a rewrite candidate:": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Select a rewrite candidate:"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "选择一个重写候选："
+                    }
+                }
+            }
+        },
+        "Rewrite input into actionable task options": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Rewrite input into actionable task options"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "将输入重写为可执行任务候选"
+                    }
+                }
+            }
+        },
+        "Configure AI provider in settings to use rewrite": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Configure AI provider in settings to use rewrite"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "请先在设置中配置 AI 服务后再使用重写"
+                    }
+                }
+            }
+        },
+        "AI is not configured. Please set up a provider in Settings > AI Service.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI is not configured. Please set up a provider in Settings > AI Service."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "AI 尚未配置，请前往 设置 > AI 服务 完成配置。"
+                    }
+                }
+            }
+        },
+        "No rewrite suggestions generated. Try adding more context.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No rewrite suggestions generated. Try adding more context."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "未生成重写候选，请补充更多上下文后重试。"
                     }
                 }
             }
         }
-    }
+    },
+    "version": "1.0"
 }

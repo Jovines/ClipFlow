@@ -8,9 +8,15 @@ struct FocusTodoBarView: View {
     @StateObject private var todoService = FocusTodoService.shared
     @StateObject private var clipboardMonitor = ClipboardMonitor.shared
     @StateObject private var shortcutManager = FocusTodoShortcutManager.shared
+    @StateObject private var languageManager = LanguageManager.shared
+    @StateObject private var aiService = OpenAIService.shared
     @AppStorage(FocusTodoPreferences.clipboardPrefillSecondsKey) private var clipboardPrefillSeconds = FocusTodoPreferences.defaultClipboardPrefillSeconds
     @AppStorage(FocusTodoPreferences.collapsedOpacityKey) private var collapsedOpacity = FocusTodoPreferences.defaultCollapsedOpacity
     @State private var newTaskTitle = ""
+    @State private var rewriteCandidates: [String] = []
+    @State private var rewriteErrorMessage: String?
+    @State private var isRewritingTask = false
+    @State private var rewriteTask: Task<Void, Never>?
     @State private var activeTitleTransitionSerial = 0
     @State private var collapsedInteractionBoost = 0.0
     @State private var switchColorPulse = 0.0
@@ -110,6 +116,8 @@ struct FocusTodoBarView: View {
             y: todoService.isPanelExpanded ? 4 : 1
         )
         .themeAware()
+        .environment(\.locale, languageManager.currentLanguage.locale)
+        .id(languageManager.refreshTrigger)
         .compositingGroup()
         .onChange(of: todoService.isPanelExpanded) { _, _ in
             FocusTodoWindowManager.shared.refreshLayout()
@@ -120,6 +128,7 @@ struct FocusTodoBarView: View {
                 }
             } else {
                 isQuickInputFocused = false
+                clearRewriteState(cancelInFlight: true)
             }
         }
         .onChange(of: todoService.activeSwitchSerial) { _, _ in
@@ -310,33 +319,163 @@ struct FocusTodoBarView: View {
     }
 
     private var quickInputRow: some View {
-        HStack(spacing: 8) {
-            TextField("Quick add task".localized, text: $newTaskTitle)
-                .textFieldStyle(.plain)
-                .font(.system(size: 12))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 7)
-                .background(themeManager.chromeSurfaceElevated)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .focused($isQuickInputFocused)
-                .onSubmit {
-                    todoService.addTask(newTaskTitle, makeActive: false)
-                    newTaskTitle = ""
-                }
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 8) {
+                TextField("Quick add task".localized, text: $newTaskTitle)
+                    .textFieldStyle(.plain)
+                    .font(.system(size: 12))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 7)
+                    .background(themeManager.chromeSurfaceElevated)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .focused($isQuickInputFocused)
+                    .onSubmit {
+                        addCurrentTask()
+                    }
 
-            Button("Add".localized) {
-                todoService.addTask(newTaskTitle, makeActive: false)
-                newTaskTitle = ""
+                Button {
+                    requestTaskRewrites()
+                } label: {
+                    Image(systemName: "wand.and.stars")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(themeManager.text)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 8)
+                    .background(themeManager.chromeSurfaceElevated)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .disabled(isRewritingTask || !canTriggerRewrite)
+                .help(rewriteButtonHelpText)
+
+                Button("Add".localized) {
+                    addCurrentTask()
+                }
+                .buttonStyle(.plain)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(themeManager.iconBadgeAccentForeground)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 8)
+                .background(themeManager.iconBadgeAccentBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .disabled(newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
-            .buttonStyle(.plain)
-            .font(.system(size: 11, weight: .semibold))
-            .foregroundStyle(themeManager.iconBadgeAccentForeground)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .background(themeManager.iconBadgeAccentBackground)
-            .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-            .disabled(newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+            if isRewritingTask {
+                HStack(spacing: 6) {
+                    ProgressView()
+                        .scaleEffect(0.55)
+                    Text("Generating rewrite suggestions...".localized)
+                        .font(.system(size: 11))
+                        .foregroundStyle(themeManager.textSecondary)
+                }
+            }
+
+            if let rewriteErrorMessage, !rewriteErrorMessage.isEmpty {
+                Text(rewriteErrorMessage)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.red.opacity(0.85))
+            }
+
+            if !rewriteCandidates.isEmpty {
+                Text("Select a rewrite candidate:".localized)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(themeManager.textSecondary)
+
+                VStack(alignment: .leading, spacing: 5) {
+                    ForEach(Array(rewriteCandidates.enumerated()), id: \.offset) { index, candidate in
+                        Button {
+                            newTaskTitle = candidate
+                            rewriteErrorMessage = nil
+                            DispatchQueue.main.async {
+                                isQuickInputFocused = true
+                            }
+                        } label: {
+                            HStack(alignment: .top, spacing: 6) {
+                                Text("\(index + 1).")
+                                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(themeManager.textSecondary)
+
+                                Text(candidate)
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(themeManager.text)
+                                    .multilineTextAlignment(.leading)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 6)
+                            .background(themeManager.chromeSurfaceElevated)
+                            .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
         }
+    }
+
+    private var canTriggerRewrite: Bool {
+        !newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && aiService.hasAnyConfiguredProvider
+    }
+
+    private var rewriteButtonHelpText: String {
+        if aiService.hasAnyConfiguredProvider {
+            return "Rewrite input into actionable task options".localized
+        }
+        return "Configure AI provider in settings to use rewrite".localized
+    }
+
+    private func addCurrentTask() {
+        todoService.addTask(newTaskTitle, makeActive: false)
+        newTaskTitle = ""
+        clearRewriteState(cancelInFlight: true)
+    }
+
+    private func requestTaskRewrites() {
+        let sourceText = newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !sourceText.isEmpty else { return }
+        guard aiService.hasAnyConfiguredProvider else {
+            rewriteErrorMessage = "AI is not configured. Please set up a provider in Settings > AI Service.".localized
+            return
+        }
+
+        isRewritingTask = true
+        rewriteErrorMessage = nil
+        rewriteCandidates = []
+        rewriteTask?.cancel()
+
+        rewriteTask = Task {
+            do {
+                let candidates = try await FocusTodoAIRewriteService.shared.generateCandidates(from: sourceText)
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    isRewritingTask = false
+                    rewriteCandidates = candidates
+                    if candidates.isEmpty {
+                        rewriteErrorMessage = "No rewrite suggestions generated. Try adding more context.".localized
+                    }
+                    rewriteTask = nil
+                }
+            } catch {
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    isRewritingTask = false
+                    rewriteCandidates = []
+                    rewriteErrorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                    rewriteTask = nil
+                }
+            }
+        }
+    }
+
+    private func clearRewriteState(cancelInFlight: Bool) {
+        if cancelInFlight {
+            rewriteTask?.cancel()
+            rewriteTask = nil
+        }
+        isRewritingTask = false
+        rewriteCandidates = []
+        rewriteErrorMessage = nil
     }
 
     private func todoSection(
@@ -450,6 +589,7 @@ struct FocusTodoBarView: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
+        formatter.locale = languageManager.currentLanguage.locale
         return formatter.string(from: date)
     }
 

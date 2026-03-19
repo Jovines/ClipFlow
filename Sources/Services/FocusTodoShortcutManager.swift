@@ -11,18 +11,18 @@ final class FocusTodoShortcutManager: ObservableObject {
         var defaultShortcut: HotKeyManager.Shortcut {
             switch self {
             case .togglePanel:
-                return HotKeyManager.Shortcut(keyCode: kVK_ANSI_T, modifiers: [.control, .option])
+                return HotKeyManager.Shortcut(keyCode: kVK_ANSI_Quote, modifiers: [.command, .shift])
             case .previousTask:
-                return HotKeyManager.Shortcut(keyCode: kVK_ANSI_P, modifiers: [.control, .option])
+                return HotKeyManager.Shortcut(keyCode: kVK_ANSI_Comma, modifiers: [.command, .shift])
             case .nextTask:
-                return HotKeyManager.Shortcut(keyCode: kVK_ANSI_N, modifiers: [.control, .option])
+                return HotKeyManager.Shortcut(keyCode: kVK_ANSI_Period, modifiers: [.command, .shift])
             case .markDone:
-                return HotKeyManager.Shortcut(keyCode: kVK_ANSI_D, modifiers: [.control, .option])
+                return HotKeyManager.Shortcut(keyCode: kVK_Return, modifiers: [.command, .shift])
             }
         }
     }
 
-    struct Configuration: Codable {
+    struct Configuration: Codable, Equatable {
         var togglePanel: HotKeyManager.Shortcut
         var previousTask: HotKeyManager.Shortcut
         var nextTask: HotKeyManager.Shortcut
@@ -78,11 +78,22 @@ final class FocusTodoShortcutManager: ObservableObject {
     @Published private(set) var configuration: Configuration
 
     private let userDefaultsKey = FocusTodoPreferences.shortcutsKey
+    private let legacyDefaultConfiguration = Configuration(
+        togglePanel: HotKeyManager.Shortcut(keyCode: kVK_ANSI_T, modifiers: [.control, .option]),
+        previousTask: HotKeyManager.Shortcut(keyCode: kVK_ANSI_P, modifiers: [.control, .option]),
+        nextTask: HotKeyManager.Shortcut(keyCode: kVK_ANSI_N, modifiers: [.control, .option]),
+        markDone: HotKeyManager.Shortcut(keyCode: kVK_ANSI_D, modifiers: [.control, .option])
+    )
 
     private init() {
         if let data = UserDefaults.standard.data(forKey: userDefaultsKey),
            let decoded = try? JSONDecoder().decode(Configuration.self, from: data) {
-            configuration = decoded
+            if decoded == legacyDefaultConfiguration {
+                configuration = .default
+                save()
+            } else {
+                configuration = decoded
+            }
         } else {
             configuration = .default
         }

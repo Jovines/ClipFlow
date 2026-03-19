@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01C9D269EA5CD8842340DA1F /* FocusTodoAIRewriteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D97CCEACA23C3B65E7898D47 /* FocusTodoAIRewriteService.swift */; };
 		04F68D02C68BC941A62A4FD8 /* MenuBarPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A2033D03B4A6B34FA01DD0E /* MenuBarPopoverView.swift */; };
 		0BB02079059B5F6883731CCB /* ClipboardContentDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C4F37EBB147CEFC84AAB7D /* ClipboardContentDetector.swift */; };
 		0C8AE76378B0FCCF8957B3A0 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA4353840CA24F045A37B133 /* SearchBar.swift */; };
 		18709452236C2E743240E16C /* TagService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6AD15DA34582BEE329A65B /* TagService.swift */; };
 		19797FB7419BE216FD72B12C /* ProjectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2BEBCBDE3F8381B84FCD45 /* ProjectService.swift */; };
 		19FB375D2E4FD12AE5385D78 /* ModeIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEB25C362C23BB1353F84958 /* ModeIndicatorView.swift */; };
+		1A366D43249517565D71B592 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = A0D03C4DD7B43942EA9C1D27 /* Localizable.xcstrings */; };
 		1B503E15C756DDA8D2A103C4 /* GroupPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC1C918CE3841DAE2F0DF8F /* GroupPanelView.swift */; };
 		1E27C63FBF4428172AF9D547 /* ProjectModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53A0D6EA8A4C9FCE56366FE5 /* ProjectModeView.swift */; };
 		1F658F6458027E7978360C1F /* ImagePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B85F0DF320B3BCDB326EEF /* ImagePreviewView.swift */; };
@@ -132,6 +134,7 @@
 		93E6F611F5CEAB8D5193F057 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		9B6AD15DA34582BEE329A65B /* TagService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagService.swift; sourceTree = "<group>"; };
 		9E5C68D15CA5FE443AF36F99 /* SearchIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchIndicatorView.swift; sourceTree = "<group>"; };
+		A0D03C4DD7B43942EA9C1D27 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		A19822AF54BE8A77A60D78D5 /* FloatingWindow+NSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FloatingWindow+NSUI.swift"; sourceTree = "<group>"; };
 		A4AC65C65E8D9EF183514721 /* ClipFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipFlowApp.swift; sourceTree = "<group>"; };
 		A70D8BE02A903A8FAF8ED112 /* UpdateService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateService.swift; sourceTree = "<group>"; };
@@ -153,6 +156,7 @@
 		CD7C7F3B1ED4D0330A17E0AA /* ProjectCognitionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectCognitionService.swift; sourceTree = "<group>"; };
 		D2E7304D47020405525A3DBC /* SettingsWindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowManager.swift; sourceTree = "<group>"; };
 		D5EB1FAFD466C4B3D85F8658 /* ClipFlow.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClipFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D97CCEACA23C3B65E7898D47 /* FocusTodoAIRewriteService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTodoAIRewriteService.swift; sourceTree = "<group>"; };
 		DB7D34E47BB34B91999777F7 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
 		DB8ABDF6BA2D425A5A116AE6 /* PresetRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresetRow.swift; sourceTree = "<group>"; };
 		DE9A40E1541CBBEB56F88643 /* ProjectPromptSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectPromptSettingsView.swift; sourceTree = "<group>"; };
@@ -189,6 +193,7 @@
 			children = (
 				4B9FCB3F1A4295844FE7C426 /* ClipboardMonitor.swift */,
 				1CE72248AB11DA260D0367CA /* FloatingWindowManager.swift */,
+				D97CCEACA23C3B65E7898D47 /* FocusTodoAIRewriteService.swift */,
 				14E6C7F144EE5C621F334629 /* FocusTodoPreferences.swift */,
 				DED991AEDB0468EE02851D24 /* FocusTodoService.swift */,
 				E87BB6468C65F9DADE010124 /* FocusTodoShortcutManager.swift */,
@@ -382,6 +387,7 @@
 			isa = PBXGroup;
 			children = (
 				5F20288AFA600ADBAB86A41E /* Assets.xcassets */,
+				A0D03C4DD7B43942EA9C1D27 /* Localizable.xcstrings */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -461,6 +467,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				37F43B27ADE0E9A974D7A785 /* Assets.xcassets in Resources */,
+				1A366D43249517565D71B592 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -515,6 +522,7 @@
 				7759F51D7AC8EB655E0AFD07 /* FloatingWindow+NSUI.swift in Sources */,
 				F419A4DFE952EF99C6D812E3 /* FloatingWindowManager.swift in Sources */,
 				5FC7B2B68756A340589CF3E3 /* FloatingWindowView.swift in Sources */,
+				01C9D269EA5CD8842340DA1F /* FocusTodoAIRewriteService.swift in Sources */,
 				5F46600495577968AC029E6B /* FocusTodoBarView.swift in Sources */,
 				A48818E58CF106235D263589 /* FocusTodoCollapsedSwipeDemoView.swift in Sources */,
 				3F2C6169FE7CF4A33E893FEE /* FocusTodoItem.swift in Sources */,

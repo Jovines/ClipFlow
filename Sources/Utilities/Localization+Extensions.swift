@@ -1,43 +1,32 @@
 import Foundation
 
 enum LocalizationHelper {
-    private static func loadStrings() -> [String: [String: String]] {
-        guard let url = Bundle.main.url(forResource: "Localizable", withExtension: "xcstrings"),
-              let data = try? Data(contentsOf: url),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let strings = json["strings"] as? [String: [String: Any]] else {
-            return [:]
+    private static func bundle(for language: String) -> Bundle {
+        if let path = Bundle.main.path(forResource: language, ofType: "lproj"),
+           let bundle = Bundle(path: path) {
+            return bundle
         }
 
-        var result: [String: [String: String]] = [:]
-        for (key, value) in strings {
-            if let localization = value["localizations"] as? [String: [String: Any]] {
-                var translations: [String: String] = [:]
-                for (lang, langValue) in localization {
-                    if let stringUnit = langValue["stringUnit"] as? [String: Any],
-                       let translatedValue = stringUnit["value"] as? String {
-                        translations[lang] = translatedValue
-                    }
-                }
-                result[key] = translations
-            }
+        if let baseCode = language.split(separator: "-").first,
+           let path = Bundle.main.path(forResource: String(baseCode), ofType: "lproj"),
+           let bundle = Bundle(path: path) {
+            return bundle
         }
 
-        return result
+        return Bundle.main
     }
 
     static func localizedString(for key: String) -> String {
         let savedLanguage = UserDefaults.standard.string(forKey: "appLanguage") ?? "en"
-        let strings = loadStrings()
-
-        if let translations = strings[key],
-           let translation = translations[savedLanguage] {
-            return translation
+        let preferredBundle = bundle(for: savedLanguage)
+        let preferred = preferredBundle.localizedString(forKey: key, value: nil, table: "Localizable")
+        if preferred != key {
+            return preferred
         }
 
-        if let translations = strings[key],
-           let translation = translations["en"] {
-            return translation
+        let english = bundle(for: "en").localizedString(forKey: key, value: nil, table: "Localizable")
+        if english != key {
+            return english
         }
 
         return key

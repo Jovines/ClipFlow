@@ -538,6 +538,104 @@ struct SettingsView: View {
 
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
+                    Image(systemName: "circle.lefthalf.filled")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Overlay Appearance".localized())
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    HStack {
+                        SettingLabelWithInfo(
+                            label: "Collapsed Transparency".localized(),
+                            description: "Adjust transparency of the collapsed Focus Todo bar.".localized()
+                        )
+                        Spacer()
+                        Text("%1$d%%".localized(Int(focusTodoCollapsedOpacity * 100)))
+                            .font(.system(size: 13, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+
+                    Slider(
+                        value: $focusTodoCollapsedOpacity,
+                        in: 0.05...0.7,
+                        step: 0.01
+                    )
+                    .controlSize(.small)
+
+                    Divider()
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Collapsed Mode Gesture Guide".localized())
+                            .font(.system(size: 13, weight: .medium))
+
+                        Text("In collapsed mode, move the pointer over the Focus Todo bar and swipe on the trackpad.".localized())
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+
+                        Text("Left/right switches columns, up/down switches rows.".localized())
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+
+                        FocusTodoCollapsedSwipeDemoView()
+                    }
+                }
+                .padding(12)
+                .background(settingsCardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .disabled(!focusTodoEnabled)
+                .opacity(focusTodoEnabled ? 1 : 0.5)
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Image(systemName: "doc.on.clipboard")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Clipboard Prefill".localized())
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(spacing: 12) {
+                    HStack {
+                        SettingLabelWithInfo(
+                            label: "Auto-paste threshold".localized(),
+                            description: "If the most recent copied text is within this many seconds when opening Focus Todo, it will prefill the task input and be selected.".localized()
+                        )
+                        Spacer()
+                        Text("%1$d s".localized(Int(focusTodoClipboardPrefillSeconds)))
+                            .font(.system(size: 13, design: .rounded))
+                            .foregroundStyle(.secondary)
+                            .monospacedDigit()
+                    }
+
+                    Slider(
+                        value: $focusTodoClipboardPrefillSeconds,
+                        in: 0...120,
+                        step: 1
+                    )
+                    .controlSize(.small)
+
+                    Text("Set to 0 to disable clipboard auto-paste.".localized())
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .padding(12)
+                .background(settingsCardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .disabled(!focusTodoEnabled)
+                .opacity(focusTodoEnabled ? 1 : 0.5)
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
                     Image(systemName: "checklist")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
@@ -589,108 +687,6 @@ struct SettingsView: View {
                             }
                         )
                     )
-                }
-                .padding(12)
-                .background(settingsCardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .disabled(!focusTodoEnabled)
-                .opacity(focusTodoEnabled ? 1 : 0.5)
-            }
-
-            Divider()
-
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "circle.lefthalf.filled")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("Overlay Appearance".localized())
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
-                VStack(spacing: 12) {
-                    HStack {
-                        SettingLabelWithInfo(
-                            label: "Collapsed Transparency".localized(),
-                            description: "Adjust transparency of the collapsed Focus Todo bar.".localized()
-                        )
-                        Spacer()
-                        Text("%1$d%%".localized(Int(focusTodoCollapsedOpacity * 100)))
-                            .font(.system(size: 13, design: .rounded))
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                    }
-
-                    Slider(
-                        value: $focusTodoCollapsedOpacity,
-                        in: 0.05...0.7,
-                        step: 0.01
-                    )
-                    .controlSize(.small)
-
-                    Divider()
-
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Collapsed Mode Gesture Guide".localized())
-                            .font(.system(size: 13, weight: .medium))
-
-                        Text("Swipe to snap across 9 positions.".localized())
-                            .font(.system(size: 12))
-                            .foregroundStyle(.secondary)
-
-                        Text("Left/right switches columns, up/down switches rows.".localized())
-                            .font(.system(size: 12))
-                            .foregroundStyle(.secondary)
-
-                        FocusTodoCollapsedSwipeDemoView()
-
-                        Text("Demo loops through all positions.".localized())
-                            .font(.system(size: 11))
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .padding(12)
-                .background(settingsCardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .disabled(!focusTodoEnabled)
-                .opacity(focusTodoEnabled ? 1 : 0.5)
-            }
-
-            Divider()
-
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "doc.on.clipboard")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("Clipboard Prefill".localized())
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
-                VStack(spacing: 12) {
-                    HStack {
-                        SettingLabelWithInfo(
-                            label: "Auto-paste threshold".localized(),
-                            description: "If the most recent copied text is within this many seconds when opening Focus Todo, it will prefill the task input and be selected.".localized()
-                        )
-                        Spacer()
-                        Text("%1$d s".localized(Int(focusTodoClipboardPrefillSeconds)))
-                            .font(.system(size: 13, design: .rounded))
-                            .foregroundStyle(.secondary)
-                            .monospacedDigit()
-                    }
-
-                    Slider(
-                        value: $focusTodoClipboardPrefillSeconds,
-                        in: 0...120,
-                        step: 1
-                    )
-                    .controlSize(.small)
-
-                    Text("Set to 0 to disable clipboard auto-paste.".localized())
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(12)
                 .background(settingsCardBackground)
