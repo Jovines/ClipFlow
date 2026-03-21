@@ -1,5 +1,6 @@
 import SwiftUI
 
+// swiftlint:disable:next type_body_length
 struct AIProviderSettingsView: View {
     @StateObject private var service = OpenAIService.shared
     @State private var showPresetSheet = false
@@ -8,6 +9,8 @@ struct AIProviderSettingsView: View {
     @State private var testMessage = ""
     @State private var testResponse = ""
     @State private var isTesting = false
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
 
     private var providers: [AIProviderConfig] {
         service.availableProviders
@@ -51,6 +54,11 @@ struct AIProviderSettingsView: View {
                 updateProvider(updated)
             }
         }
+        .alert("Operation Failed".localized(), isPresented: $showErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(errorMessage)
+        }
     }
 
     private var headerSection: some View {
@@ -90,6 +98,8 @@ struct AIProviderSettingsView: View {
                 }
                 .buttonStyle(.borderless)
                 .controlSize(.small)
+                .help("Add Provider".localized())
+                .accessibilityLabel("Add Provider".localized())
             }
 
             if providers.isEmpty {
@@ -234,7 +244,7 @@ struct AIProviderSettingsView: View {
         do {
             try service.updateProvider(provider)
         } catch {
-            print("Failed to add provider: \(error)")
+            showError(message: "Failed to add provider: %1$@".localized(error.localizedDescription))
         }
     }
 
@@ -242,7 +252,7 @@ struct AIProviderSettingsView: View {
         do {
             try service.updateProvider(provider)
         } catch {
-            print("Failed to update provider: \(error)")
+            showError(message: "Failed to update provider: %1$@".localized(error.localizedDescription))
         }
     }
 
@@ -250,8 +260,13 @@ struct AIProviderSettingsView: View {
         do {
             try service.deleteProvider(id: provider.id)
         } catch {
-            print("Failed to delete provider: \(error)")
+            showError(message: "Failed to delete provider: %1$@".localized(error.localizedDescription))
         }
+    }
+
+    private func showError(message: String) {
+        errorMessage = message
+        showErrorAlert = true
     }
 
     private func testConnection() {

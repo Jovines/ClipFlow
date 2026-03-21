@@ -1452,7 +1452,7 @@
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "编辑服务商"
+                        "value": "编辑提供商"
                     }
                 }
             }
@@ -3884,7 +3884,7 @@
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "左右：列"
+                        "value": "左/右：列"
                     }
                 }
             }
@@ -3900,7 +3900,7 @@
                 "zh-Hans": {
                     "stringUnit": {
                         "state": "translated",
-                        "value": "上下：行"
+                        "value": "上/下：行"
                     }
                 }
             }
@@ -4589,6 +4589,1750 @@
                     "stringUnit": {
                         "state": "translated",
                         "value": "未生成重写候选，请补充更多上下文后重试。"
+                    }
+                }
+            }
+        },
+        "Open Clipboard History": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Open Clipboard History"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "打开剪贴板历史"
+                    }
+                }
+            }
+        },
+        "Turn Focus Todo Off": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Turn Focus Todo Off"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "关闭 Focus Todo"
+                    }
+                }
+            }
+        },
+        "Turn Focus Todo On": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Turn Focus Todo On"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "开启 Focus Todo"
+                    }
+                }
+            }
+        },
+        "Paste immediately after selection": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Paste immediately after selection"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "选择后立即粘贴"
+                    }
+                }
+            }
+        },
+        "When disabled, selecting an item only copies it to clipboard.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "When disabled, selecting an item only copies it to clipboard."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "关闭后，选择条目只会复制到剪贴板。"
+                    }
+                }
+            }
+        },
+        "Quit Now": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Quit Now"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "立即退出"
+                    }
+                }
+            }
+        },
+        "Please quit and reopen ClipFlow to apply the language change.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Please quit and reopen ClipFlow to apply the language change."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "请退出并重新打开 ClipFlow 以应用语言更改。"
+                    }
+                }
+            }
+        },
+        "Granted": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Granted"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "已授权"
+                    }
+                }
+            }
+        },
+        "Not Granted": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Not Granted"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "未授权"
+                    }
+                }
+            }
+        },
+        "Accessibility Permission": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Accessibility Permission"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "辅助功能权限"
+                    }
+                }
+            }
+        },
+        "Global shortcut is ready to use.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Global shortcut is ready to use."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "全局快捷键已可用。"
+                    }
+                }
+            }
+        },
+        "Grant permission so ClipFlow can listen to global shortcuts.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Grant permission so ClipFlow can listen to global shortcuts."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "请授予权限，以便 ClipFlow 监听全局快捷键。"
+                    }
+                }
+            }
+        },
+        "Open Accessibility Settings": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Open Accessibility Settings"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "打开辅助功能设置"
+                    }
+                }
+            }
+        },
+        "Grant Accessibility Permission": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Grant Accessibility Permission"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "授予辅助功能权限"
+                    }
+                }
+            }
+        },
+        "Accessibility permission is required to register global shortcuts.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Accessibility permission is required to register global shortcuts."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "注册全局快捷键需要辅助功能权限。"
+                    }
+                }
+            }
+        },
+        "Focus Todo is off by default for new users. Turn it on anytime here.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Focus Todo is off by default for new users. Turn it on anytime here."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "新用户默认关闭 Focus Todo，可随时在此开启。"
+                    }
+                }
+            }
+        },
+        "No Results": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No Results"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "无结果"
+                    }
+                }
+            }
+        },
+        "No items match \"%1$@\"": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No items match \"%1$@\""
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "没有与“%1$@”匹配的条目"
+                    }
+                }
+            }
+        },
+        "Clear Search": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Clear Search"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "清除搜索"
+                    }
+                }
+            }
+        },
+        "This will remove all cached images and cannot be undone.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "This will remove all cached images and cannot be undone."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "这将删除所有缓存图片且无法撤销。"
+                    }
+                }
+            }
+        },
+        "Cache cleared successfully.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Cache cleared successfully."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "缓存清理成功。"
+                    }
+                }
+            }
+        },
+        "Cache is already empty.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Cache is already empty."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "缓存已为空。"
+                    }
+                }
+            }
+        },
+        "Version %1$@ (%2$@)": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Version %1$@ (%2$@)"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "版本 %1$@（%2$@）"
+                    }
+                }
+            }
+        },
+        "Checking for updates...": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Checking for updates..."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "正在检查更新..."
+                    }
+                }
+            }
+        },
+        "Update check started. Follow the system update dialog.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Update check started. Follow the system update dialog."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "已开始检查更新，请按系统更新对话框操作。"
+                    }
+                }
+            }
+        },
+        "No matching projects": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No matching projects"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "没有匹配的项目"
+                    }
+                }
+            }
+        },
+        "Operation Failed": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Operation Failed"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "操作失败"
+                    }
+                }
+            }
+        },
+        "Failed to archive project: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to archive project: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "归档项目失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to delete project: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to delete project: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "删除项目失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to create project: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to create project: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "创建项目失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to add item to project: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to add item to project: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "添加条目到项目失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to add provider: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to add provider: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "添加提供商失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to update provider: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to update provider: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "更新提供商失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to delete provider: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to delete provider: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "删除提供商失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Select Provider": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Select Provider"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "选择提供商"
+                    }
+                }
+            }
+        },
+        "Delete Provider": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Delete Provider"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "删除提供商"
+                    }
+                }
+            }
+        },
+        "Remove Tag": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Remove Tag"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "移除标签"
+                    }
+                }
+            }
+        },
+        "Filter": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Filter"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "筛选"
+                    }
+                }
+            }
+        },
+        "Project": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Project"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "项目"
+                    }
+                }
+            }
+        },
+        "Image Preview": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Image Preview"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "图片预览"
+                    }
+                }
+            }
+        },
+        "Press any key to record": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Press any key to record"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "按任意键进行录制"
+                    }
+                }
+            }
+        },
+        "Press ESC to cancel": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Press ESC to cancel"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "按 ESC 取消"
+                    }
+                }
+            }
+        },
+        "This shortcut is already in use or invalid.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "This shortcut is already in use or invalid."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "该快捷键已被占用或无效。"
+                    }
+                }
+            }
+        },
+        "System reserved key": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "System reserved key"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "系统保留按键"
+                    }
+                }
+            }
+        },
+        "Conflict with Spotlight/Quick Look": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Conflict with Spotlight/Quick Look"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "与 Spotlight/快速查看冲突"
+                    }
+                }
+            }
+        },
+        "Failed to update tag: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to update tag: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "更新标签失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to delete tag: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to delete tag: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "删除标签失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to create tag: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to create tag: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "创建标签失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Zoom Out": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Zoom Out"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "缩小"
+                    }
+                }
+            }
+        },
+        "Reset Zoom": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Reset Zoom"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "重置缩放"
+                    }
+                }
+            }
+        },
+        "Zoom In": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Zoom In"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "放大"
+                    }
+                }
+            }
+        },
+        "Shortcut: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Shortcut: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "快捷键：%1$@"
+                    }
+                }
+            }
+        },
+        "Delete Item": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Delete Item"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "删除条目"
+                    }
+                }
+            }
+        },
+        "Are you sure you want to delete this clipboard item?": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Are you sure you want to delete this clipboard item?"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "确定要删除这个剪贴板条目吗？"
+                    }
+                }
+            }
+        },
+        "Failed to switch project: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to switch project: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "切换项目失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to delete clipboard item: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to delete clipboard item: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "删除剪贴板条目失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to remove tag: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to remove tag: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "移除标签失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Quick Start": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Quick Start"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "快速上手"
+                    }
+                }
+            }
+        },
+        "1) Copy anything\n2) Open ClipFlow with %1$@\n3) Select an item to copy/paste": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "1) Copy anything\n2) Open ClipFlow with %1$@\n3) Select an item to copy/paste"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "1）先复制任意内容\n2）用 %1$@ 打开 ClipFlow\n3）选择条目即可复制/粘贴"
+                    }
+                }
+            }
+        },
+        "Got It": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Got It"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "知道了"
+                    }
+                }
+            }
+        },
+        "Failed to load tags: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to load tags: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "加载标签失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to toggle tag: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to toggle tag: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "切换标签失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to load templates: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to load templates: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "加载模板失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to apply template: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to apply template: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "应用模板失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to duplicate template: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to duplicate template: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "复制模板失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to delete template: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to delete template: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "删除模板失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to save template: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to save template: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "保存模板失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to load project data: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to load project data: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "加载项目数据失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to delete material: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to delete material: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "删除材料失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to update material: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to update material: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "更新材料失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Analysis is already in progress": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Analysis is already in progress"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "分析正在进行中"
+                    }
+                }
+            }
+        },
+        "No new materials to analyze": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No new materials to analyze"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "没有可增量分析的新材料"
+                    }
+                }
+            }
+        },
+        "No existing analysis result to reset": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No existing analysis result to reset"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "当前没有可重置的分析结果"
+                    }
+                }
+            }
+        },
+        "No materials to analyze": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "No materials to analyze"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "没有可分析的材料"
+                    }
+                }
+            }
+        },
+        "Failed to exit project mode: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to exit project mode: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "退出项目模式失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Item deleted": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Item deleted"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "已删除条目"
+                    }
+                }
+            }
+        },
+        "Undo": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Undo"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "撤销"
+                    }
+                }
+            }
+        },
+        "Failed to load suggestions: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to load suggestions: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "加载推荐失败：%1$@"
+                    }
+                }
+            }
+        },
+        "Failed to load suggestion history: %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Failed to load suggestion history: %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "加载推荐历史失败：%1$@"
+                    }
+                }
+            }
+        },
+        "First-Time Setup": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "First-Time Setup"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "首次设置"
+                    }
+                }
+            }
+        },
+        "%1$d/3": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d/3"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "%1$d/3"
+                    }
+                }
+            }
+        },
+        "Enable Accessibility Permission": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Enable Accessibility Permission"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "开启辅助功能权限"
+                    }
+                }
+            }
+        },
+        "Grant": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Grant"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "授权"
+                    }
+                }
+            }
+        },
+        "Copy any text once": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Copy any text once"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "先复制任意文本一次"
+                    }
+                }
+            }
+        },
+        "Copy Demo Text": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Copy Demo Text"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "复制示例文本"
+                    }
+                }
+            }
+        },
+        "Open history with %1$@": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Open history with %1$@"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "用 %1$@ 打开历史"
+                    }
+                }
+            }
+        },
+        "Open Now": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Open Now"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "立即打开"
+                    }
+                }
+            }
+        },
+        "Finish Setup": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Finish Setup"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "完成设置"
+                    }
+                }
+            }
+        },
+        "ClipFlow demo text": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "ClipFlow demo text"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "ClipFlow 示例文本"
+                    }
+                }
+            }
+        },
+        "Setup complete": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Setup complete"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "设置已完成"
+                    }
+                }
+            }
+        },
+        "Review Setup Steps": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Review Setup Steps"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "重新查看设置步骤"
+                    }
+                }
+            }
+        },
+        "Open clipboard history once": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Open clipboard history once"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "至少打开一次剪贴板历史"
+                    }
+                }
+            }
+        },
+        "Reset Setup": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Reset Setup"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "重置设置进度"
+                    }
+                }
+            }
+        },
+        "Done": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Done"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "完成"
+                    }
+                }
+            }
+        },
+        "Shortcut is ready": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Shortcut is ready"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "快捷键已就绪"
+                    }
+                }
+            }
+        },
+        "Accessibility permission needed": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Accessibility permission needed"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "需要辅助功能权限"
+                    }
+                }
+            }
+        },
+        "Shortcut is not active": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Shortcut is not active"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "快捷键未激活"
+                    }
+                }
+            }
+        },
+        "Re-register Shortcut": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Re-register Shortcut"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "重新注册快捷键"
+                    }
+                }
+            }
+        },
+        "Shortcut re-registered successfully": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Shortcut re-registered successfully"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "快捷键已成功重新注册"
+                    }
+                }
+            }
+        },
+        "Setup in progress (%1$d/3)": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Setup in progress (%1$d/3)"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "设置进行中（%1$d/3）"
+                    }
+                }
+            }
+        },
+        "Continue in Settings": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Continue in Settings"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "去设置继续"
+                    }
+                }
+            }
+        },
+        "Skip for now": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Skip for now"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "暂时跳过"
+                    }
+                }
+            }
+        },
+        "Needed for global shortcut.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Needed for global shortcut."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "全局快捷键需要此权限。"
+                    }
+                }
+            }
+        },
+        "Use any app and press copy once.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Use any app and press copy once."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "在任意应用里执行一次复制。"
+                    }
+                }
+            }
+        },
+        "Use shortcut or menu action.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Use shortcut or menu action."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "使用快捷键或菜单按钮打开。"
+                    }
+                }
+            }
+        },
+        "Setup skipped": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Setup skipped"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "已跳过设置"
+                    }
+                }
+            }
+        },
+        "Setup has been reset": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Setup has been reset"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "设置进度已重置"
+                    }
+                }
+            }
+        },
+        "In Progress": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "In Progress"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "进行中"
+                    }
+                }
+            }
+        },
+        "Complete": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Complete"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "已完成"
                     }
                 }
             }

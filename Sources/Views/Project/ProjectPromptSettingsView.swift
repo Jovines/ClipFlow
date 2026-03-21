@@ -1,5 +1,7 @@
+// swiftlint:disable file_length
 import SwiftUI
 
+// swiftlint:disable:next type_body_length
 struct ProjectPromptSettingsView: View {
     @ObservedObject var projectService = ProjectService.shared
     @ObservedObject var templateService = PromptTemplateService.shared
@@ -14,6 +16,8 @@ struct ProjectPromptSettingsView: View {
     @State private var editingTemplate: PromptTemplate?
     @State private var showDeleteConfirmation = false
     @State private var templateToDelete: PromptTemplate?
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -225,7 +229,7 @@ struct ProjectPromptSettingsView: View {
         }
         .sheet(isPresented: $showCreateTemplate) {
             TemplateEditSheet(template: nil) { newTemplate in
-                try? templateService.createTemplate(
+                _ = try templateService.createTemplate(
                     name: newTemplate.name,
                     description: newTemplate.description,
                     initialPrompt: newTemplate.initialPrompt,
@@ -236,7 +240,7 @@ struct ProjectPromptSettingsView: View {
         }
         .sheet(item: $editingTemplate) { template in
             TemplateEditSheet(template: template) { updatedTemplate in
-                try? templateService.updateTemplate(updatedTemplate)
+                try templateService.updateTemplate(updatedTemplate)
                 loadTemplates()
             }
         }
@@ -244,11 +248,15 @@ struct ProjectPromptSettingsView: View {
             Button("Cancel".localized(), role: .cancel) { }
             Button("Delete".localized(), role: .destructive) {
                 if let template = templateToDelete {
-                    try? templateService.deleteTemplate(id: template.id)
-                    if selectedTemplateId == template.id {
-                        selectedTemplateId = SystemPromptTemplates.default.id
+                    do {
+                        try templateService.deleteTemplate(id: template.id)
+                        if selectedTemplateId == template.id {
+                            selectedTemplateId = SystemPromptTemplates.default.id
+                        }
+                        loadTemplates()
+                    } catch {
+                        showError(message: "Failed to delete template: %1$@".localized(error.localizedDescription))
                     }
-                    loadTemplates()
                 }
             }
         } message: {
@@ -256,17 +264,22 @@ struct ProjectPromptSettingsView: View {
                 Text("Delete Template Warning".localized(template.name))
             }
         }
+        .alert("Operation Failed".localized(), isPresented: $showErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(errorMessage)
+        }
     }
 
     private func loadTemplates() {
         do {
-            var allTemplates = try templateService.fetchAllTemplates()
+            let allTemplates = try templateService.fetchAllTemplates()
             let systemIds = Set(SystemPromptTemplates.all.map { $0.id })
             let customTemplates = allTemplates.filter { !systemIds.contains($0.id) }
             let systemTemplates = SystemPromptTemplates.all
             templates = systemTemplates + customTemplates
         } catch {
-            print("[ProjectPromptSettings] Failed to load templates: \(error)")
+            showError(message: "Failed to load templates: %1$@".localized(error.localizedDescription))
             templates = SystemPromptTemplates.all
         }
     }
@@ -293,7 +306,7 @@ struct ProjectPromptSettingsView: View {
             dismiss()
             onApply?()
         } catch {
-            print("[ProjectPromptSettings] Failed to apply template: \(error)")
+            showError(message: "Failed to apply template: %1$@".localized(error.localizedDescription))
         }
     }
 
@@ -303,8 +316,13 @@ struct ProjectPromptSettingsView: View {
             loadTemplates()
             selectedTemplateId = newTemplate.id
         } catch {
-            print("[ProjectPromptSettings] Failed to duplicate template: \(error)")
+            showError(message: "Failed to duplicate template: %1$@".localized(error.localizedDescription))
         }
+    }
+
+    private func showError(message: String) {
+        errorMessage = message
+        showErrorAlert = true
     }
 }
 
@@ -356,12 +374,14 @@ struct TemplateEditSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     let template: PromptTemplate?
-    let onSave: (PromptTemplate) -> Void
+    let onSave: (PromptTemplate) throws -> Void
 
     @State private var name: String = ""
     @State private var description: String = ""
     @State private var initialPrompt: String = ""
     @State private var updatePrompt: String = ""
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
 
     var isEditing: Bool {
         template != nil
@@ -477,6 +497,11 @@ struct TemplateEditSheet: View {
                 updatePrompt = SystemPromptTemplates.default.updatePrompt
             }
         }
+        .alert("Operation Failed".localized(), isPresented: $showErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(errorMessage)
+        }
     }
 
     private func save() {
@@ -490,8 +515,13 @@ struct TemplateEditSheet: View {
             createdAt: template?.createdAt ?? Date(),
             updatedAt: Date()
         )
-        onSave(savedTemplate)
-        dismiss()
+        do {
+            try onSave(savedTemplate)
+            dismiss()
+        } catch {
+            errorMessage = "Failed to save template: %1$@".localized(error.localizedDescription)
+            showErrorAlert = true
+        }
     }
 }
 

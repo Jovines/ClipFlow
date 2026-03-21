@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import AppKit
 import Combine
 import SwiftUI
@@ -259,6 +260,9 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
 
         ClipFlowLogger.info("Paste command simulated (Cmd+V)")
     }
+}
+
+extension FloatingWindowManager {
 
     private func createWindow() {
         let manager = self
@@ -268,14 +272,20 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
             },
             onItemSelected: { [weak self] item in
                 guard let self = self else { return }
-                self.isPasting = true
+                let shouldAutoPaste = UserDefaults.standard.object(forKey: "pasteAfterSelectionEnabled") as? Bool ?? true
+                self.isPasting = shouldAutoPaste
                 self.clipboardMonitor.copyToClipboard(item)
                 self.hideWindowForPaste()
-                Task { @MainActor in
-                    manager.simulatePaste()
+
+                if shouldAutoPaste {
                     Task { @MainActor in
-                        manager.isPasting = false
+                        manager.simulatePaste()
+                        Task { @MainActor in
+                            manager.isPasting = false
+                        }
                     }
+                } else {
+                    self.isPasting = false
                 }
             },
             maxVisibleItems: maxVisibleItems,
@@ -413,6 +423,9 @@ final class FloatingWindowManager: ObservableObject, @unchecked Sendable {
 
         return hypot(dx, dy)
     }
+}
+
+extension FloatingWindowManager {
 
     func cleanup() {
         hideWindow()

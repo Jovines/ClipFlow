@@ -9,6 +9,8 @@ struct TagSidebarView: View {
     @State private var editName: String = ""
     @State private var showDeleteConfirmation: Bool = false
     @State private var tagToDelete: Tag?
+    @State private var showErrorAlert: Bool = false
+    @State private var errorMessage: String = ""
 
     private let sidebarWidth: CGFloat = 80
 
@@ -63,6 +65,7 @@ struct TagSidebarView: View {
                 }
                 .buttonStyle(.plain)
                 .help("Manage Tags".localized())
+                .accessibilityLabel("Manage Tags".localized())
             }
             .frame(height: 28)
             .padding(.horizontal, 6)
@@ -74,7 +77,7 @@ struct TagSidebarView: View {
                 .stroke(ThemeManager.shared.separator, lineWidth: 1)
         )
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .sheet(isPresented: .constant(editingTag != nil)) {
+        .sheet(item: $editingTag) { _ in
             editTagSheet
         }
         .alert("Delete Tag".localized(), isPresented: $showDeleteConfirmation) {
@@ -82,8 +85,13 @@ struct TagSidebarView: View {
             Button("Delete".localized(), role: .destructive) { deleteTag() }
         } message: {
             if let tag = tagToDelete {
-                Text("Are you sure you want to delete \"\(tag.name)\"? This will remove the tag from all clipboard items.".localized())
+                Text("Are you sure you want to delete \"%1$@\"? This will remove the tag from all clipboard items.".localized(tag.name))
             }
+        }
+        .alert("Operation Failed".localized(), isPresented: $showErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(errorMessage)
         }
     }
 
@@ -111,7 +119,7 @@ struct TagSidebarView: View {
             editingTag = nil
             editName = ""
         } catch {
-            print("[TagSidebarView] Failed to update tag: \(error)")
+            showError(message: "Failed to update tag: %1$@".localized(error.localizedDescription))
         }
     }
 
@@ -127,8 +135,13 @@ struct TagSidebarView: View {
             selectedTagIds.removeAll { $0 == tag.id }
             tagToDelete = nil
         } catch {
-            print("[TagSidebarView] Failed to delete tag: \(error)")
+            showError(message: "Failed to delete tag: %1$@".localized(error.localizedDescription))
         }
+    }
+
+    private func showError(message: String) {
+        errorMessage = message
+        showErrorAlert = true
     }
 
     private var editTagSheet: some View {

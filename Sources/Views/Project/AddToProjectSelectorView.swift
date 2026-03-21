@@ -9,6 +9,8 @@ struct AddToProjectSelectorView: View {
 
     @State private var searchText = ""
     @State private var isAdding = false
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
 
     var filteredProjects: [Project] {
         if searchText.isEmpty {
@@ -32,6 +34,7 @@ struct AddToProjectSelectorView: View {
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Close".localized())
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
@@ -85,11 +88,22 @@ struct AddToProjectSelectorView: View {
                     Image(systemName: "folder.badge.plus")
                         .font(.largeTitle)
                         .foregroundStyle(.secondary)
-                    Text("No Projects".localized())
-                        .foregroundStyle(.secondary)
-                    Text("Please create a project in settings first".localized())
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+
+                    if searchText.isEmpty {
+                        Text("No Projects".localized())
+                            .foregroundStyle(.secondary)
+                        Text("Please create a project in settings first".localized())
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("No matching projects".localized())
+                            .foregroundStyle(.secondary)
+                        Button("Clear Search".localized()) {
+                            searchText = ""
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
                 }
                 .frame(maxHeight: .infinity)
             } else {
@@ -110,6 +124,11 @@ struct AddToProjectSelectorView: View {
             }
         }
         .frame(width: 280, height: 400)
+        .alert("Operation Failed".localized(), isPresented: $showErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(errorMessage)
+        }
     }
 
     private func addToProject(project: Project) {
@@ -130,10 +149,15 @@ struct AddToProjectSelectorView: View {
             } catch {
                 await MainActor.run {
                     isAdding = false
-                    ClipFlowLogger.error("Failed to add to project: \(error)")
+                    showError(message: "Failed to add item to project: %1$@".localized(error.localizedDescription))
                 }
             }
         }
+    }
+
+    private func showError(message: String) {
+        errorMessage = message
+        showErrorAlert = true
     }
 
     private var previewIcon: String {
@@ -153,6 +177,13 @@ struct AddToProjectSelectorView: View {
 struct AddToProjectRow: View {
     let project: Project
     let isAdding: Bool
+
+    private var absoluteDateText: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: project.updatedAt)
+    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -181,5 +212,6 @@ struct AddToProjectRow: View {
         .padding(.horizontal)
         .padding(.vertical, 10)
         .opacity(isAdding ? 0.6 : 1)
+        .help(absoluteDateText)
     }
 }

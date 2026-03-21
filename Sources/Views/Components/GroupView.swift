@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import SwiftUI
 
 struct GroupView: View {
@@ -204,6 +205,8 @@ struct CompactItemRow: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(themeManager.iconBadgeAccentForeground)
+            .help("Manage Tags".localized())
+            .accessibilityLabel("Manage Tags".localized())
 
             Button(action: onAddToProject) {
                 Image(systemName: "folder.badge.plus")
@@ -219,6 +222,8 @@ struct CompactItemRow: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(themeManager.iconBadgeAccentForeground)
+            .help("Add to Project".localized())
+            .accessibilityLabel("Add to Project".localized())
 
             Button(action: onEdit) {
                 Image(systemName: "pencil")
@@ -234,6 +239,8 @@ struct CompactItemRow: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(themeManager.iconBadgeAccentForeground)
+            .help("Edit".localized())
+            .accessibilityLabel("Edit".localized())
 
             Button(action: onDelete) {
                 Image(systemName: "trash")
@@ -250,6 +257,8 @@ struct CompactItemRow: View {
             .buttonStyle(.plain)
             .foregroundStyle(themeManager.iconBadgeDestructiveForeground)
             .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
+            .help("Delete".localized())
+            .accessibilityLabel("Delete".localized())
         }
     }
 
@@ -402,6 +411,8 @@ struct GroupPanelItemRow: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(themeManager.iconBadgeAccentForeground)
+            .help("Add to Project".localized())
+            .accessibilityLabel("Add to Project".localized())
 
             Button(action: onEdit) {
                 Image(systemName: "pencil")
@@ -417,6 +428,8 @@ struct GroupPanelItemRow: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(themeManager.iconBadgeAccentForeground)
+            .help("Edit".localized())
+            .accessibilityLabel("Edit".localized())
 
             Button(action: onDelete) {
                 Image(systemName: "trash")
@@ -433,6 +446,8 @@ struct GroupPanelItemRow: View {
             .buttonStyle(.plain)
             .foregroundStyle(themeManager.iconBadgeDestructiveForeground)
             .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
+            .help("Delete".localized())
+            .accessibilityLabel("Delete".localized())
         }
     }
 }

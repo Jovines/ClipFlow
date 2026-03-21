@@ -9,10 +9,14 @@ struct ProviderRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                .foregroundStyle(isSelected ? .green : .secondary)
-                .font(.system(size: 14))
-                .onTapGesture { onSelect() }
+            Button(action: onSelect) {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(isSelected ? .green : .secondary)
+                    .font(.system(size: 14))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Select Provider".localized())
+            .help("Select Provider".localized())
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(provider.name)
@@ -39,6 +43,8 @@ struct ProviderRow: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
+                .accessibilityLabel("Edit Provider".localized())
+                .help("Edit Provider".localized())
 
                 Button(action: onDelete) {
                     Image(systemName: "trash")
@@ -46,11 +52,16 @@ struct ProviderRow: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.red)
+                .accessibilityLabel("Delete Provider".localized())
+                .help("Delete Provider".localized())
             }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
         .contentShape(Rectangle())
         .background(isSelected ? Color.flexokiAccent.opacity(0.1) : Color.clear)
+        .onTapGesture {
+            onSelect()
+        }
     }
 }

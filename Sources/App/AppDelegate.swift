@@ -57,7 +57,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func syncFocusTodoFeatureState() {
-        let isEnabled = UserDefaults.standard.object(forKey: FocusTodoPreferences.isEnabledKey) as? Bool ?? true
+        let isEnabled = UserDefaults.standard.object(forKey: FocusTodoPreferences.isEnabledKey) as? Bool ?? FocusTodoPreferences.defaultIsEnabled
         if isEnabled {
             focusTodoWindowManager.start()
         } else {
@@ -84,14 +84,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         hasCheckedPermission = true
         
         let trusted = AXIsProcessTrustedWithOptions(nil)
-        
+
         if trusted {
             registerGlobalShortcut()
-        } else {
-            let promptKey = "AXTrustedCheckOptionPrompt"
-            let options: [String: Bool] = [promptKey: true]
-            AXIsProcessTrustedWithOptions(options as CFDictionary)
         }
+    }
+
+    func requestAccessibilityPermissionPrompt() {
+        let options: [String: Bool] = ["AXTrustedCheckOptionPrompt": true]
+        _ = AXIsProcessTrustedWithOptions(options as CFDictionary)
+    }
+
+    func openAccessibilitySettings() {
+        guard let settingsURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") else {
+            return
+        }
+        NSWorkspace.shared.open(settingsURL)
     }
 
     private func registerGlobalShortcut() {
@@ -150,12 +158,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func closeMainWindow() {
         Task { @MainActor in
-            NSApp.windows.filter { window in
-                window.title == "ClipFlow"
-            }.forEach { window in
-                print("[INFO] 关闭主窗口: \(window.title)")
-                window.close()
-            }
+            let settingsWindow = SettingsWindowManager.shared.window
+            NSApp.windows
+                .filter { window in
+                    window.isVisible &&
+                    window.level == .normal &&
+                    window !== settingsWindow &&
+                    !(window is FloatingWindow)
+                }
+                .forEach { window in
+                    window.close()
+                }
         }
     }
 }

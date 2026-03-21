@@ -59,5 +59,7 @@ struct ProjectButton: View {
             .clipShape(RoundedRectangle(cornerRadius: 4))
         }
         .buttonStyle(.plain)
+        .help(currentProject == nil ? "Project".localized() : currentProject?.name ?? "Project".localized())
+        .accessibilityLabel(currentProject == nil ? "Project".localized() : currentProject?.name ?? "Project".localized())
     }
 }

@@ -3,6 +3,9 @@ import SwiftUI
 struct UpdateSettingsView: View {
     @StateObject private var updateService = UpdateService.shared
     @StateObject private var themeManager = ThemeManager.shared
+    @State private var isCheckingNow = false
+    @State private var checkStatusMessage = ""
+    @State private var manualLastCheckDate: Date?
     
     private let checkIntervalOptions: [(days: Double, label: String)] = [
         (1, "Daily".localized()),
@@ -90,7 +93,7 @@ struct UpdateSettingsView: View {
                             .monospacedDigit()
                     }
                     
-                    if let lastCheck = updateService.lastUpdateCheckDate {
+                    if let lastCheck = displayedLastCheckDate {
                         HStack {
                             Text("Last Checked".localized())
                                 .font(.system(size: 13))
@@ -101,18 +104,29 @@ struct UpdateSettingsView: View {
                         }
                     }
                     
-                    Button(action: {
-                        updateService.checkForUpdates()
-                    }) {
+                    Button(action: checkForUpdatesNow) {
                         HStack(spacing: 6) {
-                            Image(systemName: "magnifyingglass")
-                                .font(.system(size: 12))
+                            if isCheckingNow {
+                                ProgressView()
+                                    .controlSize(.small)
+                            } else {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.system(size: 12))
+                            }
                             Text("Check for Updates Now".localized())
                                 .font(.system(size: 13))
                         }
                     }
                     .buttonStyle(.borderedProminent)
                     .controlSize(.small)
+                    .disabled(isCheckingNow)
+
+                    if !checkStatusMessage.isEmpty {
+                        Text(checkStatusMessage)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
                 }
                 .padding(12)
                 .liquidGlassCard(cornerRadius: 8)
@@ -126,6 +140,22 @@ struct UpdateSettingsView: View {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .full
         return formatter.localizedString(for: date, relativeTo: Date())
+    }
+
+    private var displayedLastCheckDate: Date? {
+        updateService.lastUpdateCheckDate ?? manualLastCheckDate
+    }
+
+    private func checkForUpdatesNow() {
+        isCheckingNow = true
+        checkStatusMessage = "Checking for updates...".localized()
+        manualLastCheckDate = Date()
+        updateService.checkForUpdates()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            isCheckingNow = false
+            checkStatusMessage = "Update check started. Follow the system update dialog.".localized()
+        }
     }
 }
 

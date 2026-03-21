@@ -4,6 +4,9 @@ struct CacheManagementView: View {
     @State private var cacheSize: Int64 = 0
     @State private var itemCount: Int = 0
     @State private var isLoading = true
+    @State private var showClearConfirmation = false
+    @State private var statusMessage: String?
+    @StateObject private var themeManager = ThemeManager.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -33,15 +36,22 @@ struct CacheManagementView: View {
                 Divider()
 
                 Button(role: .destructive) {
-                    clearCache()
+                    showClearConfirmation = true
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "trash")
                         Text("Clear Cache".localized())
                     }
                 }
-                .disabled(isLoading)
+                .disabled(isLoading || itemCount == 0)
                 .controlSize(.regular)
+
+                if let statusMessage {
+                    Text(statusMessage)
+                        .font(.caption)
+                        .foregroundStyle(themeManager.success)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
             .padding(12)
             .background(ThemeManager.shared.surface)
@@ -51,6 +61,14 @@ struct CacheManagementView: View {
         }
         .onAppear {
             loadCacheInfo()
+        }
+        .alert("Clear Cache".localized(), isPresented: $showClearConfirmation) {
+            Button("Cancel".localized(), role: .cancel) {}
+            Button("Clear Cache".localized(), role: .destructive) {
+                clearCache()
+            }
+        } message: {
+            Text("This will remove all cached images and cannot be undone.".localized())
         }
     }
 
@@ -78,8 +96,12 @@ struct CacheManagementView: View {
     }
 
     private func clearCache() {
+        let hadItems = itemCount > 0
         ImageCacheManager.shared.clearCache()
         loadCacheInfo()
+        statusMessage = hadItems
+            ? "Cache cleared successfully.".localized()
+            : "Cache is already empty.".localized()
     }
 }
 

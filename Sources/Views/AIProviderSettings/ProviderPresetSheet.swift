@@ -20,6 +20,7 @@ struct ProviderPresetSheet: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
+                .accessibilityLabel("Close".localized())
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 16)

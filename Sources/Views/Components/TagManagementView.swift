@@ -1,5 +1,6 @@
 import SwiftUI
 
+// swiftlint:disable:next type_body_length
 struct TagManagementView: View {
     @ObservedObject var tagService: TagService
     @Environment(\.dismiss) private var dismiss
@@ -9,6 +10,8 @@ struct TagManagementView: View {
     @State private var showDeleteConfirmation: Bool = false
     @State private var tagToDelete: Tag?
     @State private var searchText: String = ""
+    @State private var showErrorAlert: Bool = false
+    @State private var errorMessage: String = ""
 
     private var filteredTags: [Tag] {
         if searchText.isEmpty {
@@ -136,7 +139,7 @@ struct TagManagementView: View {
         .frame(width: 280, height: 400)
         .background(ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .sheet(isPresented: .constant(editingTag != nil)) {
+        .sheet(item: $editingTag) { _ in
             editTagSheet
         }
         .alert("Delete Tag".localized(), isPresented: $showDeleteConfirmation) {
@@ -146,6 +149,11 @@ struct TagManagementView: View {
             if let tag = tagToDelete {
                 Text("Are you sure you want to delete \"%1$@\"? This will remove the tag from all clipboard items.".localized(tag.name))
             }
+        }
+        .alert("Operation Failed".localized(), isPresented: $showErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(errorMessage)
         }
     }
 
@@ -269,7 +277,7 @@ struct TagManagementView: View {
             editingTag = nil
             editName = ""
         } catch {
-            print("[TagManagementView] Failed to update tag: \(error)")
+            showError(message: "Failed to update tag: %1$@".localized(error.localizedDescription))
         }
     }
 
@@ -284,7 +292,7 @@ struct TagManagementView: View {
             try tagService.deleteTag(id: tag.id)
             tagToDelete = nil
         } catch {
-            print("[TagManagementView] Failed to delete tag: \(error)")
+            showError(message: "Failed to delete tag: %1$@".localized(error.localizedDescription))
         }
     }
 
@@ -294,8 +302,13 @@ struct TagManagementView: View {
             _ = try tagService.createTag(name: editName, color: Tag.colorForName(editColorName))
             editName = ""
         } catch {
-            print("[TagManagementView] Failed to create tag: \(error)")
+            showError(message: "Failed to create tag: %1$@".localized(error.localizedDescription))
         }
+    }
+
+    private func showError(message: String) {
+        errorMessage = message
+        showErrorAlert = true
     }
 }
 
@@ -321,6 +334,7 @@ struct TagManagementRowView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
+            .accessibilityLabel("Edit Tag".localized())
 
             Button(action: onDelete) {
                 Image(systemName: "trash")
@@ -328,6 +342,7 @@ struct TagManagementRowView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
+            .accessibilityLabel("Delete Tag".localized())
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)

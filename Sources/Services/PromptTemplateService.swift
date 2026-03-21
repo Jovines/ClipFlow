@@ -40,7 +40,7 @@ final class PromptTemplateService: ObservableObject, @unchecked Sendable {
         return try DatabaseManager.shared.dbPool.read { db in
             guard let record = try PromptTemplateRecord.fetchOne(db, sql: """
                 SELECT * FROM prompt_templates WHERE id = ?
-                """, arguments: [id]) else {
+                """, arguments: [id.uuidString]) else {
                 return nil
             }
             return PromptTemplate(from: record)

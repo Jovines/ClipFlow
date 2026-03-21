@@ -21,6 +21,7 @@ struct ShortcutRecorderView: View {
         }
         .padding(10)
         .liquidGlassCard(cornerRadius: 6)
+        .contentShape(Rectangle())
         .onTapGesture {
             startRecording()
         }

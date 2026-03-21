@@ -113,7 +113,7 @@ extension PromptTemplateRecord: FetchableRecord, PersistableRecord {
     }
 
     func encode(to container: inout PersistenceContainer) throws {
-        container[Columns.id] = id
+        container[Columns.id] = id.uuidString
         container[Columns.name] = name
         container[Columns.description] = description
         container[Columns.initialPrompt] = initialPrompt

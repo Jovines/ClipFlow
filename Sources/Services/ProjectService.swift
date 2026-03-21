@@ -2,6 +2,7 @@ import Foundation
 import GRDB
 import Combine
 
+// swiftlint:disable:next type_body_length
 final class ProjectService: ObservableObject, @unchecked Sendable {
     static let shared = ProjectService()
     
@@ -148,11 +149,10 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
     func fetchRawInputs(for projectId: UUID) throws -> [ProjectRawInput] {
         print("[ProjectService] Fetching raw inputs for project: \(projectId)")
         let inputs = try DatabaseManager.shared.dbPool.read { db in
-            // Use StatementArguments with the actual UUID object
             return try ProjectRawInput.fetchAll(
                 db,
                 sql: "SELECT * FROM project_raw_inputs WHERE projectId = ? ORDER BY createdAt DESC",
-                arguments: [projectId]
+                arguments: [projectId.uuidString]
             )
         }
         print("[ProjectService] Found \(inputs.count) raw inputs")
@@ -164,17 +164,16 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
             let inputs = try ProjectRawInput.fetchAll(
                 db,
                 sql: "SELECT * FROM project_raw_inputs WHERE projectId = ? ORDER BY createdAt DESC",
-                arguments: [projectId]
+                arguments: [projectId.uuidString]
             )
             
             print("[ProjectService] Fetched \(inputs.count) raw inputs, now fetching associated items...")
             
             return try inputs.map { input in
-                // Use UUID object instead of string for BLOB comparison
                 let item = try ClipboardItem.fetchOne(
                     db,
                     sql: "SELECT * FROM clipboard_items WHERE id = ?",
-                    arguments: [input.clipboardItemId]
+                    arguments: [input.clipboardItemId.uuidString]
                 )
                 if item == nil {
                     print("[ProjectService] ⚠️ No clipboard item found for ID: \(input.clipboardItemId)")
@@ -188,7 +187,7 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
         try DatabaseManager.shared.dbPool.write { db in
             try db.execute(
                 sql: "DELETE FROM project_raw_inputs WHERE id = ?",
-                arguments: [id]
+                arguments: [id.uuidString]
             )
         }
         loadProjects()
@@ -198,7 +197,7 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
         try DatabaseManager.shared.dbPool.write { db in
             try db.execute(
                 sql: "UPDATE project_raw_inputs SET sourceContext = ? WHERE id = ?",
-                arguments: [sourceContext, id]
+                arguments: [sourceContext, id.uuidString]
             )
         }
     }
@@ -207,11 +206,10 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
     
     func fetchCurrentCognition(for projectId: UUID) throws -> ProjectCognition? {
         try DatabaseManager.shared.dbPool.read { db in
-            // Use SQL with UUID object (not uuidString) for proper BLOB comparison
             guard let project = try Project.fetchOne(
                 db,
                 sql: "SELECT * FROM projects WHERE id = ?",
-                arguments: [projectId]
+                arguments: [projectId.uuidString]
             ), let cognitionId = project.currentCognitionId else {
                 return nil
             }
@@ -219,7 +217,7 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
             return try ProjectCognition.fetchOne(
                 db,
                 sql: "SELECT * FROM project_cognitions WHERE id = ?",
-                arguments: [cognitionId]
+                arguments: [cognitionId.uuidString]
             )
         }
     }
@@ -229,7 +227,7 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
             return try ProjectCognition.fetchAll(
                 db,
                 sql: "SELECT * FROM project_cognitions WHERE projectId = ? ORDER BY version DESC",
-                arguments: [projectId]
+                arguments: [projectId.uuidString]
             )
         }
     }
@@ -245,7 +243,7 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
             let count = try Int.fetchOne(
                 db,
                 sql: "SELECT COUNT(*) FROM project_cognitions WHERE projectId = ?",
-                arguments: [projectId]
+                arguments: [projectId.uuidString]
             ) ?? 0
             return count + 1
         }
@@ -260,17 +258,17 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
             try cognition.insert(db)
             
             // Update project's currentCognitionId
-            try db.execute(
-                sql: "UPDATE projects SET currentCognitionId = ? WHERE id = ?",
-                arguments: [cognition.id, projectId]
-            )
+                try db.execute(
+                    sql: "UPDATE projects SET currentCognitionId = ? WHERE id = ?",
+                    arguments: [cognition.id.uuidString, projectId.uuidString]
+                )
             
             // Record change if there's a previous cognition
             if currentVersion > 1,
-               let previousCognition = try ProjectCognition.fetchOne(
+                let previousCognition = try ProjectCognition.fetchOne(
                    db,
                    sql: "SELECT * FROM project_cognitions WHERE projectId = ? AND version = ?",
-                   arguments: [projectId, currentVersion - 1]
+                   arguments: [projectId.uuidString, currentVersion - 1]
                ) {
                 let change = ProjectCognitionChange(
                     projectId: projectId,
@@ -286,7 +284,7 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
             for inputId in addedInputIds {
                 try db.execute(
                     sql: "UPDATE project_raw_inputs SET isAnalyzed = 1 WHERE id = ?",
-                    arguments: [inputId]
+                    arguments: [inputId.uuidString]
                 )
             }
         }
@@ -301,7 +299,7 @@ final class ProjectService: ObservableObject, @unchecked Sendable {
         try DatabaseManager.shared.dbPool.write { db in
             try db.execute(
                 sql: "UPDATE project_raw_inputs SET isAnalyzed = 0 WHERE projectId = ?",
-                arguments: [projectId]
+                arguments: [projectId.uuidString]
             )
         }
         print("[ProjectService] ✅ Reset analysis state for project: \(projectId)")

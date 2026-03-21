@@ -1,132 +1,14 @@
-import SwiftUI
-import ServiceManagement
+// swiftlint:disable file_length
 import AppKit
-
-enum ThemeOption: String, CaseIterable, Identifiable {
-    case system = "System"
-    case light = "Light"
-    case dark = "Dark"
-
-    var id: String { rawValue }
-
-    var colorScheme: ColorScheme? {
-        switch self {
-        case .system: return nil
-        case .light: return .light
-        case .dark: return .dark
-        }
-    }
-
-    static func from(_ colorScheme: ColorScheme?) -> ThemeOption {
-        switch colorScheme {
-        case .light: return .light
-        case .dark: return .dark
-        case .none: return .system
-        @unknown default: return .system
-        }
-    }
-}
-
-enum ColorSchemeOption: String, CaseIterable, Identifiable {
-    case system = "System (Adaptive Glass)"
-    case flexoki = "Flexoki"
-    case nord = "Nord"
-
-    var id: String { rawValue }
-}
-
-struct TitleBarConfigurator: NSViewRepresentable {
-    @StateObject private var themeManager = ThemeManager.shared
-    
-    func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        return view
-    }
-
-    func updateNSView(_ nsView: NSView, context: Context) {
-        DispatchQueue.main.async {
-            if let window = nsView.window {
-                if themeManager.isLiquidGlassEnabled {
-                    window.titlebarAppearsTransparent = false
-                    window.backgroundColor = .windowBackgroundColor
-                } else {
-                    window.titlebarAppearsTransparent = true
-                    window.backgroundColor = NSColor(themeManager.surface)
-                }
-            }
-        }
-    }
-}
-
-enum SettingsTab: String, CaseIterable, Identifiable {
-    case general = "General"
-    case focusTodo = "FocusTodo"
-    case aiService = "AIService"
-    case language = "Language"
-    case cache = "Cache"
-    case update = "Update"
-    case about = "About"
-
-    var id: String { rawValue }
-
-    var icon: String {
-        switch self {
-        case .general: return "gear"
-        case .focusTodo: return "checklist"
-        case .aiService: return "brain"
-        case .language: return "globe"
-        case .cache: return "internaldrive"
-        case .update: return "arrow.clockwise.circle"
-        case .about: return "info.circle"
-        }
-    }
-
-    var localizedName: String {
-        switch self {
-        case .general: return "General".localized()
-        case .focusTodo: return "Focus Todo".localized()
-        case .aiService: return "AI Service".localized()
-        case .language: return "Language".localized()
-        case .cache: return "Cache".localized()
-        case .update: return "Update".localized()
-        case .about: return "About".localized()
-        }
-    }
-}
-
-struct SettingLabelWithInfo: View {
-    let label: String
-    let description: String
-    @State private var showPopover = false
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(label)
-                .font(.system(size: 13))
-            Button {
-                showPopover = true
-            } label: {
-                Image(systemName: "questionmark.circle")
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-            .popover(isPresented: $showPopover) {
-                Text(description)
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-                    .padding(8)
-                    .frame(maxWidth: 200)
-            }
-        }
-    }
-}
+import ServiceManagement
+import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("maxHistoryItems") private var maxHistoryItems = 100
     @AppStorage("saveImages") private var saveImages = true
     @AppStorage("autoStart") private var autoStart = false
-    @AppStorage(FocusTodoPreferences.isEnabledKey) private var focusTodoEnabled = true
+    @AppStorage(FocusTodoPreferences.isEnabledKey) private var focusTodoEnabled = FocusTodoPreferences.defaultIsEnabled
+    @AppStorage("pasteAfterSelectionEnabled") private var pasteAfterSelectionEnabled = true
     @AppStorage("recommendationDecayHours") private var recommendationDecayHours = 6.0
     @AppStorage("minUsageCountForRecommendation") private var minUsageCountForRecommendation = 2
     @AppStorage(FocusTodoPreferences.clipboardPrefillSecondsKey) private var focusTodoClipboardPrefillSeconds = FocusTodoPreferences.defaultClipboardPrefillSeconds
@@ -139,6 +21,9 @@ struct SettingsView: View {
     @State private var todoDoneShortcut = FocusTodoShortcutManager.Action.markDone.defaultShortcut
     @State private var showConflictAlert = false
     @State private var conflictMessage = ""
+    @State private var conflictNeedsAccessibility = false
+    @State private var showActionFeedbackAlert = false
+    @State private var actionFeedbackMessage = ""
     @State private var autoStartStatus: AutoStartStatus = .unknown
     @State private var selectedTab: SettingsTab = .general
     
@@ -146,33 +31,7 @@ struct SettingsView: View {
     @StateObject private var languageManager = LanguageManager.shared
     @State private var showRestartAlert = false
     @State private var previousLanguage: AppLanguage = .en
-
-    enum AutoStartStatus {
-        case unknown
-        case enabled
-        case disabled
-        case error(String)
-    }
-
-    private var settingsWindowBackground: Color {
-        themeManager.isLiquidGlassEnabled ? Color(NSColor.windowBackgroundColor) : themeManager.background
-    }
-
-    private var settingsSidebarBackground: Color {
-        themeManager.isLiquidGlassEnabled ? Color(NSColor.controlBackgroundColor) : themeManager.surface
-    }
-
-    private var settingsCardBackground: Color {
-        themeManager.isLiquidGlassEnabled ? Color(NSColor.controlBackgroundColor) : themeManager.surface
-    }
-
-    private var settingsSelectionBackground: Color {
-        themeManager.isLiquidGlassEnabled ? Color.accentColor.opacity(0.14) : themeManager.accent
-    }
-
-    private var liquidGlassOpacityPercentText: String {
-        "\(Int(themeManager.liquidGlassWindowOpacity * 100))%"
-    }
+    @State private var accessibilityTrusted = AXIsProcessTrustedWithOptions(nil)
 
     var body: some View {
         HStack(spacing: 0) {
@@ -185,9 +44,19 @@ struct SettingsView: View {
         .frame(width: 620, height: 500)
         .background(settingsWindowBackground)
         .alert("Shortcut Conflict".localized(), isPresented: $showConflictAlert) {
+            if conflictNeedsAccessibility {
+                Button("Open Accessibility Settings".localized()) {
+                    requestAccessibilityPermission()
+                }
+            }
             Button("OK".localized()) {}
         } message: {
             Text(conflictMessage)
+        }
+        .alert("Done".localized(), isPresented: $showActionFeedbackAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(actionFeedbackMessage)
         }
         .onAppear {
             shortcut = HotKeyManager.shared.loadSavedShortcut()
@@ -196,6 +65,10 @@ struct SettingsView: View {
             todoNextShortcut = FocusTodoShortcutManager.shared.shortcut(for: .nextTask)
             todoDoneShortcut = FocusTodoShortcutManager.shared.shortcut(for: .markDone)
             checkAutoStartStatus()
+            refreshAccessibilityStatus()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            refreshAccessibilityStatus()
         }
         .onChange(of: autoStart) { _, newValue in
             setAutoStart(newValue)
@@ -205,6 +78,15 @@ struct SettingsView: View {
         )
         .themeAware()
         .id(languageManager.refreshTrigger)
+    }
+}
+
+extension SettingsView {
+    enum AutoStartStatus {
+        case unknown
+        case enabled
+        case disabled
+        case error(String)
     }
 
     private var sidebar: some View {
@@ -253,19 +135,68 @@ struct SettingsView: View {
         }
         .background(settingsWindowBackground)
     }
+}
+
+extension SettingsView {
+    private var settingsWindowBackground: Color {
+        themeManager.isLiquidGlassEnabled ? Color(NSColor.windowBackgroundColor) : themeManager.background
+    }
+
+    private var settingsSidebarBackground: Color {
+        themeManager.isLiquidGlassEnabled ? Color(NSColor.controlBackgroundColor) : themeManager.surface
+    }
+
+    private var settingsCardBackground: Color {
+        themeManager.isLiquidGlassEnabled ? Color(NSColor.controlBackgroundColor) : themeManager.surface
+    }
+
+    private var liquidGlassOpacityPercentText: String {
+        "\(Int(themeManager.liquidGlassWindowOpacity * 100))%"
+    }
+
+    private var shortcutReady: Bool {
+        accessibilityTrusted && HotKeyManager.shared.currentShortcut != nil
+    }
+
+    private var shortcutStatusText: String {
+        if shortcutReady {
+            return "Shortcut is ready".localized()
+        }
+        if !accessibilityTrusted {
+            return "Accessibility permission needed".localized()
+        }
+        return "Shortcut is not active".localized()
+    }
+}
+
+extension SettingsView {
+
+    @ViewBuilder
+    private func settingsSectionCard<Content: View>(
+        icon: String,
+        title: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Image(systemName: icon)
+                    .foregroundStyle(.secondary)
+                    .font(.system(size: 14))
+                Text(title)
+                    .font(.system(size: 14, weight: .semibold))
+            }
+
+            content()
+        }
+        .padding(14)
+        .background(settingsCardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
 
     private var generalSettingsContent: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "keyboard")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("Global Shortcut".localized())
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 16) {
+            settingsSectionCard(icon: "keyboard", title: "Global Shortcut".localized()) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text("Click to record a new shortcut".localized())
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -277,124 +208,125 @@ struct SettingsView: View {
                             applyShortcut(newShortcut)
                         }
                     ))
+
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(shortcutReady ? themeManager.success : themeManager.warning)
+                            .frame(width: 8, height: 8)
+                        Text(shortcutStatusText)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button("Re-register Shortcut".localized()) {
+                            reRegisterShortcut()
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
+
+                    Toggle(isOn: $pasteAfterSelectionEnabled) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "doc.on.clipboard")
+                                .font(.system(size: 12))
+                            Text("Paste immediately after selection".localized())
+                                .font(.system(size: 13))
+                        }
+                    }
+                    .toggleStyle(.checkbox)
+
+                    Text("When disabled, selecting an item only copies it to clipboard.".localized())
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
                 .help("Set the global keyboard shortcut to show ClipFlow".localized())
-                .padding(12)
-                .background(settingsCardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            Divider()
+            AccessibilityPermissionCard(
+                isTrusted: accessibilityTrusted,
+                cardBackground: settingsCardBackground,
+                onOpenSettings: requestAccessibilityPermission
+            )
 
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "paintbrush")
-                            .foregroundStyle(.secondary)
-                            .font(.system(size: 14))
-                        Text("Appearance".localized())
-                            .font(.system(size: 14, weight: .semibold))
-                    }
-
-                    VStack(spacing: 12) {
-                        HStack {
-                            SettingLabelWithInfo(
-                                label: "Color Scheme".localized(),
-                                description: "Choose the color scheme for the app".localized()
-                            )
-                            Spacer()
-                            Picker("", selection: Binding(
-                                get: { themeManager.appTheme },
-                                set: { themeManager.setAppTheme($0) }
-                            )) {
-                                // Theme names are technical terms and should not be localized
-                                // Color scheme names like "Flexoki" and "Nord" are brand/technical names
-                                ForEach(AppTheme.allCases) { theme in
-                                    Text(theme.displayName).tag(theme)
-                                }
-                            }
-                            .pickerStyle(.segmented)
-                            .labelsHidden()
-                            .frame(width: 240)
-                        }
-
-                        HStack {
-                            SettingLabelWithInfo(
-                                label: "Theme".localized(),
-                                description: "Choose between light and dark mode".localized()
-                            )
-                            Spacer()
-                            Picker("", selection: Binding(
-                                get: { ThemeOption.from(themeManager.userPreference) },
-                                set: { themeManager.setColorScheme($0.colorScheme) }
-                            )) {
-                                Text("System".localized()).tag(ThemeOption.system)
-                                Text("Light".localized()).tag(ThemeOption.light)
-                                Text("Dark".localized()).tag(ThemeOption.dark)
-                            }
-                            .pickerStyle(.segmented)
-                            .labelsHidden()
-                            .frame(width: 180)
-                        }
-
-                        if themeManager.isLiquidGlassEnabled {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    SettingLabelWithInfo(
-                                        label: "Floating Window Transparency".localized(),
-                                        description: "Adjust the transparency of the floating window when Liquid Glass is enabled".localized()
-                                    )
-                                    Spacer()
-                                    Text(liquidGlassOpacityPercentText)
-                                        .font(.system(size: 13, design: .rounded))
-                                        .foregroundStyle(.secondary)
-                                        .monospacedDigit()
-                                        .frame(width: 44, alignment: .trailing)
-                                }
-
-                                Slider(value: Binding(
-                                    get: { themeManager.liquidGlassWindowOpacity },
-                                    set: { themeManager.setLiquidGlassWindowOpacity($0) }
-                                ), in: ThemeManager.minLiquidGlassWindowOpacity...1.0, step: 0.05)
-                                .controlSize(.small)
-                            }
-                        }
-                    }
-                    .padding(12)
-                    .background(settingsCardBackground)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                }
-
-            Divider()
-
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("History".localized())
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
+            settingsSectionCard(icon: "paintbrush", title: "Appearance".localized()) {
                 VStack(spacing: 12) {
                     HStack {
-                            SettingLabelWithInfo(
-                                label: "Max Items".localized(),
-                                description: "Maximum number of clipboard items to store".localized()
-                            )
+                        SettingLabelWithInfo(
+                            label: "Color Scheme".localized(),
+                            description: "Choose the color scheme for the app".localized()
+                        )
+                        Spacer()
+                        Picker("", selection: Binding(
+                            get: { themeManager.appTheme },
+                            set: { themeManager.setAppTheme($0) }
+                        )) {
+                            // Theme names are technical terms and should not be localized
+                            // Color scheme names like "Flexoki" and "Nord" are brand/technical names
+                            ForEach(AppTheme.allCases) { theme in
+                                Text(theme.displayName).tag(theme)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .frame(width: 240)
+                    }
+
+                    HStack {
+                        SettingLabelWithInfo(
+                            label: "Theme".localized(),
+                            description: "Choose between light and dark mode".localized()
+                        )
+                        Spacer()
+                        Picker("", selection: Binding(
+                            get: { ThemeOption.from(themeManager.userPreference) },
+                            set: { themeManager.setColorScheme($0.colorScheme) }
+                        )) {
+                            Text("System".localized()).tag(ThemeOption.system)
+                            Text("Light".localized()).tag(ThemeOption.light)
+                            Text("Dark".localized()).tag(ThemeOption.dark)
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .frame(width: 180)
+                    }
+
+                    if themeManager.isLiquidGlassEnabled {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                SettingLabelWithInfo(
+                                    label: "Floating Window Transparency".localized(),
+                                    description: "Adjust the transparency of the floating window when Liquid Glass is enabled".localized()
+                                )
+                                Spacer()
+                                Text(liquidGlassOpacityPercentText)
+                                    .font(.system(size: 13, design: .rounded))
+                                    .foregroundStyle(.secondary)
+                                    .monospacedDigit()
+                                    .frame(width: 44, alignment: .trailing)
+                            }
+
+                            Slider(value: Binding(
+                                get: { themeManager.liquidGlassWindowOpacity },
+                                set: { themeManager.setLiquidGlassWindowOpacity($0) }
+                            ), in: ThemeManager.minLiquidGlassWindowOpacity...1.0, step: 0.05)
+                            .controlSize(.small)
+                        }
+                    }
+                }
+            }
+
+            settingsSectionCard(icon: "clock.arrow.circlepath", title: "History".localized()) {
+                VStack(spacing: 12) {
+                    HStack {
+                        SettingLabelWithInfo(
+                            label: "Max Items".localized(),
+                            description: "Maximum number of clipboard items to store".localized()
+                        )
                         Spacer()
                         Text("\(maxHistoryItems)")
                             .font(.system(size: 13, design: .rounded))
                             .foregroundStyle(.secondary)
                             .monospacedDigit()
                             .frame(width: 40, alignment: .trailing)
-                    }
-
-                    HStack {
-                            SettingLabelWithInfo(
-                                label: "",
-                                description: "Adjust the maximum number of clipboard items to store".localized()
-                            )
-                        Spacer()
                     }
 
                     Slider(value: Binding(
@@ -413,28 +345,15 @@ struct SettingsView: View {
                     }
                     .toggleStyle(.checkbox)
                 }
-                .padding(12)
-                .background(settingsCardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            Divider()
-
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "clock")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("Suggested".localized())
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
+            settingsSectionCard(icon: "clock", title: "Suggested".localized()) {
                 VStack(spacing: 12) {
                     HStack {
-                            SettingLabelWithInfo(
-                                label: "Min Usage Count".localized(),
-                                description: "Number of uses before an item appears in Suggested".localized()
-                            )
+                        SettingLabelWithInfo(
+                            label: "Min Usage Count".localized(),
+                            description: "Number of uses before an item appears in Suggested".localized()
+                        )
                         Spacer()
                         Text("\(minUsageCountForRecommendation)")
                             .font(.system(size: 13, design: .rounded))
@@ -449,10 +368,10 @@ struct SettingsView: View {
                     .controlSize(.small)
 
                     HStack {
-                            SettingLabelWithInfo(
-                                label: "Score Half-Life".localized(),
-                                description: "How quickly Suggested scores decay over time".localized()
-                            )
+                        SettingLabelWithInfo(
+                            label: "Score Half-Life".localized(),
+                            description: "How quickly Suggested scores decay over time".localized()
+                        )
                         Spacer()
                         Text(decayHoursText)
                             .font(.system(size: 13, design: .rounded))
@@ -463,22 +382,9 @@ struct SettingsView: View {
                     Slider(value: $recommendationDecayHours, in: 1...168, step: 1)
                         .controlSize(.small)
                 }
-                .padding(12)
-                .background(settingsCardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            Divider()
-
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 8) {
-                    Image(systemName: "power")
-                        .foregroundStyle(.secondary)
-                        .font(.system(size: 14))
-                    Text("Launch".localized())
-                        .font(.system(size: 14, weight: .semibold))
-                }
-
+            settingsSectionCard(icon: "power", title: "Launch".localized()) {
                 VStack(spacing: 12) {
                     Toggle(isOn: $autoStart) {
                         HStack(spacing: 6) {
@@ -498,12 +404,9 @@ struct SettingsView: View {
                         statusBadge
                     }
                 }
-                .padding(12)
-                .background(settingsCardBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
-            Spacer()
+            Spacer(minLength: 0)
         }
     }
 
@@ -528,6 +431,11 @@ struct SettingsView: View {
                         }
                     }
                     .toggleStyle(.checkbox)
+
+                    Text("Focus Todo is off by default for new users. Turn it on anytime here.".localized())
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(12)
                 .background(settingsCardBackground)
@@ -698,6 +606,9 @@ struct SettingsView: View {
             Spacer()
         }
     }
+}
+
+extension SettingsView {
 
     @ViewBuilder
     private var languageSettingsContent: some View {
@@ -757,11 +668,11 @@ struct SettingsView: View {
                 }
                 .alert("Restart Required".localized(), isPresented: $showRestartAlert) {
                     Button("OK".localized(), role: .cancel) { }
-                    Button("Restart Now".localized()) {
+                    Button("Quit Now".localized()) {
                         NSApplication.shared.terminate(nil)
                     }
                 } message: {
-                    Text("Please restart ClipFlow to apply the language change.".localized())
+                    Text("Please quit and reopen ClipFlow to apply the language change.".localized())
                 }
                 .padding(12)
                 .background(settingsCardBackground)
@@ -819,6 +730,9 @@ struct SettingsView: View {
             return "%1$d hours".localized(Int(recommendationDecayHours))
         }
     }
+}
+
+extension SettingsView {
 
     private func checkAutoStartStatus() {
         if SMAppService.mainApp.status == .enabled {
@@ -844,6 +758,8 @@ struct SettingsView: View {
     }
 
     private func applyShortcut(_ newShortcut: HotKeyManager.Shortcut) {
+        conflictNeedsAccessibility = false
+
         if let validationError = HotKeyManager.shared.validationError(for: newShortcut) {
             shortcut = HotKeyManager.shared.currentShortcut ?? HotKeyManager.shared.loadSavedShortcut()
             conflictMessage = validationError
@@ -851,13 +767,74 @@ struct SettingsView: View {
             return
         }
 
+        if !AXIsProcessTrustedWithOptions(nil) {
+            shortcut = HotKeyManager.shared.currentShortcut ?? HotKeyManager.shared.loadSavedShortcut()
+            conflictNeedsAccessibility = true
+            conflictMessage = "Accessibility permission is required to register global shortcuts.".localized()
+            showConflictAlert = true
+            requestAccessibilityPermission()
+            return
+        }
+
         if !HotKeyManager.shared.register(newShortcut) {
             shortcut = HotKeyManager.shared.currentShortcut ?? HotKeyManager.shared.loadSavedShortcut()
+            conflictMessage = AXIsProcessTrustedWithOptions(nil)
+                ? "Unable to register this shortcut. It may be in use by another application.".localized()
+                : "Accessibility permission is required to register global shortcuts.".localized()
+            conflictNeedsAccessibility = !AXIsProcessTrustedWithOptions(nil)
+            showConflictAlert = true
+        }
+
+        refreshAccessibilityStatus()
+    }
+
+    private func reRegisterShortcut() {
+        let savedShortcut = HotKeyManager.shared.loadSavedShortcut()
+
+        guard AXIsProcessTrustedWithOptions(nil) else {
+            conflictNeedsAccessibility = true
+            conflictMessage = "Accessibility permission is required to register global shortcuts.".localized()
+            showConflictAlert = true
+            requestAccessibilityPermission()
+            return
+        }
+
+        if HotKeyManager.shared.register(savedShortcut) {
+            shortcut = savedShortcut
+            actionFeedbackMessage = "Shortcut re-registered successfully".localized()
+            showActionFeedbackAlert = true
+        } else {
+            conflictNeedsAccessibility = false
             conflictMessage = "Unable to register this shortcut. It may be in use by another application.".localized()
             showConflictAlert = true
         }
+
+        refreshAccessibilityStatus()
     }
 
+    private func refreshAccessibilityStatus() {
+        accessibilityTrusted = AXIsProcessTrustedWithOptions(nil)
+    }
+
+    private func requestAccessibilityPermission() {
+        if let appDelegate = NSApp.delegate as? AppDelegate {
+            if !accessibilityTrusted {
+                appDelegate.requestAccessibilityPermissionPrompt()
+            }
+            appDelegate.openAccessibilitySettings()
+        } else {
+            if !accessibilityTrusted {
+                let options: [String: Bool] = ["AXTrustedCheckOptionPrompt": true]
+                _ = AXIsProcessTrustedWithOptions(options as CFDictionary)
+            }
+            if let settingsURL = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+                NSWorkspace.shared.open(settingsURL)
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            refreshAccessibilityStatus()
+        }
+    }
     private func applyFocusTodoShortcut(_ newShortcut: HotKeyManager.Shortcut, action: FocusTodoShortcutManager.Action) {
         if let validationError = HotKeyManager.shared.validationError(for: newShortcut) {
             restoreFocusTodoShortcut(for: action)
@@ -898,42 +875,6 @@ struct SettingsView: View {
             ShortcutRecorderView(shortcut: shortcut)
                 .frame(width: 220)
         }
-    }
-}
-
-struct SidebarTabButton: View {
-    let tab: SettingsTab
-    let isSelected: Bool
-    let action: () -> Void
-
-    @StateObject private var themeManager = ThemeManager.shared
-
-    private var selectionBackground: Color {
-        themeManager.isLiquidGlassEnabled ? Color.accentColor.opacity(0.14) : themeManager.accent
-    }
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                Image(systemName: tab.icon)
-                    .font(.system(size: 13))
-                    .frame(width: 18, height: 18)
-
-                Text(tab.localizedName)
-                    .font(.system(size: 13, weight: isSelected ? .medium : .regular))
-
-                Spacer()
-            }
-            .foregroundStyle(themeManager.text)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-        }
-        .buttonStyle(.plain)
-        .contentShape(Rectangle())
-        .background(
-            RoundedRectangle(cornerRadius: 6)
-                .fill(isSelected ? selectionBackground : Color.clear)
-        )
     }
 }
 

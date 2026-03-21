@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 import GRDB
 
@@ -140,6 +141,85 @@ final class DatabaseManager: @unchecked Sendable {
         try migrateRecommendationFields(db: db)
         try migrateNoteField(db: db)
         try migrateRichTextFields(db: db)
+        try migrateUUIDStorageTypeConsistency(db: db)
+    }
+
+    private static func uuidBlobToTextExpression(column: String) -> String {
+        """
+        lower(substr(hex(\(column)), 1, 8) || '-' || substr(hex(\(column)), 9, 4) || '-' || substr(hex(\(column)), 13, 4) || '-' || substr(hex(\(column)), 17, 4) || '-' || substr(hex(\(column)), 21, 12))
+        """
+    }
+
+    private static func normalizeUUIDColumn(
+        db: Database,
+        table: String,
+        column: String,
+        cleanupConflicts: Bool = false
+    ) throws {
+        let normalizedExpression = uuidBlobToTextExpression(column: column)
+        try db.execute(sql: """
+            UPDATE OR IGNORE \(table)
+            SET \(column) = \(normalizedExpression)
+            WHERE typeof(\(column)) = 'blob' AND length(\(column)) = 16
+        """)
+
+        guard cleanupConflicts else { return }
+
+        try db.execute(sql: """
+            DELETE FROM \(table)
+            WHERE typeof(\(column)) = 'blob' AND length(\(column)) = 16
+        """)
+    }
+
+    private static func normalizeClipboardItemsTagsTable(db: Database) throws {
+        let normalizedClipboardItemId = uuidBlobToTextExpression(column: "clipboardItemId")
+        let normalizedTagId = uuidBlobToTextExpression(column: "tagId")
+
+        try db.execute(sql: """
+            INSERT OR IGNORE INTO clipboard_items_tags (clipboardItemId, tagId)
+            SELECT
+                CASE
+                    WHEN typeof(clipboardItemId) = 'blob' AND length(clipboardItemId) = 16 THEN \(normalizedClipboardItemId)
+                    ELSE lower(CAST(clipboardItemId AS TEXT))
+                END,
+                CASE
+                    WHEN typeof(tagId) = 'blob' AND length(tagId) = 16 THEN \(normalizedTagId)
+                    ELSE lower(CAST(tagId AS TEXT))
+                END
+            FROM clipboard_items_tags
+        """)
+
+        try db.execute(sql: """
+            DELETE FROM clipboard_items_tags
+            WHERE (typeof(clipboardItemId) = 'blob' AND length(clipboardItemId) = 16)
+               OR (typeof(tagId) = 'blob' AND length(tagId) = 16)
+        """)
+    }
+
+    private static func migrateUUIDStorageTypeConsistency(db: Database) throws {
+        try db.execute(sql: "PRAGMA defer_foreign_keys = ON")
+
+        try normalizeUUIDColumn(db: db, table: "clipboard_items", column: "id", cleanupConflicts: true)
+        try normalizeUUIDColumn(db: db, table: "tags", column: "id", cleanupConflicts: true)
+        try normalizeClipboardItemsTagsTable(db: db)
+
+        try normalizeUUIDColumn(db: db, table: "prompt_templates", column: "id", cleanupConflicts: true)
+
+        try normalizeUUIDColumn(db: db, table: "projects", column: "id", cleanupConflicts: true)
+        try normalizeUUIDColumn(db: db, table: "projects", column: "currentCognitionId")
+        try normalizeUUIDColumn(db: db, table: "projects", column: "selectedPromptTemplateId")
+
+        try normalizeUUIDColumn(db: db, table: "project_raw_inputs", column: "id", cleanupConflicts: true)
+        try normalizeUUIDColumn(db: db, table: "project_raw_inputs", column: "projectId")
+        try normalizeUUIDColumn(db: db, table: "project_raw_inputs", column: "clipboardItemId")
+
+        try normalizeUUIDColumn(db: db, table: "project_cognitions", column: "id", cleanupConflicts: true)
+        try normalizeUUIDColumn(db: db, table: "project_cognitions", column: "projectId")
+
+        try normalizeUUIDColumn(db: db, table: "project_cognition_changes", column: "id", cleanupConflicts: true)
+        try normalizeUUIDColumn(db: db, table: "project_cognition_changes", column: "projectId")
+        try normalizeUUIDColumn(db: db, table: "project_cognition_changes", column: "fromCognitionId")
+        try normalizeUUIDColumn(db: db, table: "project_cognition_changes", column: "toCognitionId")
     }
 
     private static func migrateRecommendationFields(db: Database) throws {
@@ -271,6 +351,13 @@ final class DatabaseManager: @unchecked Sendable {
         }
     }
 
+    struct DatabaseError: Error {
+        let message: String
+    }
+}
+
+extension DatabaseManager {
+
     func createClipboardItem(
         id: UUID? = nil,
         content: String,
@@ -399,7 +486,19 @@ final class DatabaseManager: @unchecked Sendable {
         try dbPool.write { db in
             let idsToDelete = try String.fetchAll(db, sql: """
                 SELECT ci.id FROM clipboard_items ci
-                LEFT JOIN clipboard_items_tags cit ON ci.id = cit.clipboardItemId
+                LEFT JOIN clipboard_items_tags cit ON (
+                    CASE
+                        WHEN typeof(ci.id) = 'blob' AND length(ci.id) = 16 THEN
+                            lower(substr(hex(ci.id), 1, 8) || '-' || substr(hex(ci.id), 9, 4) || '-' || substr(hex(ci.id), 13, 4) || '-' || substr(hex(ci.id), 17, 4) || '-' || substr(hex(ci.id), 21, 12))
+                        ELSE lower(CAST(ci.id AS TEXT))
+                    END
+                ) = (
+                    CASE
+                        WHEN typeof(cit.clipboardItemId) = 'blob' AND length(cit.clipboardItemId) = 16 THEN
+                            lower(substr(hex(cit.clipboardItemId), 1, 8) || '-' || substr(hex(cit.clipboardItemId), 9, 4) || '-' || substr(hex(cit.clipboardItemId), 13, 4) || '-' || substr(hex(cit.clipboardItemId), 17, 4) || '-' || substr(hex(cit.clipboardItemId), 21, 12))
+                        ELSE lower(CAST(cit.clipboardItemId AS TEXT))
+                    END
+                )
                 WHERE cit.clipboardItemId IS NULL
                 ORDER BY ci.createdAt DESC
                 LIMIT -1 OFFSET ?
@@ -449,6 +548,9 @@ final class DatabaseManager: @unchecked Sendable {
             """, arguments: [Date(), id.uuidString])
         }
     }
+}
+
+extension DatabaseManager {
 
     func createTag(name: String, color: String) throws -> Tag {
         let tag = Tag(name: name, color: color)
@@ -539,13 +641,17 @@ final class DatabaseManager: @unchecked Sendable {
 
     func fetchAllTaggedItemIds() throws -> Set<UUID> {
         try dbPool.read { db in
-            let sql = "SELECT DISTINCT clipboardItemId FROM clipboard_items_tags"
+            let sql = """
+                SELECT DISTINCT
+                    CASE
+                        WHEN typeof(clipboardItemId) = 'blob' AND length(clipboardItemId) = 16 THEN
+                            lower(substr(hex(clipboardItemId), 1, 8) || '-' || substr(hex(clipboardItemId), 9, 4) || '-' || substr(hex(clipboardItemId), 13, 4) || '-' || substr(hex(clipboardItemId), 17, 4) || '-' || substr(hex(clipboardItemId), 21, 12))
+                        ELSE lower(CAST(clipboardItemId AS TEXT))
+                    END AS normalizedClipboardItemId
+                FROM clipboard_items_tags
+            """
             let strings = try String.fetchAll(db, sql: sql)
             return Set(strings.compactMap { UUID(uuidString: $0) })
         }
-    }
-
-    struct DatabaseError: Error {
-        let message: String
     }
 }

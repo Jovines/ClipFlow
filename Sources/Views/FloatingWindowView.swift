@@ -1,9 +1,11 @@
+// swiftlint:disable file_length
 import AppKit
 import Combine
 import SwiftUI
 
 private let dbManager = DatabaseManager.shared
 
+// swiftlint:disable:next type_body_length
 struct FloatingWindowView: View {
     let onClose: () -> Void
     let onItemSelected: (ClipboardItem) -> Void
@@ -39,7 +41,8 @@ struct FloatingWindowView: View {
 
     private var groupedItems: [(groupInfo: GroupInfo, items: [ClipboardItem])] {
         let baseItems = showTopRecentHistory ? topRecentHistoryItems : clipboardMonitor.capturedItems
-        let filteredItems = filterItemsByTags(baseItems)
+        let availableItems = visibleItemsExcludingPending(baseItems)
+        let filteredItems = filterItemsByTags(availableItems)
         let visibleItems = Array(filteredItems.prefix(maxVisibleItems))
         let remainingItems = Array(filteredItems.dropFirst(maxVisibleItems))
 
@@ -92,6 +95,16 @@ struct FloatingWindowView: View {
     @State private var newTagName: String = ""
     @State private var newTagColorName: String = "blue"
     @State private var tagPickerItem: ClipboardItem?
+    @State private var itemPendingDeletion: ClipboardItem?
+    @State private var deleteFromTopRecent = false
+    @State private var showDeleteConfirmation = false
+    @State private var pendingDeletionItemIDs: Set<UUID> = []
+    @State private var deletionWorkItems: [UUID: DispatchWorkItem] = [:]
+    @State private var deletionFromTopRecentByID: [UUID: Bool] = [:]
+    @State private var undoToastItem: ClipboardItem?
+    @State private var showUndoDeleteToast = false
+    @State private var showOperationErrorAlert = false
+    @State private var operationErrorMessage = ""
 
     @State private var showTopRecentHistory = false
     @State private var topRecentHistoryItems: [ClipboardItem] = []
@@ -105,7 +118,7 @@ struct FloatingWindowView: View {
 
         return content
             .themeAware()
-            .onChange(of: isProjectMode) { newValue in
+            .onChange(of: isProjectMode) { _, newValue in
                 FloatingWindowManager.shared.resizeWindowForProjectMode(
                     isProjectMode: newValue,
                     project: currentProject
@@ -181,7 +194,7 @@ struct FloatingWindowView: View {
                         onItemSelected(item)
                     },
                     onItemEdit: startEdit,
-                    onItemDelete: { clipboardMonitor.deleteItem($0) },
+                    onItemDelete: { requestDelete($0) },
                     onAddToProject: { showAddToProject(for: $0) },
                     onHide: { groupPanelCoordinator.hidePanel() }
                 )
@@ -203,6 +216,7 @@ struct FloatingWindowView: View {
         }
         .onDisappear {
             groupPanelCoordinator.stopTracking()
+            cancelAllPendingDeletions()
         }
         .onKeyPress(phases: .down) { press in
             if isEditing {
@@ -225,7 +239,11 @@ struct FloatingWindowView: View {
                 onSelectProject: { project in
                     currentProject = project
                     isProjectMode = true
-                    try? ProjectService.shared.activateProject(id: project.id)
+                    do {
+                        try ProjectService.shared.activateProject(id: project.id)
+                    } catch {
+                        presentOperationError(message: "Failed to switch project: %1$@".localized(error.localizedDescription))
+                    }
                 },
                 onCreateProject: {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -240,7 +258,11 @@ struct FloatingWindowView: View {
                 onCreated: { project in
                     currentProject = project
                     isProjectMode = true
-                    try? ProjectService.shared.activateProject(id: project.id)
+                    do {
+                        try ProjectService.shared.activateProject(id: project.id)
+                    } catch {
+                        presentOperationError(message: "Failed to switch project: %1$@".localized(error.localizedDescription))
+                    }
                 }
             )
         }
@@ -264,6 +286,62 @@ struct FloatingWindowView: View {
         .sheet(isPresented: $showCreateTagSheet) {
             createTagSheet
         }
+        .alert("Delete Item".localized(), isPresented: $showDeleteConfirmation) {
+            Button("Cancel".localized(), role: .cancel) {}
+            Button("Delete".localized(), role: .destructive) {
+                confirmDeleteItem()
+            }
+        } message: {
+            Text("Are you sure you want to delete this clipboard item?".localized())
+        }
+        .alert("Operation Failed".localized(), isPresented: $showOperationErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(operationErrorMessage)
+        }
+        .overlay(alignment: .bottom) {
+            if showUndoDeleteToast, let item = undoToastItem {
+                undoDeleteToast(for: item)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 12)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: showUndoDeleteToast)
+    }
+}
+
+extension FloatingWindowView {
+
+    @ViewBuilder
+    private func undoDeleteToast(for item: ClipboardItem) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "trash")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(themeManager.textSecondary)
+
+            Text("Item deleted".localized())
+                .font(.system(size: 12, weight: .medium))
+                .lineLimit(1)
+
+            Spacer(minLength: 8)
+
+            Button("Undo".localized()) {
+                undoDelete(for: item.id)
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .frame(maxWidth: 320)
+        .background(themeManager.chromeSurface)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(themeManager.separator, lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)
     }
 
     @ViewBuilder
@@ -290,9 +368,13 @@ struct FloatingWindowView: View {
     private func loadTopRecentItems() {
         Task {
             do {
-                topRecentItems = try topRecentService.fetchTopRecentItems()
+                let items = try topRecentService.fetchTopRecentItems()
+                topRecentItems = visibleItemsExcludingPending(items)
             } catch {
                 ClipFlowLogger.error("Failed to load Top Recent items: \(error)")
+                await MainActor.run {
+                    presentOperationError(message: "Failed to load suggestions: %1$@".localized(error.localizedDescription))
+                }
             }
         }
     }
@@ -300,12 +382,20 @@ struct FloatingWindowView: View {
     private func loadTopRecentHistory() {
         Task {
             do {
-                topRecentHistoryItems = try topRecentService.fetchTopRecentHistory()
+                let items = try topRecentService.fetchTopRecentHistory()
+                topRecentHistoryItems = visibleItemsExcludingPending(items)
                 tagService.refreshTopRecentHistoryCount()
             } catch {
                 ClipFlowLogger.error("Failed to load Top Recent history: \(error)")
+                await MainActor.run {
+                    presentOperationError(message: "Failed to load suggestion history: %1$@".localized(error.localizedDescription))
+                }
             }
         }
+    }
+
+    private func visibleItemsExcludingPending(_ items: [ClipboardItem]) -> [ClipboardItem] {
+        items.filter { !pendingDeletionItemIDs.contains($0.id) }
     }
 
     private func filterItemsByTags(_ items: [ClipboardItem]) -> [ClipboardItem] {
@@ -339,9 +429,10 @@ struct FloatingWindowView: View {
 
     @ViewBuilder
     private var contentView: some View {
-        let displayItems = showTopRecentHistory ? topRecentHistoryItems : filterItemsByTags(clipboardMonitor.capturedItems)
+        let capturedVisibleItems = visibleItemsExcludingPending(clipboardMonitor.capturedItems)
+        let displayItems = showTopRecentHistory ? topRecentHistoryItems : filterItemsByTags(capturedVisibleItems)
 
-        if displayItems.isEmpty && topRecentItems.isEmpty {
+        if displayItems.isEmpty && visibleItemsExcludingPending(topRecentItems).isEmpty {
             emptyStateView
         } else {
             ScrollView {
@@ -385,25 +476,13 @@ struct FloatingWindowView: View {
             .padding(.vertical, 4)
 
             VStack(spacing: 4) {
-                ForEach(Array(topRecentItems.enumerated()), id: \.element.id) { index, item in
+                ForEach(Array(visibleItemsExcludingPending(topRecentItems).enumerated()), id: \.element.id) { _, item in
                     CompactItemRow(
                         item: item,
                         clipboardMonitor: clipboardMonitor,
                         onSelect: { handleItemSelection(item) },
                         onEdit: { startEdit(item) },
-                        onDelete: {
-                            ClipFlowLogger.info("[FloatingWindowView] TopRecent 删除: item=\(item.id.uuidString)")
-                            do {
-                                try dbManager.deleteClipboardItem(id: item.id)
-                                ClipFlowLogger.info("[FloatingWindowView] 数据库删除成功")
-                            } catch {
-                                ClipFlowLogger.error("[FloatingWindowView] 数据库删除失败: \(error)")
-                            }
-                            loadTopRecentItems()
-                            if showTopRecentHistory {
-                                loadTopRecentHistory()
-                            }
-                        },
+                        onDelete: { requestDelete(item, fromTopRecent: true) },
                         onAddToProject: { showAddToProject(for: item) },
                         onManageTags: { showTagPicker(for: item) },
                         isTopRecent: true,
@@ -432,7 +511,7 @@ struct FloatingWindowView: View {
                     clipboardMonitor: clipboardMonitor,
                     onSelect: { handleItemSelection(item) },
                     onEdit: { startEdit(item) },
-                    onDelete: { clipboardMonitor.deleteItem(item) },
+                    onDelete: { requestDelete(item) },
                     onAddToProject: { showAddToProject(for: item) },
                     onManageTags: { showTagPicker(for: item) },
                         isTopRecent: false,
@@ -452,7 +531,7 @@ struct FloatingWindowView: View {
             clipboardMonitor: clipboardMonitor,
             onItemSelected: handleItemSelection,
             onItemEdit: startEdit,
-            onItemDelete: { clipboardMonitor.deleteItem($0) },
+            onItemDelete: { requestDelete($0) },
             onAddToProject: { showAddToProject(for: $0) },
             panelCoordinator: groupPanelCoordinator
         )
@@ -508,6 +587,9 @@ struct FloatingWindowView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
+}
+
+extension FloatingWindowView {
 
     private func startEdit(_ item: ClipboardItem) {
         guard item.contentType == .text else { return }
@@ -702,8 +784,118 @@ struct FloatingWindowView: View {
             _ = try tagService.createTag(name: newTagName, color: Tag.colorForName(newTagColorName))
             showCreateTagSheet = false
         } catch {
-            print("[FloatingWindowView] Failed to create tag: \(error)")
+            presentOperationError(message: "Failed to create tag: %1$@".localized(error.localizedDescription))
         }
+    }
+
+    private func requestDelete(_ item: ClipboardItem, fromTopRecent: Bool = false) {
+        itemPendingDeletion = item
+        deleteFromTopRecent = fromTopRecent
+        showDeleteConfirmation = true
+    }
+
+    private func confirmDeleteItem() {
+        guard let item = itemPendingDeletion else { return }
+
+        scheduleDelete(item, fromTopRecent: deleteFromTopRecent)
+
+        itemPendingDeletion = nil
+        deleteFromTopRecent = false
+    }
+
+    private func scheduleDelete(_ item: ClipboardItem, fromTopRecent: Bool) {
+        guard pendingDeletionItemIDs.contains(item.id) == false else { return }
+
+        if let currentUndoItemId = undoToastItem?.id,
+           currentUndoItemId != item.id,
+           pendingDeletionItemIDs.contains(currentUndoItemId) {
+            finalizeDelete(itemId: currentUndoItemId)
+        }
+
+        pendingDeletionItemIDs.insert(item.id)
+        deletionFromTopRecentByID[item.id] = fromTopRecent
+
+        loadTopRecentItems()
+        if showTopRecentHistory {
+            loadTopRecentHistory()
+        }
+
+        undoToastItem = item
+        showUndoDeleteToast = true
+
+        let workItem = DispatchWorkItem {
+            finalizeDelete(itemId: item.id)
+        }
+        deletionWorkItems[item.id] = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0, execute: workItem)
+    }
+
+    private func undoDelete(for itemId: UUID) {
+        deletionWorkItems[itemId]?.cancel()
+        deletionWorkItems[itemId] = nil
+        deletionFromTopRecentByID[itemId] = nil
+        pendingDeletionItemIDs.remove(itemId)
+
+        if undoToastItem?.id == itemId {
+            showUndoDeleteToast = false
+            undoToastItem = nil
+        }
+
+        loadTopRecentItems()
+        if showTopRecentHistory {
+            loadTopRecentHistory()
+        }
+    }
+
+    private func finalizeDelete(itemId: UUID) {
+        guard pendingDeletionItemIDs.contains(itemId) else { return }
+
+        let fromTopRecent = deletionFromTopRecentByID[itemId] ?? false
+        if fromTopRecent {
+            do {
+                try dbManager.deleteClipboardItem(id: itemId)
+            } catch {
+                presentOperationError(message: "Failed to delete clipboard item: %1$@".localized(error.localizedDescription))
+            }
+        } else if let item = clipboardMonitor.capturedItems.first(where: { $0.id == itemId }) {
+            clipboardMonitor.deleteItem(item)
+        } else {
+            do {
+                try dbManager.deleteClipboardItem(id: itemId)
+            } catch {
+                presentOperationError(message: "Failed to delete clipboard item: %1$@".localized(error.localizedDescription))
+            }
+        }
+
+        deletionWorkItems[itemId] = nil
+        deletionFromTopRecentByID[itemId] = nil
+        pendingDeletionItemIDs.remove(itemId)
+
+        if undoToastItem?.id == itemId {
+            showUndoDeleteToast = false
+            undoToastItem = nil
+        }
+
+        loadTopRecentItems()
+        if showTopRecentHistory {
+            loadTopRecentHistory()
+        }
+    }
+
+    private func cancelAllPendingDeletions() {
+        for (_, workItem) in deletionWorkItems {
+            workItem.cancel()
+        }
+        deletionWorkItems.removeAll()
+        deletionFromTopRecentByID.removeAll()
+        pendingDeletionItemIDs.removeAll()
+        showUndoDeleteToast = false
+        undoToastItem = nil
+    }
+
+    private func presentOperationError(message: String) {
+        operationErrorMessage = message
+        showOperationErrorAlert = true
     }
 }
 

@@ -8,6 +8,8 @@ struct ProjectSelectorView: View {
     var onCreateProject: () -> Void
     
     @State private var searchText = ""
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
     
     var filteredProjects: [Project] {
         if searchText.isEmpty {
@@ -31,6 +33,7 @@ struct ProjectSelectorView: View {
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Close".localized())
             }
             .padding(.horizontal)
             .padding(.vertical, 8)
@@ -56,11 +59,22 @@ struct ProjectSelectorView: View {
                     Image(systemName: "folder.badge.plus")
                         .font(.largeTitle)
                         .foregroundStyle(.secondary)
-                    Text("No Projects".localized())
-                        .foregroundStyle(.secondary)
-                    Text("Tap the button below to create a new project".localized())
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+
+                    if searchText.isEmpty {
+                        Text("No Projects".localized())
+                            .foregroundStyle(.secondary)
+                        Text("Tap the button below to create a new project".localized())
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("No matching projects".localized())
+                            .foregroundStyle(.secondary)
+                        Button("Clear Search".localized()) {
+                            searchText = ""
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
                 }
                 .frame(maxHeight: .infinity)
             } else {
@@ -78,10 +92,10 @@ struct ProjectSelectorView: View {
                             }
                             .contextMenu {
                                 Button("Project Archive".localized()) {
-                                    try? projectService.archiveProject(id: project.id)
+                                    archiveProject(project)
                                 }
                                 Button("Project Delete".localized(), role: .destructive) {
-                                    try? projectService.deleteProject(id: project.id)
+                                    deleteProject(project)
                                 }
                             }
                         }
@@ -101,6 +115,32 @@ struct ProjectSelectorView: View {
             .padding()
         }
         .frame(width: 280, height: 400)
+        .alert("Operation Failed".localized(), isPresented: $showErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(errorMessage)
+        }
+    }
+
+    private func archiveProject(_ project: Project) {
+        do {
+            try projectService.archiveProject(id: project.id)
+        } catch {
+            showError(message: "Failed to archive project: %1$@".localized(error.localizedDescription))
+        }
+    }
+
+    private func deleteProject(_ project: Project) {
+        do {
+            try projectService.deleteProject(id: project.id)
+        } catch {
+            showError(message: "Failed to delete project: %1$@".localized(error.localizedDescription))
+        }
+    }
+
+    private func showError(message: String) {
+        errorMessage = message
+        showErrorAlert = true
     }
 }
 
@@ -108,6 +148,13 @@ struct ProjectRow: View {
     let project: Project
     let isActive: Bool
     @StateObject private var themeManager = ThemeManager.shared
+
+    private var absoluteDateText: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: project.updatedAt)
+    }
     
     var body: some View {
         HStack(spacing: 12) {
@@ -133,6 +180,7 @@ struct ProjectRow: View {
         .padding(.horizontal)
         .padding(.vertical, 10)
         .background(isActive ? themeManager.accent.opacity(0.1) : Color.clear)
+        .help(absoluteDateText)
     }
 }
 
@@ -143,6 +191,8 @@ struct CreateProjectSheet: View {
     @State private var name = ""
     @State private var description = ""
     @State private var isCreating = false
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
     
     var canCreate: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
@@ -209,6 +259,11 @@ struct CreateProjectSheet: View {
         }
         .padding()
         .frame(width: 320)
+        .alert("Operation Failed".localized(), isPresented: $showErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(errorMessage)
+        }
     }
     
     private func createProject() {
@@ -218,17 +273,22 @@ struct CreateProjectSheet: View {
         
         Task {
             let trimmedDescription = description.isEmpty ? nil : description
-            let project = try? ProjectService.shared.createProject(
-                name: name,
-                description: trimmedDescription
-            )
-            
-            await MainActor.run {
-                isCreating = false
-                isPresented = false
-                
-                if let project = project {
+            do {
+                let project = try ProjectService.shared.createProject(
+                    name: name,
+                    description: trimmedDescription
+                )
+
+                await MainActor.run {
+                    isCreating = false
+                    isPresented = false
                     onCreated(project)
+                }
+            } catch {
+                await MainActor.run {
+                    isCreating = false
+                    errorMessage = "Failed to create project: %1$@".localized(error.localizedDescription)
+                    showErrorAlert = true
                 }
             }
         }

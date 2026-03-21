@@ -8,6 +8,7 @@ enum FocusTodoPreferences {
     static let snapPositionKey = "focusTodoSnapPosition"
     static let clipboardPrefillSecondsKey = "focusTodoClipboardPrefillSeconds"
     static let collapsedOpacityKey = "focusTodoCollapsedOpacity"
+    static let defaultIsEnabled = false
 
     static let defaultClipboardPrefillSeconds = 20.0
     static let defaultCollapsedOpacity = 0.36

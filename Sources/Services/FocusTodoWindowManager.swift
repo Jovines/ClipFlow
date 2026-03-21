@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import AppKit
 import SwiftUI
 
@@ -132,6 +133,9 @@ final class FocusTodoWindowManager: ObservableObject {
             window.setFrame(targetFrame, display: true)
         }
     }
+}
+
+extension FocusTodoWindowManager {
 
     private func createWindowIfNeeded() {
         guard window == nil else { return }
@@ -240,6 +244,9 @@ final class FocusTodoWindowManager: ObservableObject {
             }
         }
     }
+}
+
+extension FocusTodoWindowManager {
 
     private func handleCollapsedScroll(_ event: NSEvent) {
         guard !todoService.isPanelExpanded,
@@ -412,6 +419,9 @@ final class FocusTodoWindowManager: ObservableObject {
 
         return false
     }
+}
+
+extension FocusTodoWindowManager {
 
     private func frameForCurrentScreen(width: CGFloat, height: CGFloat) -> NSRect {
         frameForCurrentScreen(width: width, height: height, using: NSScreen.main ?? NSScreen.screens.first)

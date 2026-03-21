@@ -46,14 +46,20 @@ struct ImagePreviewView: View {
                         Button(action: { withAnimation { scale = max(0.5, scale - 0.25) } }) {
                             Image(systemName: "minus.magnifyingglass")
                         }
+                        .accessibilityLabel("Zoom Out".localized())
+                        .help("Zoom Out".localized())
 
                         Button(action: { withAnimation { scale = 1.0 } }) {
                             Image(systemName: "arrow.counterclockwise")
                         }
+                        .accessibilityLabel("Reset Zoom".localized())
+                        .help("Reset Zoom".localized())
 
                         Button(action: { withAnimation { scale = min(3.0, scale + 0.25) } }) {
                             Image(systemName: "plus.magnifyingglass")
                         }
+                        .accessibilityLabel("Zoom In".localized())
+                        .help("Zoom In".localized())
                     }
                 }
             }

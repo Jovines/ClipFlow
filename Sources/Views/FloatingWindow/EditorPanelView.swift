@@ -14,6 +14,8 @@ struct EditorPanelView: View {
 
     @StateObject private var tagService = TagService.shared
     @State private var itemTags: [Tag] = []
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
 
     private let editorWidth: CGFloat = 280
     private let fixedHeight: CGFloat = 480
@@ -61,6 +63,11 @@ struct EditorPanelView: View {
         .onChange(of: editingItem) { _, _ in
             loadItemTags()
         }
+        .alert("Operation Failed".localized(), isPresented: $showErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(errorMessage)
+        }
     }
 
     private func loadItemTags() {
@@ -86,6 +93,8 @@ struct EditorPanelView: View {
                     .foregroundStyle(ThemeManager.shared.textSecondary)
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Close".localized())
+            .help("Close".localized())
         }
         .frame(height: 32)
         .padding(.horizontal, 12)
@@ -215,7 +224,7 @@ struct EditorPanelView: View {
             loadItemTags()
             tagService.refreshTags()
         } catch {
-            print("[EditorPanelView] Failed to add tag: \(error)")
+            presentError("Failed to add tag: %1$@".localized(error.localizedDescription))
         }
     }
 
@@ -226,8 +235,13 @@ struct EditorPanelView: View {
             loadItemTags()
             tagService.refreshTags()
         } catch {
-            print("[EditorPanelView] Failed to remove tag: \(error)")
+            presentError("Failed to remove tag: %1$@".localized(error.localizedDescription))
         }
+    }
+
+    private func presentError(_ message: String) {
+        errorMessage = message
+        showErrorAlert = true
     }
 
     private var editorFooter: some View {
@@ -293,6 +307,7 @@ struct TagChip: View {
                         .shadow(color: ThemeManager.shared.iconBadgeBackground.opacity(ThemeManager.shared.iconBadgeShadowOpacity), radius: 2, y: 1)
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Remove Tag".localized())
             }
         }
         .padding(.horizontal, onRemove != nil ? 6 : 8)

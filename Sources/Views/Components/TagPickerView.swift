@@ -8,6 +8,8 @@ struct TagPickerView: View {
     @State private var showCreateTag: Bool = false
     @State private var itemTagsData: [Tag] = []
     @State private var isLoading = true
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
 
     var body: some View {
         VStack(spacing: 0) {
@@ -69,6 +71,11 @@ struct TagPickerView: View {
         .background(ThemeManager.shared.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .onAppear { loadTags() }
+        .alert("Operation Failed".localized(), isPresented: $showErrorAlert) {
+            Button("OK".localized()) {}
+        } message: {
+            Text(errorMessage)
+        }
     }
 
     private var itemTags: [Tag] {
@@ -86,6 +93,7 @@ struct TagPickerView: View {
             itemTagsData = try tagService.getTagsForItem(itemId: item.id)
         } catch {
             itemTagsData = []
+            showError(message: "Failed to load tags: %1$@".localized(error.localizedDescription))
         }
         isLoading = false
     }
@@ -126,7 +134,7 @@ struct TagPickerView: View {
             tagService.refreshTags()
             loadTags()
         } catch {
-            print("[TagPickerView] Failed to toggle tag: \(error)")
+            showError(message: "Failed to toggle tag: %1$@".localized(error.localizedDescription))
         }
     }
 
@@ -136,9 +144,16 @@ struct TagPickerView: View {
             _ = try tagService.createTag(name: newTagName, color: Tag.colorForName(colorName))
             newTagName = ""
             showCreateTag = false
+            tagService.refreshTags()
+            loadTags()
         } catch {
-            print("[TagPickerView] Failed to create tag: \(error)")
+            showError(message: "Failed to create tag: %1$@".localized(error.localizedDescription))
         }
+    }
+
+    private func showError(message: String) {
+        errorMessage = message
+        showErrorAlert = true
     }
 }
 

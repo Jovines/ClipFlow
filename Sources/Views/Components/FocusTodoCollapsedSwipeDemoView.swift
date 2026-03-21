@@ -89,7 +89,7 @@ struct FocusTodoCollapsedSwipeDemoView: View {
                     }
                     .frame(width: size, height: size)
 
-                    Text("9 positions")
+                    Text("9 positions".localized())
                         .font(.system(size: 11))
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -103,9 +103,9 @@ struct FocusTodoCollapsedSwipeDemoView: View {
             }
 
             HStack {
-                Text("L/R: columns")
+                Text("L/R: columns".localized())
                 Spacer()
-                Text("U/D: rows")
+                Text("U/D: rows".localized())
             }
             .font(.system(size: 11))
             .foregroundStyle(.secondary)

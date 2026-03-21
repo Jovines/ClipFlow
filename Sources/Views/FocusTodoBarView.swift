@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import AppKit
 import SwiftUI
 
@@ -155,6 +156,9 @@ struct FocusTodoBarView: View {
             }
         }
     }
+}
+
+extension FocusTodoBarView {
 
     private var headerBar: some View {
         let isExpanded = todoService.isPanelExpanded
@@ -179,26 +183,26 @@ struct FocusTodoBarView: View {
                 if hasCollapsedActiveTask {
                     VStack(alignment: .leading, spacing: -1) {
                         Text(collapsedPreviousTaskTitle.map { "↑ %@".localized($0) } ?? "")
-                            .font(.system(size: 6.5, weight: .regular))
+                            .font(.system(size: 7, weight: .regular))
                             .lineLimit(1)
-                            .foregroundStyle(themeManager.textTertiary)
-                            .shadow(color: .black.opacity(0.28), radius: 1.2, y: 0.6)
+                            .foregroundStyle(collapsedSecondaryTextColor)
+                            .shadow(color: .black.opacity(0.14), radius: 0.9, y: 0.4)
                             .opacity(collapsedPreviousTaskTitle == nil ? 0 : 1)
 
-                        animatedActiveTitleText(fontSize: 10.5)
+                        animatedActiveTitleText(fontSize: 11, color: collapsedPrimaryTextColor, shadowOpacity: 0.16)
 
                         Text(collapsedNextTaskTitle.map { "↓ %@".localized($0) } ?? "")
-                            .font(.system(size: 6.5, weight: .regular))
+                            .font(.system(size: 7, weight: .regular))
                             .lineLimit(1)
-                            .foregroundStyle(themeManager.textTertiary)
-                            .shadow(color: .black.opacity(0.28), radius: 1.2, y: 0.6)
+                            .foregroundStyle(collapsedSecondaryTextColor)
+                            .shadow(color: .black.opacity(0.14), radius: 0.9, y: 0.4)
                             .opacity(collapsedNextTaskTitle == nil ? 0 : 1)
                     }
                 } else {
                     Text("No task".localized)
                         .font(.system(size: 9.5, weight: .medium))
-                        .foregroundStyle(themeManager.textSecondary)
-                        .shadow(color: .black.opacity(0.18), radius: 1.0, y: 0.5)
+                        .foregroundStyle(collapsedPrimaryTextColor)
+                        .shadow(color: .black.opacity(0.10), radius: 0.8, y: 0.4)
                 }
             }
 
@@ -215,20 +219,20 @@ struct FocusTodoBarView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "clock.badge.checkmark")
                             .font(.system(size: 8, weight: .medium))
-                            .foregroundStyle(themeManager.textTertiary)
+                            .foregroundStyle(collapsedSecondaryTextColor)
 
                         Text("\(collapsedPendingCount)")
                             .font(.system(size: 8.5, weight: .semibold, design: .rounded))
-                            .foregroundStyle(themeManager.textSecondary)
+                            .foregroundStyle(collapsedPrimaryTextColor)
                             .monospacedDigit()
                             .padding(.horizontal, 5)
                             .padding(.vertical, 1)
                             .background(
                                 Capsule(style: .continuous)
-                                    .fill(themeManager.chromeSurfaceElevated.opacity(0.65))
+                                    .fill(collapsedChipBackground)
                             )
                     }
-                    .shadow(color: .black.opacity(0.18), radius: 1.0, y: 0.5)
+                    .shadow(color: .black.opacity(0.10), radius: 0.8, y: 0.4)
 
                     HStack(spacing: 4) {
                         Image(systemName: "keyboard")
@@ -236,12 +240,12 @@ struct FocusTodoBarView: View {
                         Text(togglePanelShortcutDisplay)
                             .font(.system(size: 8.5, weight: .semibold, design: .rounded))
                     }
-                    .foregroundStyle(themeManager.textSecondary)
+                    .foregroundStyle(collapsedPrimaryTextColor)
                     .padding(.horizontal, 5)
                     .padding(.vertical, 2)
                     .background(
                         RoundedRectangle(cornerRadius: 5, style: .continuous)
-                            .fill(themeManager.chromeSurfaceElevated.opacity(0.78))
+                            .fill(collapsedChipBackground)
                     )
                 }
             }
@@ -424,6 +428,9 @@ struct FocusTodoBarView: View {
         }
         return "Configure AI provider in settings to use rewrite".localized
     }
+}
+
+extension FocusTodoBarView {
 
     private func addCurrentTask() {
         todoService.addTask(newTaskTitle, makeActive: false)
@@ -568,7 +575,7 @@ struct FocusTodoBarView: View {
                     .opacity(todoService.isPanelExpanded ? 0.88 : effectiveCollapsedOpacity)
             } else {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(themeManager.surface.opacity(todoService.isPanelExpanded ? 0.90 : max(0.03, effectiveCollapsedOpacity - 0.08)))
+                    .fill(themeManager.surface.opacity(todoService.isPanelExpanded ? 0.90 : collapsedBackgroundOpacity))
             }
         }
     }
@@ -605,20 +612,56 @@ struct FocusTodoBarView: View {
         .buttonStyle(.plain)
     }
 
-    private func animatedActiveTitleText(fontSize: CGFloat = 11) -> some View {
+    private func animatedActiveTitleText(
+        fontSize: CGFloat = 11,
+        color: Color? = nil,
+        shadowOpacity: Double? = nil
+    ) -> some View {
         ZStack {
             Text(todoService.activeItem?.title ?? "No task in progress".localized)
                 .id(activeTitleTransitionSerial)
                 .font(.system(size: fontSize, weight: .medium))
                 .lineLimit(1)
-                .foregroundStyle(themeManager.text)
-                .shadow(color: .black.opacity(todoService.isPanelExpanded ? 0.06 : 0.24), radius: 1.2, y: 0.6)
+                .foregroundStyle(color ?? themeManager.text)
+                .shadow(
+                    color: .black.opacity(shadowOpacity ?? (todoService.isPanelExpanded ? 0.06 : 0.24)),
+                    radius: 1.2,
+                    y: 0.6
+                )
                 .transition(.asymmetric(
                     insertion: .move(edge: .bottom).combined(with: .opacity),
                     removal: .move(edge: .top).combined(with: .opacity)
                 ))
         }
         .animation(.spring(duration: 0.24, bounce: 0.18), value: activeTitleTransitionSerial)
+    }
+}
+
+extension FocusTodoBarView {
+
+    private var collapsedPrimaryTextColor: Color {
+        if themeManager.isLiquidGlassEnabled {
+            return themeManager.text
+        }
+        return themeManager.text.opacity(0.98)
+    }
+
+    private var collapsedSecondaryTextColor: Color {
+        if themeManager.isLiquidGlassEnabled {
+            return themeManager.textSecondary
+        }
+        return themeManager.text.opacity(0.74)
+    }
+
+    private var collapsedChipBackground: Color {
+        if themeManager.isLiquidGlassEnabled {
+            return themeManager.chromeSurfaceElevated.opacity(0.78)
+        }
+        return themeManager.chromeSurfaceElevated.opacity(0.92)
+    }
+
+    private var collapsedBackgroundOpacity: Double {
+        max(0.22, min(0.82, effectiveCollapsedOpacity + 0.04))
     }
 
     private func prefillFromRecentClipboardIfNeeded() {

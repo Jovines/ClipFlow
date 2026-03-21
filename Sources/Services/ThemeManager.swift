@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import SwiftUI
 import Combine
 
@@ -56,9 +57,16 @@ final class ThemeManager: ObservableObject {
 
 @Published var colorScheme: ColorScheme = .light
 
-// MARK: - Liquid Glass
+    private var observation: NSKeyValueObservation?
 
-/// 当前是否启用 Liquid Glass（System 主题）
+    private init() {
+        loadPreference()
+        updateFromSystemAppearance()
+        setupAppearanceObserver()
+    }
+}
+
+extension ThemeManager {
     var isLiquidGlassEnabled: Bool {
         appTheme == .system
     }
@@ -214,6 +222,9 @@ final class ThemeManager: ObservableObject {
         }
         return colorScheme == .dark ? accent.opacity(0.15) : accent.opacity(0.10)
     }
+}
+
+extension ThemeManager {
 
     var iconAccent: Color {
         if appTheme == .system {
@@ -375,14 +386,9 @@ final class ThemeManager: ObservableObject {
             return Color.nord12
         }
     }
+}
 
-    private var observation: NSKeyValueObservation?
-
-    private init() {
-        loadPreference()
-        updateFromSystemAppearance()
-        setupAppearanceObserver()
-    }
+extension ThemeManager {
 
     private func loadPreference() {
         if let rawValue = UserDefaults.standard.string(forKey: Self.themeTypeKey) {

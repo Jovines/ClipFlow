@@ -19,7 +19,9 @@ final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
 
     private func setupThemeObserver() {
         themeObservation = NSApp.observe(\.effectiveAppearance) { [weak self] _, _ in
-            self?.updateWindowBackgroundColor()
+            Task { @MainActor in
+                self?.updateWindowBackgroundColor()
+            }
         }
     }
 
@@ -78,6 +80,7 @@ final class SettingsWindowManager: ObservableObject, @unchecked Sendable {
         
         window.contentView = hostingController?.view
         window.title = "Settings".localized()
+        window.identifier = NSUserInterfaceItemIdentifier("ClipFlowSettingsWindow")
         window.isReleasedWhenClosed = false
         
         let themeManager = ThemeManager.shared

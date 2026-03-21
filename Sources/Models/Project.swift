@@ -183,15 +183,15 @@ extension Project: FetchableRecord, PersistableRecord {
     }
     
     func encode(to container: inout PersistenceContainer) throws {
-        container[Columns.id] = id
+        container[Columns.id] = id.uuidString
         container[Columns.name] = name
         container[Columns.description] = description
         container[Columns.isActive] = isActive
         container[Columns.isArchived] = isArchived
         container[Columns.createdAt] = createdAt
         container[Columns.updatedAt] = updatedAt
-        container[Columns.currentCognitionId] = currentCognitionId
-        container[Columns.selectedPromptTemplateId] = selectedPromptTemplateId
+        container[Columns.currentCognitionId] = currentCognitionId?.uuidString
+        container[Columns.selectedPromptTemplateId] = selectedPromptTemplateId?.uuidString
     }
 }
 
@@ -208,9 +208,9 @@ extension ProjectRawInput: FetchableRecord, PersistableRecord {
     }
     
     func encode(to container: inout PersistenceContainer) throws {
-        container[Columns.id] = id
-        container[Columns.projectId] = projectId
-        container[Columns.clipboardItemId] = clipboardItemId
+        container[Columns.id] = id.uuidString
+        container[Columns.projectId] = projectId.uuidString
+        container[Columns.clipboardItemId] = clipboardItemId.uuidString
         container[Columns.sourceContext] = sourceContext
         container[Columns.isAnalyzed] = isAnalyzed
         container[Columns.createdAt] = createdAt
@@ -229,8 +229,8 @@ extension ProjectCognition: FetchableRecord, PersistableRecord {
     }
 
     func encode(to container: inout PersistenceContainer) throws {
-        container[Columns.id] = id
-        container[Columns.projectId] = projectId
+        container[Columns.id] = id.uuidString
+        container[Columns.projectId] = projectId.uuidString
         container[Columns.content] = content
         container[Columns.version] = version
         container[Columns.createdAt] = createdAt
@@ -251,10 +251,10 @@ extension ProjectCognitionChange: FetchableRecord, PersistableRecord {
     }
     
     func encode(to container: inout PersistenceContainer) throws {
-        container[Columns.id] = id
-        container[Columns.projectId] = projectId
-        container[Columns.fromCognitionId] = fromCognitionId
-        container[Columns.toCognitionId] = toCognitionId
+        container[Columns.id] = id.uuidString
+        container[Columns.projectId] = projectId.uuidString
+        container[Columns.fromCognitionId] = fromCognitionId.uuidString
+        container[Columns.toCognitionId] = toCognitionId.uuidString
         container[Columns.changeDescription] = changeDescription
         container[Columns.addedInputsJSON] = addedInputsJSON
         container[Columns.createdAt] = createdAt

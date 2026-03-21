@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Cocoa
 import Combine
 import Foundation
@@ -232,6 +233,9 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
             ClipFlowLogger.error("Failed to clear history: \(error)")
         }
     }
+}
+
+extension ClipboardMonitor {
 
     private func setupBindings() {
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
@@ -324,6 +328,7 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
                 guard let self = self else { return }
                 self.capturedItems.insert(item, at: 0)
                 self.enforceHistoryLimit()
+                OnboardingState.setCapturedClipboardItem(true)
                 ClipFlowLogger.info("Captured new item - type: \(item.contentType), content: \(item.content.prefix(50))...")
             }
         } else {
@@ -425,6 +430,9 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
             ClipFlowLogger.error("❌ Failed to analyze project cognition: \(error)")
         }
     }
+}
+
+extension ClipboardMonitor {
 
     private func readFromPasteboard() -> ClipboardItem? {
         let shouldSaveImages = UserDefaults.standard.object(forKey: "saveImages") as? Bool ?? true
@@ -592,6 +600,9 @@ final class ClipboardMonitor: ObservableObject, @unchecked Sendable {
 
         return nil
     }
+}
+
+extension ClipboardMonitor {
 
     private func writeTextItemToPasteboard(_ item: ClipboardItem) {
         var wroteRichText = false

@@ -3,6 +3,18 @@ import SwiftUI
 
 struct AboutView: View {
     @StateObject private var themeManager = ThemeManager.shared
+
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown".localized()
+    }
+
+    private var appBuild: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "-"
+    }
+
+    private var versionText: String {
+        "Version %1$@ (%2$@)".localized(appVersion, appBuild)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -18,7 +30,7 @@ struct AboutView: View {
                     Text("ClipFlow".localized())
                         .font(.system(size: 20, weight: .bold))
 
-                    Text("Version 1.0.0".localized())
+                    Text(versionText)
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                 }
