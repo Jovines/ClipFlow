@@ -10,14 +10,36 @@ enum ImageOptimizer {
         let resizedImage = resizeIfNeeded(nsImage)
         guard let resizedTiff = resizedImage.tiffRepresentation,
               let bitmapRep = NSBitmapImageRep(data: resizedTiff) else { return nil }
+
+        if bitmapRep.hasAlpha {
+            return bitmapRep.representation(using: .png, properties: [:])
+        }
+
         return bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: quality])
     }
 
     static func generateThumbnail(from nsImage: NSImage) -> Data? {
-        let thumbnail = nsImage.resized(to: thumbnailSize)
+        let thumbnail = resizeForThumbnail(nsImage)
         guard let tiff = thumbnail.tiffRepresentation,
               let bitmapRep = NSBitmapImageRep(data: tiff) else { return nil }
+
+        if bitmapRep.hasAlpha {
+            return bitmapRep.representation(using: .png, properties: [:])
+        }
+
         return bitmapRep.representation(using: .jpeg, properties: [.compressionFactor: thumbnailCompressionQuality])
+    }
+
+    private static func resizeForThumbnail(_ image: NSImage) -> NSImage {
+        let size = image.size
+        guard size.width > 0, size.height > 0 else { return image }
+
+        let widthScale = thumbnailSize.width / size.width
+        let heightScale = thumbnailSize.height / size.height
+        let scale = min(widthScale, heightScale, 1.0)
+
+        let targetSize = CGSize(width: size.width * scale, height: size.height * scale)
+        return image.resized(to: targetSize)
     }
 
     private static func resizeIfNeeded(_ image: NSImage) -> NSImage {

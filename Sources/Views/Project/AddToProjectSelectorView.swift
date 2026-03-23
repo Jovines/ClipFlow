@@ -46,13 +46,7 @@ struct AddToProjectSelectorView: View {
                     .font(.caption)
 
                 if let richTextFormat = clipboardItem.richTextFormatLabel {
-                    Text(richTextFormat)
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundStyle(ThemeManager.shared.accent)
-                        .padding(.horizontal, 4)
-                        .padding(.vertical, 1)
-                        .background(ThemeManager.shared.accent.opacity(0.12))
-                        .clipShape(RoundedRectangle(cornerRadius: 4))
+                    AddToProjectRichTextBadge(format: richTextFormat)
                 }
 
                 Text(previewText)
@@ -170,6 +164,45 @@ struct AddToProjectSelectorView: View {
             return clipboardItem.content
         case .file:
             return clipboardItem.fileDisplayText
+        }
+    }
+}
+
+private struct AddToProjectRichTextBadge: View {
+    let format: String
+
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: iconName)
+                .font(.system(size: 8, weight: .semibold))
+
+            Text(format.uppercased())
+                .font(.system(size: 9, weight: .semibold))
+                .lineLimit(1)
+        }
+        .foregroundStyle(themeManager.textSecondary)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(themeManager.chromeSurfaceElevated.opacity(0.65))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .stroke(themeManager.separator.opacity(0.9), lineWidth: 1)
+        )
+    }
+
+    private var iconName: String {
+        switch format.uppercased() {
+        case "HTML":
+            return "curlybraces"
+        case "RTF":
+            return "textformat"
+        default:
+            return "doc.richtext"
         }
     }
 }
