@@ -18,9 +18,6 @@ struct FloatingWindowView: View {
         self.maxVisibleItems = maxVisibleItems
         _clipboardMonitor = StateObject(wrappedValue: clipboardMonitor)
     }
-    @State private var showImagePreview = false
-    @State private var selectedItem: ClipboardItem?
-
     @State private var editingItem: ClipboardItem?
     @State private var editContent: String = ""
     @State private var originalContent: String = ""
@@ -227,11 +224,6 @@ struct FloatingWindowView: View {
                 return .ignored
             }
             return .ignored
-        }
-        .sheet(isPresented: $showImagePreview) {
-            if let item = selectedItem {
-                ImagePreviewView(item: item)
-            }
         }
         .sheet(isPresented: $showProjectSelector) {
             ProjectSelectorView(
@@ -548,14 +540,7 @@ extension FloatingWindowView {
     }
 
     private func handleItemSelection(_ item: ClipboardItem) {
-        let shouldPreviewImage = item.contentType == .image && NSEvent.modifierFlags.contains(.option)
-
-        if shouldPreviewImage {
-            selectedItem = item
-            showImagePreview = true
-        } else {
-            onItemSelected(item)
-        }
+        onItemSelected(item)
 
         Task {
             do {
@@ -592,7 +577,6 @@ extension FloatingWindowView {
 extension FloatingWindowView {
 
     private func startEdit(_ item: ClipboardItem) {
-        guard item.contentType == .text else { return }
         editingItem = item
         editContent = item.content
         originalContent = item.content

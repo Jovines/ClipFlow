@@ -34,6 +34,10 @@ struct EditorPanelView: View {
         editContent != originalContent || editNote != originalNote
     }
 
+    private var isImageItem: Bool {
+        editingItem?.contentType == .image
+    }
+
     private var availableTags: [Tag] {
         tagService.allTags.filter { tag in
             !itemTags.contains(where: { $0.id == tag.id })
@@ -45,8 +49,10 @@ struct EditorPanelView: View {
             editorHeader
             Divider()
             editorContent
-            noteSection
-            tagSection
+            if !isImageItem {
+                noteSection
+                tagSection
+            }
             Divider()
             editorFooter
         }
@@ -84,7 +90,7 @@ struct EditorPanelView: View {
 
     private var editorHeader: some View {
         HStack {
-            Text("Edit Record".localized())
+            Text(isImageItem ? "Image Preview".localized() : "Edit Record".localized())
                 .font(.system(size: 13, weight: .medium))
             Spacer()
             Button(action: onCancel) {
@@ -101,26 +107,73 @@ struct EditorPanelView: View {
     }
 
     private var editorContent: some View {
-        GeometryReader { geometry in
-            VStack(spacing: 0) {
-                TextEditor(text: $editContent)
-                    .font(.system(size: 13))
-                    .padding(8)
-                    .frame(minHeight: 80)
-                    .scrollContentBackground(.hidden)
-                    .background(Color.clear)
+        GeometryReader { _ in
+            if isImageItem {
+                imagePreviewContent
+            } else {
+                VStack(spacing: 0) {
+                    TextEditor(text: $editContent)
+                        .font(.system(size: 13))
+                        .padding(8)
+                        .frame(minHeight: 80)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.clear)
 
-                HStack {
-                    Text("\(characterCount)/\(maxCharacterCount)")
-                        .font(.caption)
-                        .foregroundStyle(ThemeManager.shared.textSecondary)
-                    Spacer()
+                    HStack {
+                        Text("\(characterCount)/\(maxCharacterCount)")
+                            .font(.caption)
+                            .foregroundStyle(ThemeManager.shared.textSecondary)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 4)
             }
         }
         .frame(maxHeight: .infinity)
+    }
+
+    private var imagePreviewContent: some View {
+        ZStack {
+            ThemeManager.shared.chromeSurface.opacity(0.35)
+
+            if let imageData = previewImageData,
+               let nsImage = NSImage(data: imageData) {
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.white.opacity(0.98))
+                    .overlay(
+                        Image(nsImage: nsImage)
+                            .resizable()
+                            .scaledToFit()
+                            .padding(8)
+                    )
+                    .padding(12)
+            } else {
+                VStack(spacing: 8) {
+                    Image(systemName: "photo")
+                        .font(.system(size: 24))
+                        .foregroundStyle(ThemeManager.shared.textSecondary)
+                    Text("Unable to load image".localized())
+                        .font(.system(size: 12))
+                        .foregroundStyle(ThemeManager.shared.textSecondary)
+                }
+            }
+        }
+    }
+
+    private var previewImageData: Data? {
+        guard let item = editingItem else { return nil }
+
+        if let imagePath = item.imagePath,
+           let imageData = ImageCacheManager.shared.loadImage(forKey: imagePath) {
+            return imageData
+        }
+
+        if let thumbnailPath = item.thumbnailPath {
+            return ImageCacheManager.shared.loadImage(forKey: thumbnailPath)
+        }
+
+        return nil
     }
 
     private var noteSection: some View {
@@ -244,32 +297,46 @@ struct EditorPanelView: View {
         showErrorAlert = true
     }
 
+    @ViewBuilder
     private var editorFooter: some View {
-        HStack(spacing: 8) {
-            Button(action: onReset) {
-                Text("Reset".localized())
-                    .font(.system(size: 12))
+        if isImageItem {
+            HStack {
+                Spacer()
+                Button(action: onCancel) {
+                    Text("Close".localized())
+                        .font(.system(size: 12, weight: .medium))
+                }
+                .buttonStyle(.borderedProminent)
             }
-            .buttonStyle(.bordered)
-            .disabled(!hasChanges)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+        } else {
+            HStack(spacing: 8) {
+                Button(action: onReset) {
+                    Text("Reset".localized())
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.bordered)
+                .disabled(!hasChanges)
 
-            Spacer()
+                Spacer()
 
-            Button(action: onCancel) {
-                Text("Cancel".localized())
-                    .font(.system(size: 12))
+                Button(action: onCancel) {
+                    Text("Cancel".localized())
+                        .font(.system(size: 12))
+                }
+                .buttonStyle(.bordered)
+
+                Button(action: onSave) {
+                    Text("Save".localized())
+                        .font(.system(size: 12, weight: .medium))
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(editContent.isEmpty || !hasChanges)
             }
-            .buttonStyle(.bordered)
-
-            Button(action: onSave) {
-                Text("Save".localized())
-                    .font(.system(size: 12, weight: .medium))
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(editContent.isEmpty || !hasChanges)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
     }
 }
 

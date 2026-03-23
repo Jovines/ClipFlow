@@ -1,4 +1,5 @@
 // swiftlint:disable file_length
+import AppKit
 import SwiftUI
 
 struct GroupView: View {
@@ -84,6 +85,14 @@ struct CompactItemRow: View {
 
     private var themeManager: ThemeManager { ThemeManager.shared }
 
+    private var isImageItem: Bool {
+        item.contentType == .image
+    }
+
+    private var rowMinHeight: CGFloat {
+        isImageItem ? 36 : 20
+    }
+
     var body: some View {
         HStack(spacing: 8) {
             contentPreview
@@ -116,13 +125,7 @@ struct CompactItemRow: View {
             }
 
             if let richTextFormat = item.richTextFormatLabel {
-                Text(richTextFormat)
-                    .font(.system(size: 8, weight: .semibold))
-                    .foregroundStyle(themeManager.accent)
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 1)
-                    .background(themeManager.accent.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                RichTextFormatChip(format: richTextFormat)
             }
 
             if isTopRecent {
@@ -143,7 +146,7 @@ struct CompactItemRow: View {
                 actionButtons
             }
         }
-        .frame(minHeight: 20)
+        .frame(minHeight: rowMinHeight)
         .padding(.horizontal, 10)
         .padding(.vertical, 3)
         .background(isHovered ? themeManager.hoverBackground : .clear)
@@ -169,7 +172,10 @@ struct CompactItemRow: View {
             }
             Divider()
             Button(action: onEdit) {
-                Label("Edit".localized(), systemImage: "pencil")
+                Label(
+                    isImageItem ? "Image Preview".localized() : "Edit".localized(),
+                    systemImage: isImageItem ? "eye" : "pencil"
+                )
             }
             Divider()
             Button(role: .destructive, action: onDelete) {
@@ -226,7 +232,7 @@ struct CompactItemRow: View {
             .accessibilityLabel("Add to Project".localized())
 
             Button(action: onEdit) {
-                Image(systemName: "pencil")
+                Image(systemName: isImageItem ? "eye" : "pencil")
                     .font(.system(size: 10))
                     .frame(width: 20, height: 20)
                     .background(themeManager.iconBadgeAccentBackground)
@@ -239,8 +245,8 @@ struct CompactItemRow: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(themeManager.iconBadgeAccentForeground)
-            .help("Edit".localized())
-            .accessibilityLabel("Edit".localized())
+            .help(isImageItem ? "Image Preview".localized() : "Edit".localized())
+            .accessibilityLabel(isImageItem ? "Image Preview".localized() : "Edit".localized())
 
             Button(action: onDelete) {
                 Image(systemName: "trash")
@@ -273,20 +279,26 @@ struct CompactItemRow: View {
 
     private var contentPreview: some View {
         HStack(spacing: 6) {
-            Group {
-                switch item.contentType {
-                case .text:
-                    Image(systemName: item.displayIconName)
-                case .image:
-                    Image(systemName: "photo")
-                case .file:
-                    Image(systemName: "doc")
+            switch item.contentType {
+            case .image:
+                imageThumbnail
+                previewText
+            case .text, .file:
+                Group {
+                    switch item.contentType {
+                    case .text:
+                        Image(systemName: item.displayIconName)
+                    case .file:
+                        Image(systemName: "doc")
+                    case .image:
+                        EmptyView()
+                    }
                 }
-            }
-            .foregroundStyle(themeManager.textSecondary)
-            .font(.system(size: 11))
+                .foregroundStyle(themeManager.textSecondary)
+                .font(.system(size: 11))
 
-            previewText
+                previewText
+            }
         }
     }
 
@@ -299,7 +311,7 @@ struct CompactItemRow: View {
                     .replacingOccurrences(of: "\r", with: " ")
                     .replacingOccurrences(of: "  ", with: " ")
                     .trimmingCharacters(in: .whitespaces)
-                Text(cleanedContent)
+                Text(sanitizeRichTextPrefixIfNeeded(cleanedContent))
             case .image:
                 Text("Image".localized())
             case .file:
@@ -309,6 +321,82 @@ struct CompactItemRow: View {
         .font(.system(size: 11))
         .lineLimit(1)
         .foregroundStyle(themeManager.text)
+    }
+
+    private var imageThumbnail: some View {
+        let frameSize = thumbnailFrameSize
+
+        return Group {
+            if let thumbnailData,
+               let nsImage = NSImage(data: thumbnailData) {
+                Image(nsImage: nsImage)
+                    .resizable()
+                    .scaledToFit()
+                    .background(Color.white)
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.white.opacity(0.95))
+                    Image(systemName: "photo")
+                        .font(.system(size: 12))
+                        .foregroundStyle(themeManager.textSecondary)
+                }
+            }
+        }
+        .frame(width: frameSize.width, height: frameSize.height)
+        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .stroke(themeManager.separator.opacity(0.8), lineWidth: 1)
+        )
+    }
+
+    private var thumbnailFrameSize: CGSize {
+        let maxHeight: CGFloat = 32
+        let minWidth: CGFloat = 32
+        let maxWidth: CGFloat = 110
+        let fallbackWidth: CGFloat = 52
+
+        let ratioSource = imageDataForRatio ?? thumbnailData
+
+        guard let ratioSource,
+              let nsImage = NSImage(data: ratioSource),
+              nsImage.size.height > 0 else {
+            return CGSize(width: fallbackWidth, height: maxHeight)
+        }
+
+        let ratio = nsImage.size.width / nsImage.size.height
+        let targetWidth = maxHeight * ratio
+        let clampedWidth = min(max(targetWidth, minWidth), maxWidth)
+        return CGSize(width: clampedWidth, height: maxHeight)
+    }
+
+    private var imageDataForRatio: Data? {
+        guard let imagePath = item.imagePath else { return nil }
+        return ImageCacheManager.shared.loadImage(forKey: imagePath)
+    }
+
+    private var thumbnailData: Data? {
+        if let thumbnailPath = item.thumbnailPath,
+           let thumbnail = ImageCacheManager.shared.loadImage(forKey: thumbnailPath) {
+            return thumbnail
+        }
+
+        if let imagePath = item.imagePath {
+            return ImageCacheManager.shared.loadImage(forKey: imagePath)
+        }
+
+        return nil
+    }
+
+    private func sanitizeRichTextPrefixIfNeeded(_ text: String) -> String {
+        guard item.isRichTextText else { return text }
+
+        let prefixes = ["格式 ", "Format ", "format "]
+        for prefix in prefixes where text.hasPrefix(prefix) {
+            return String(text.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
+        }
+        return text
     }
 }
 
@@ -324,6 +412,14 @@ struct GroupPanelItemRow: View {
 
     private var themeManager: ThemeManager { ThemeManager.shared }
 
+    private var isImageItem: Bool {
+        item.contentType == .image
+    }
+
+    private var rowMinHeight: CGFloat {
+        isImageItem ? 36 : 20
+    }
+
     var body: some View {
         HStack(spacing: 8) {
             contentPreview
@@ -333,7 +429,7 @@ struct GroupPanelItemRow: View {
                 actionButtons
             }
         }
-        .frame(minHeight: 20)
+        .frame(minHeight: rowMinHeight)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background(isHovered ? themeManager.borderSubtle.opacity(0.5) : .clear)
@@ -347,29 +443,29 @@ struct GroupPanelItemRow: View {
 
     private var contentPreview: some View {
         HStack(spacing: 6) {
-            Group {
-                switch item.contentType {
-                case .text:
-                    Image(systemName: item.displayIconName)
-                case .image:
-                    Image(systemName: "photo")
-                case .file:
-                    Image(systemName: "doc")
+            switch item.contentType {
+            case .image:
+                imageThumbnail
+                previewText
+            case .text, .file:
+                Group {
+                    switch item.contentType {
+                    case .text:
+                        Image(systemName: item.displayIconName)
+                    case .file:
+                        Image(systemName: "doc")
+                    case .image:
+                        EmptyView()
+                    }
                 }
-            }
-            .foregroundStyle(themeManager.textSecondary)
-            .font(.system(size: 11))
+                .foregroundStyle(themeManager.textSecondary)
+                .font(.system(size: 11))
 
-            previewText
+                previewText
+            }
 
             if let richTextFormat = item.richTextFormatLabel {
-                Text(richTextFormat)
-                    .font(.system(size: 8, weight: .semibold))
-                    .foregroundStyle(themeManager.accent)
-                    .padding(.horizontal, 4)
-                    .padding(.vertical, 1)
-                    .background(themeManager.accent.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                RichTextFormatChip(format: richTextFormat)
             }
         }
     }
@@ -383,7 +479,7 @@ struct GroupPanelItemRow: View {
                     .replacingOccurrences(of: "\r", with: " ")
                     .replacingOccurrences(of: "  ", with: " ")
                     .trimmingCharacters(in: .whitespaces)
-                Text(cleanedContent)
+                Text(sanitizeRichTextPrefixIfNeeded(cleanedContent))
             case .image:
                 Text("Image".localized())
             case .file:
@@ -393,6 +489,82 @@ struct GroupPanelItemRow: View {
         .font(.system(size: 11))
         .lineLimit(1)
         .foregroundStyle(themeManager.text)
+    }
+
+    private var imageThumbnail: some View {
+        let frameSize = thumbnailFrameSize
+
+        return Group {
+            if let thumbnailData,
+               let nsImage = NSImage(data: thumbnailData) {
+                Image(nsImage: nsImage)
+                    .resizable()
+                    .scaledToFit()
+                    .background(Color.white)
+            } else {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.white.opacity(0.95))
+                    Image(systemName: "photo")
+                        .font(.system(size: 12))
+                        .foregroundStyle(themeManager.textSecondary)
+                }
+            }
+        }
+        .frame(width: frameSize.width, height: frameSize.height)
+        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .stroke(themeManager.separator.opacity(0.8), lineWidth: 1)
+        )
+    }
+
+    private var thumbnailFrameSize: CGSize {
+        let maxHeight: CGFloat = 32
+        let minWidth: CGFloat = 32
+        let maxWidth: CGFloat = 110
+        let fallbackWidth: CGFloat = 52
+
+        let ratioSource = imageDataForRatio ?? thumbnailData
+
+        guard let ratioSource,
+              let nsImage = NSImage(data: ratioSource),
+              nsImage.size.height > 0 else {
+            return CGSize(width: fallbackWidth, height: maxHeight)
+        }
+
+        let ratio = nsImage.size.width / nsImage.size.height
+        let targetWidth = maxHeight * ratio
+        let clampedWidth = min(max(targetWidth, minWidth), maxWidth)
+        return CGSize(width: clampedWidth, height: maxHeight)
+    }
+
+    private var imageDataForRatio: Data? {
+        guard let imagePath = item.imagePath else { return nil }
+        return ImageCacheManager.shared.loadImage(forKey: imagePath)
+    }
+
+    private var thumbnailData: Data? {
+        if let thumbnailPath = item.thumbnailPath,
+           let thumbnail = ImageCacheManager.shared.loadImage(forKey: thumbnailPath) {
+            return thumbnail
+        }
+
+        if let imagePath = item.imagePath {
+            return ImageCacheManager.shared.loadImage(forKey: imagePath)
+        }
+
+        return nil
+    }
+
+    private func sanitizeRichTextPrefixIfNeeded(_ text: String) -> String {
+        guard item.isRichTextText else { return text }
+
+        let prefixes = ["格式 ", "Format ", "format "]
+        for prefix in prefixes where text.hasPrefix(prefix) {
+            return String(text.dropFirst(prefix.count)).trimmingCharacters(in: .whitespaces)
+        }
+        return text
     }
 
     private var actionButtons: some View {
@@ -415,7 +587,7 @@ struct GroupPanelItemRow: View {
             .accessibilityLabel("Add to Project".localized())
 
             Button(action: onEdit) {
-                Image(systemName: "pencil")
+                Image(systemName: isImageItem ? "eye" : "pencil")
                     .font(.system(size: 10))
                     .frame(width: 20, height: 20)
                     .background(themeManager.iconBadgeAccentBackground)
@@ -428,8 +600,8 @@ struct GroupPanelItemRow: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(themeManager.iconBadgeAccentForeground)
-            .help("Edit".localized())
-            .accessibilityLabel("Edit".localized())
+            .help(isImageItem ? "Image Preview".localized() : "Edit".localized())
+            .accessibilityLabel(isImageItem ? "Image Preview".localized() : "Edit".localized())
 
             Button(action: onDelete) {
                 Image(systemName: "trash")
@@ -448,6 +620,45 @@ struct GroupPanelItemRow: View {
             .keyboardShortcut(KeyEquivalent.delete, modifiers: [])
             .help("Delete".localized())
             .accessibilityLabel("Delete".localized())
+        }
+    }
+}
+
+private struct RichTextFormatChip: View {
+    let format: String
+
+    private var themeManager: ThemeManager { ThemeManager.shared }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: iconName)
+                .font(.system(size: 8, weight: .semibold))
+
+            Text(format.uppercased())
+                .font(.system(size: 9, weight: .semibold))
+                .lineLimit(1)
+        }
+        .foregroundStyle(themeManager.textSecondary)
+        .padding(.horizontal, 6)
+        .padding(.vertical, 2)
+        .background(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .fill(themeManager.chromeSurfaceElevated.opacity(0.65))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 6, style: .continuous)
+                .stroke(themeManager.separator.opacity(0.9), lineWidth: 1)
+        )
+    }
+
+    private var iconName: String {
+        switch format.uppercased() {
+        case "HTML":
+            return "curlybraces"
+        case "RTF":
+            return "textformat"
+        default:
+            return "doc.richtext"
         }
     }
 }
