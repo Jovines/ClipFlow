@@ -8,6 +8,17 @@
         
         <!-- Add new release items here at the top -->
         <item>
+            <title>Version 1.1.8</title>
+            <sparkle:version>22</sparkle:version>
+            <sparkle:shortVersionString>1.1.8</sparkle:shortVersionString>
+            <pubDate>Mon, 23 Mar 2026 04:27:11 +0000</pubDate>
+            <enclosure url="https://github.com/Jovines/ClipFlow/releases/download/v1.1.8/ClipFlow.dmg"
+                       sparkle:edSignature="3DZwCV7AZOAX6l8A22IMNo/pGwtdmE6vf5lVL1G6ZbiqhwLgoP9Tyt9j6QoksZCKKIYfnZyV5EdQmAG2m5dDDw=="
+                       length="19625624"
+                       type="application/octet-stream" />
+        </item>
+
+        <item>
             <title>Version 1.1.7</title>
             <sparkle:version>21</sparkle:version>
             <sparkle:shortVersionString>1.1.7</sparkle:shortVersionString>
