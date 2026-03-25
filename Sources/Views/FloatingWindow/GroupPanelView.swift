@@ -9,7 +9,9 @@ struct GroupPanelView: View {
     let onItemEdit: (ClipboardItem) -> Void
     let onItemDelete: (ClipboardItem) -> Void
     let onAddToProject: (ClipboardItem) -> Void
+    let onManageTags: (ClipboardItem) -> Void
     let onHide: () -> Void
+    @ObservedObject var panelCoordinator: GroupPanelCoordinator
 
     private let panelWidth: CGFloat = 300
 
@@ -49,9 +51,8 @@ struct GroupPanelView: View {
         ScrollView {
             LazyVStack(spacing: 4) {
                 ForEach(Array(panelItems.enumerated()), id: \.element.id) { index, item in
-                    GroupPanelItemRow(
+                    CompactItemRow(
                         item: item,
-                        index: index,
                         clipboardMonitor: clipboardMonitor,
                         onSelect: {
                             onItemSelected(item)
@@ -59,7 +60,10 @@ struct GroupPanelView: View {
                         },
                         onEdit: { onItemEdit(item) },
                         onDelete: { onItemDelete(item) },
-                        onAddToProject: { onAddToProject(item) }
+                        onAddToProject: { onAddToProject(item) },
+                        onManageTags: { onManageTags(item) },
+                        isTopRecent: false,
+                        panelCoordinator: panelCoordinator
                     )
                 }
             }

@@ -193,7 +193,9 @@ struct FloatingWindowView: View {
                     onItemEdit: startEdit,
                     onItemDelete: { requestDelete($0) },
                     onAddToProject: { showAddToProject(for: $0) },
-                    onHide: { groupPanelCoordinator.hidePanel() }
+                    onManageTags: { showTagPicker(for: $0) },
+                    onHide: { groupPanelCoordinator.hidePanel() },
+                    panelCoordinator: groupPanelCoordinator
                 )
                 .frame(width: groupPanelWidth, height: 480)
             }

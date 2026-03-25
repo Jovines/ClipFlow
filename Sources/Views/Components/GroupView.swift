@@ -287,7 +287,7 @@ struct CompactItemRow: View {
                 Group {
                     switch item.contentType {
                     case .text:
-                        Image(systemName: item.displayIconName)
+                        Image(systemName: item.isRichTextText ? "text.alignleft" : item.displayIconName)
                     case .file:
                         Image(systemName: "doc")
                     case .image:
@@ -451,7 +451,7 @@ struct GroupPanelItemRow: View {
                 Group {
                     switch item.contentType {
                     case .text:
-                        Image(systemName: item.displayIconName)
+                        Image(systemName: item.isRichTextText ? "text.alignleft" : item.displayIconName)
                     case .file:
                         Image(systemName: "doc")
                     case .image:
