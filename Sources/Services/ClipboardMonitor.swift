@@ -434,47 +434,42 @@ extension ClipboardMonitor {
 
 extension ClipboardMonitor {
 
+    private struct RichTextPayload: Codable {
+        let version: Int
+        let richTextType: ClipboardItem.RichTextType
+        let richData: Data
+        let additionalData: [String: Data]
+    }
+
     private func readFromPasteboard() -> ClipboardItem? {
         let shouldSaveImages = UserDefaults.standard.object(forKey: "saveImages") as? Bool ?? true
-
-        if let imageItem = readImageItem(shouldSaveImages: shouldSaveImages) {
-            return imageItem
-        }
 
         if let fileItem = readFileItem() {
             return fileItem
         }
 
-        if let textItem = readTextItem() {
+        if let textItem = readTextItem(shouldSaveImages: shouldSaveImages) {
             return textItem
+        }
+
+        if let imageItem = readImageItem(shouldSaveImages: shouldSaveImages) {
+            return imageItem
         }
 
         return nil
     }
 
     private func readImageItem(shouldSaveImages: Bool) -> ClipboardItem? {
-        guard let image = NSImage(pasteboard: pasteboard) else { return nil }
-
-        guard shouldSaveImages else {
-            ClipFlowLogger.debug("Image capture skipped - saveImages is disabled")
+        guard let imagePayload = saveSupplementalImageFromPasteboard(shouldSaveImages: shouldSaveImages) else {
             return nil
         }
-
-        guard let compressedData = ImageOptimizer.compressImage(image),
-              let thumbnailData = ImageOptimizer.generateThumbnail(from: image) else {
-            return nil
-        }
-
-        let imageKey = UUID().uuidString
-        _ = ImageCacheManager.shared.saveImage(compressedData, forKey: imageKey)
-        _ = ImageCacheManager.shared.saveImage(thumbnailData, forKey: "\(imageKey)_thumb")
 
         return ClipboardItem(
             content: "Image".localized(),
             contentType: .image,
-            imagePath: imageKey,
-            thumbnailPath: "\(imageKey)_thumb",
-            contentHash: compressedData.hashValue
+            imagePath: imagePayload.imagePath,
+            thumbnailPath: imagePayload.thumbnailPath,
+            contentHash: imagePayload.imageHash
         )
     }
 
@@ -509,23 +504,36 @@ extension ClipboardMonitor {
         )
     }
 
-    private func readTextItem() -> ClipboardItem? {
-        if let richTextItem = readRichTextItem() {
+    private func readTextItem(shouldSaveImages: Bool) -> ClipboardItem? {
+        if let richTextItem = readRichTextItem(shouldSaveImages: shouldSaveImages) {
             return richTextItem
         }
 
+        let imagePayload = saveSupplementalImageFromPasteboard(shouldSaveImages: shouldSaveImages)
+
         if let plainText = readPlainTextContent() {
+            var contentHash = plainText.hashValue
+            if let imageHash = imagePayload?.imageHash {
+                var hasher = Hasher()
+                hasher.combine(plainText)
+                hasher.combine(imageHash)
+                contentHash = hasher.finalize()
+            }
+
             return ClipboardItem(
                 content: plainText,
                 contentType: .text,
-                contentHash: plainText.hashValue
+                imagePath: imagePayload?.imagePath,
+                thumbnailPath: imagePayload?.thumbnailPath,
+                contentHash: contentHash
             )
         }
 
         return nil
     }
 
-    private func readRichTextItem() -> ClipboardItem? {
+    private func readRichTextItem(shouldSaveImages: Bool) -> ClipboardItem? {
+        let imagePayload = saveSupplementalImageFromPasteboard(shouldSaveImages: shouldSaveImages)
         let candidates: [(type: ClipboardItem.RichTextType, pasteboardType: NSPasteboard.PasteboardType)] = [
             (.rtfd, .rtfd),
             (.rtf, .rtf),
@@ -539,7 +547,14 @@ extension ClipboardMonitor {
             }
 
             let richTextKey = "rich_text_\(UUID().uuidString)"
-            guard ImageCacheManager.shared.saveData(richData, forKey: richTextKey) != nil else {
+            let supplementalData = supplementalPasteboardData(excluding: [candidate.pasteboardType, .string])
+            let storedRichData = encodedRichTextPayload(
+                richTextType: candidate.type,
+                richData: richData,
+                additionalData: supplementalData
+            ) ?? richData
+
+            guard ImageCacheManager.shared.saveData(storedRichData, forKey: richTextKey) != nil else {
                 return ClipboardItem(
                     content: plainText,
                     contentType: .text,
@@ -551,10 +566,20 @@ extension ClipboardMonitor {
             hasher.combine(plainText)
             hasher.combine(richData)
             hasher.combine(candidate.type.rawValue)
+            hasher.combine(supplementalData.count)
+            for key in supplementalData.keys.sorted() {
+                hasher.combine(key)
+                hasher.combine(supplementalData[key])
+            }
+            if let imageHash = imagePayload?.imageHash {
+                hasher.combine(imageHash)
+            }
 
             return ClipboardItem(
                 content: plainText,
                 contentType: .text,
+                imagePath: imagePayload?.imagePath,
+                thumbnailPath: imagePayload?.thumbnailPath,
                 richTextPath: richTextKey,
                 richTextType: candidate.type,
                 contentHash: hasher.finalize()
@@ -600,6 +625,57 @@ extension ClipboardMonitor {
 
         return nil
     }
+
+    private func saveSupplementalImageFromPasteboard(shouldSaveImages: Bool) -> (imagePath: String, thumbnailPath: String, imageHash: Int)? {
+        guard shouldSaveImages else { return nil }
+        guard let image = NSImage(pasteboard: pasteboard),
+              let compressedData = ImageOptimizer.compressImage(image),
+              let thumbnailData = ImageOptimizer.generateThumbnail(from: image) else {
+            return nil
+        }
+
+        let imageKey = UUID().uuidString
+        _ = ImageCacheManager.shared.saveImage(compressedData, forKey: imageKey)
+        let thumbnailKey = "\(imageKey)_thumb"
+        _ = ImageCacheManager.shared.saveImage(thumbnailData, forKey: thumbnailKey)
+
+        return (imageKey, thumbnailKey, compressedData.hashValue)
+    }
+
+    private func supplementalPasteboardData(excluding excludedTypes: Set<NSPasteboard.PasteboardType>) -> [String: Data] {
+        let allowedPrefixes = ["org.chromium.", "com.google."]
+        let types = pasteboard.types ?? []
+
+        var payload: [String: Data] = [:]
+        for type in types {
+            guard !excludedTypes.contains(type) else { continue }
+            let rawValue = type.rawValue
+            let shouldKeep = allowedPrefixes.contains { rawValue.hasPrefix($0) }
+            guard shouldKeep, let data = pasteboard.data(forType: type) else { continue }
+            payload[rawValue] = data
+        }
+
+        return payload
+    }
+
+    private func encodedRichTextPayload(
+        richTextType: ClipboardItem.RichTextType,
+        richData: Data,
+        additionalData: [String: Data]
+    ) -> Data? {
+        guard !additionalData.isEmpty else { return richData }
+        let payload = RichTextPayload(
+            version: 1,
+            richTextType: richTextType,
+            richData: richData,
+            additionalData: additionalData
+        )
+        return try? JSONEncoder().encode(payload)
+    }
+
+    private func decodedRichTextPayload(from data: Data) -> RichTextPayload? {
+        try? JSONDecoder().decode(RichTextPayload.self, from: data)
+    }
 }
 
 extension ClipboardMonitor {
@@ -610,11 +686,29 @@ extension ClipboardMonitor {
         if let richTextPath = item.richTextPath,
            let richTextType = item.richTextType,
            let richData = ImageCacheManager.shared.loadData(forKey: richTextPath) {
-            wroteRichText = pasteboard.setData(richData, forType: richTextType.pasteboardType)
+            if let payload = decodedRichTextPayload(from: richData),
+               payload.richTextType == richTextType {
+                wroteRichText = pasteboard.setData(payload.richData, forType: richTextType.pasteboardType)
+                if wroteRichText {
+                    for key in payload.additionalData.keys.sorted() {
+                        guard let data = payload.additionalData[key] else { continue }
+                        pasteboard.setData(data, forType: NSPasteboard.PasteboardType(key))
+                    }
+                }
+            } else {
+                wroteRichText = pasteboard.setData(richData, forType: richTextType.pasteboardType)
+            }
         }
 
         if !wroteRichText || !item.content.isEmpty {
             pasteboard.setString(item.content, forType: .string)
+        }
+
+        if let imagePath = item.imagePath,
+           let imageData = ImageCacheManager.shared.loadImage(forKey: imagePath),
+           let image = NSImage(data: imageData),
+           let tiffData = image.tiffRepresentation {
+            pasteboard.setData(tiffData, forType: .tiff)
         }
     }
 
