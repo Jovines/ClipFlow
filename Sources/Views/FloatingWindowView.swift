@@ -202,10 +202,6 @@ struct FloatingWindowView: View {
         }
         .background(windowBackground)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(themeManager.isLiquidGlassEnabled ? 0.25 : 0.15),
-                radius: themeManager.isLiquidGlassEnabled ? 24 : 15,
-                x: 0,
-                y: themeManager.isLiquidGlassEnabled ? 10 : 5)
         .onAppear {
             clipboardMonitor.refresh()
             groupPanelCoordinator.startTracking()
