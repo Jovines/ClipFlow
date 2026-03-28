@@ -10,9 +10,9 @@ struct FocusTodoBarView: View {
     @StateObject private var clipboardMonitor = ClipboardMonitor.shared
     @StateObject private var shortcutManager = FocusTodoShortcutManager.shared
     @StateObject private var languageManager = LanguageManager.shared
-    @StateObject private var aiService = OpenAIService.shared
     @AppStorage(FocusTodoPreferences.clipboardPrefillSecondsKey) private var clipboardPrefillSeconds = FocusTodoPreferences.defaultClipboardPrefillSeconds
     @AppStorage(FocusTodoPreferences.collapsedOpacityKey) private var collapsedOpacity = FocusTodoPreferences.defaultCollapsedOpacity
+    @AppStorage(FocusTodoPreferences.rewriteAutoFromClipboardKey) private var rewriteAutoFromClipboard = FocusTodoPreferences.defaultRewriteAutoFromClipboard
     @State private var newTaskTitle = ""
     @State private var rewriteCandidates: [String] = []
     @State private var rewriteErrorMessage: String?
@@ -419,14 +419,14 @@ extension FocusTodoBarView {
     }
 
     private var canTriggerRewrite: Bool {
-        !newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && aiService.hasAnyConfiguredProvider
+        !newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && FocusTodoAIRewriteService.shared.isRewriteAvailable()
     }
 
     private var rewriteButtonHelpText: String {
-        if aiService.hasAnyConfiguredProvider {
+        if FocusTodoAIRewriteService.shared.isRewriteAvailable() {
             return "Rewrite input into actionable task options".localized
         }
-        return "Configure AI provider in settings to use rewrite".localized
+        return FocusTodoAIRewriteService.shared.rewriteUnavailableMessage()
     }
 }
 
@@ -441,8 +441,8 @@ extension FocusTodoBarView {
     private func requestTaskRewrites() {
         let sourceText = newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !sourceText.isEmpty else { return }
-        guard aiService.hasAnyConfiguredProvider else {
-            rewriteErrorMessage = "AI is not configured. Please set up a provider in Settings > AI Service.".localized
+        guard FocusTodoAIRewriteService.shared.isRewriteAvailable() else {
+            rewriteErrorMessage = FocusTodoAIRewriteService.shared.rewriteUnavailableMessage()
             return
         }
 
@@ -674,6 +674,10 @@ extension FocusTodoBarView {
         newTaskTitle = recentTextItem.content
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.06) {
             NSApp.sendAction(#selector(NSText.selectAll(_:)), to: nil, from: nil)
+        }
+
+        if rewriteAutoFromClipboard {
+            requestTaskRewrites()
         }
     }
 

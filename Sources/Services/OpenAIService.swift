@@ -3,6 +3,14 @@ import OpenAI
 
 final class OpenAIService: ObservableObject, @unchecked Sendable {
     static let shared = OpenAIService()
+    private let legacyCLIRegex = "(?s)(?:^>.*\\R+)?(.*)"
+    private let deprecatedCLIRegexes: Set<String> = [
+        "(?s)(?:^>.*\\R+)?(.*?)(?:\\R*<system-reminder>[\\s\\S]*?</system-reminder>)?\\s*$",
+        "(?s)^(?:[ \\t]*\\n)*(?:>[^\\n]*\\n+)?(.*)$",
+        ".*",
+        "(?s).*",
+        "(?s)(.*)"
+    ]
 
     private var clients: [UUID: OpenAI] = [:]
     
@@ -24,7 +32,28 @@ final class OpenAIService: ObservableObject, @unchecked Sendable {
     }
 
     var hasAnyConfiguredProvider: Bool {
-        _providers.contains { !$0.apiKey.isEmpty }
+        _providers.contains { provider in
+            switch provider.providerType {
+            case .api:
+                return !provider.apiKey.isEmpty
+            case .cli:
+                return !provider.cliCommandTemplate.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            }
+        }
+    }
+
+    var isServiceAvailable: Bool {
+        guard let selection = currentProvider,
+              let provider = _providers.first(where: { $0.id == selection.providerId }) else {
+            return false
+        }
+
+        switch provider.providerType {
+        case .api:
+            return !provider.apiKey.isEmpty
+        case .cli:
+            return !provider.cliCommandTemplate.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
     }
 
     private init() {
@@ -34,12 +63,44 @@ final class OpenAIService: ObservableObject, @unchecked Sendable {
     }
     
     private func loadFromKeychain() {
-        _providers = EncryptedStorage.providerConfigs
+        let loadedProviders = EncryptedStorage.providerConfigs
+        var didMigrate = false
+        let migratedProviders = loadedProviders.map { provider -> AIProviderConfig in
+            guard provider.providerType == .cli else {
+                return provider
+            }
+
+            let regexText = provider.cliOutputRegex.trimmingCharacters(in: .whitespacesAndNewlines)
+            let shouldMigrateRegex = regexText == legacyCLIRegex || deprecatedCLIRegexes.contains(regexText)
+            var updated = provider
+
+            if shouldMigrateRegex {
+                didMigrate = true
+                updated.cliOutputRegex = CLIOutputDefaults.extractionRegex
+            }
+
+            let templateText = updated.cliOutputTemplate.trimmingCharacters(in: .whitespacesAndNewlines)
+            let usesDefaultRegex = updated.cliOutputRegex.trimmingCharacters(in: .whitespacesAndNewlines) == CLIOutputDefaults.extractionRegex
+            let shouldMigrateTemplate = templateText.isEmpty ||
+                (usesDefaultRegex && (templateText == "{{match}}" || templateText == "{{g0}}"))
+
+            if shouldMigrateTemplate {
+                didMigrate = true
+                updated.cliOutputTemplate = CLIOutputDefaults.outputTemplate
+            }
+            return updated
+        }
+
+        if didMigrate {
+            EncryptedStorage.providerConfigs = migratedProviders
+        }
+
+        _providers = migratedProviders
     }
 
     func refreshAllClients() {
         clients.removeAll()
-        for provider in availableProviders where !provider.apiKey.isEmpty {
+        for provider in availableProviders where provider.providerType == .api && !provider.apiKey.isEmpty {
             guard let url = URL(string: provider.baseURL) else {
                 continue
             }
@@ -88,14 +149,34 @@ final class OpenAIService: ObservableObject, @unchecked Sendable {
         clients[providerId]
     }
 
+    func testCLIConfiguration(
+        commandTemplate: String,
+        outputRegex: String,
+        outputTemplate: String,
+        input: String
+    ) async throws -> String {
+        let provider = AIProviderConfig(
+            name: "CLI Test",
+            providerType: .cli,
+            baseURL: "",
+            apiKey: "",
+            models: [],
+            defaultModel: "",
+            cliCommandTemplate: commandTemplate,
+            cliOutputRegex: outputRegex,
+            cliOutputTemplate: outputTemplate
+        )
+
+        return try await chatViaCLI(message: input, provider: provider, timeoutSeconds: 12)
+    }
+
     func chat(
         message: String,
         providerId: UUID? = nil,
         model: String? = nil
     ) async throws -> String {
         let targetProviderId = providerId ?? currentProvider?.providerId
-        guard let pid = targetProviderId,
-              let client = clients[pid] else {
+        guard let pid = targetProviderId else {
             throw OpenAIError.notConfigured
         }
 
@@ -104,7 +185,16 @@ final class OpenAIService: ObservableObject, @unchecked Sendable {
             throw OpenAIError.providerNotFound
         }
 
-        let targetModel = model ?? currentProvider?.model ?? config.defaultModel
+        if config.providerType == .cli {
+            return try await chatViaCLI(message: message, provider: config)
+        }
+
+        guard let client = clients[pid] else {
+            throw OpenAIError.notConfigured
+        }
+
+        let selectedModel = currentProvider?.providerId == pid ? currentProvider?.model : nil
+        let targetModel = model ?? selectedModel ?? config.defaultModel
 
         let query = ChatQuery(
             messages: [.user(.init(content: .string(message)))],
@@ -115,14 +205,23 @@ final class OpenAIService: ObservableObject, @unchecked Sendable {
         return AIResponseFilter.cleanThinkingTags(from: rawContent)
     }
 
+    private func chatViaCLI(message: String, provider: AIProviderConfig, timeoutSeconds: Int = 45) async throws -> String {
+        let command = try renderCLICommand(input: message, provider: provider)
+        ClipFlowLogger.debug("[CLI] Executing command (timeout=\(timeoutSeconds)s): \(command.prefix(200))...")
+        let result = try await PersistentShellSession.shared.execute(command: command, timeoutSeconds: timeoutSeconds)
+        ClipFlowLogger.debug("[CLI] Raw output (len=\(result.output.count)): \(result.output.prefix(300))...")
+        let extracted = try extractCLIOutput(from: result.output, provider: provider)
+        ClipFlowLogger.debug("[CLI] Extracted output (len=\(extracted.count)): \(extracted.prefix(300))...")
+        return AIResponseFilter.cleanThinkingTags(from: extracted)
+    }
+
     func chatStream(
         message: String,
         providerId: UUID? = nil,
         model: String? = nil
     ) -> AsyncThrowingStream<String, Error> {
         let targetProviderId = providerId ?? currentProvider?.providerId
-        guard let pid = targetProviderId,
-              let client = clients[pid] else {
+        guard let pid = targetProviderId else {
             return .init { throw OpenAIError.notConfigured }
         }
 
@@ -131,7 +230,26 @@ final class OpenAIService: ObservableObject, @unchecked Sendable {
             return .init { throw OpenAIError.providerNotFound }
         }
 
-        let targetModel = model ?? currentProvider?.model ?? config.defaultModel
+        if config.providerType == .cli {
+            return AsyncThrowingStream { continuation in
+                Task {
+                    do {
+                        let response = try await chatViaCLI(message: message, provider: config)
+                        continuation.yield(response)
+                        continuation.finish()
+                    } catch {
+                        continuation.finish(throwing: error)
+                    }
+                }
+            }
+        }
+
+        guard let client = clients[pid] else {
+            return .init { throw OpenAIError.notConfigured }
+        }
+
+        let selectedModel = currentProvider?.providerId == pid ? currentProvider?.model : nil
+        let targetModel = model ?? selectedModel ?? config.defaultModel
 
         let query = ChatQuery(
             messages: [.user(.init(content: .string(message)))],
@@ -165,6 +283,105 @@ final class OpenAIService: ObservableObject, @unchecked Sendable {
             }
         }
     }
+
+    private func renderCLICommand(input: String, provider: AIProviderConfig) throws -> String {
+        let template = provider.cliCommandTemplate.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !template.isEmpty else {
+            ClipFlowLogger.error("[CLI] Command template is empty")
+            throw OpenAIError.notConfigured
+        }
+
+        let escapedInput = shellSingleQuoted(input)
+        let command = template
+            .replacingOccurrences(of: "{{input}}", with: escapedInput)
+            .replacingOccurrences(of: "{{input_raw}}", with: input)
+        ClipFlowLogger.debug("[CLI] Rendered command: \(command.prefix(200))...")
+        return command
+    }
+
+    private func extractCLIOutput(from rawOutput: String, provider: AIProviderConfig) throws -> String {
+        let normalizedOutput = normalizeCLIRawOutput(rawOutput)
+        let matchSource = stripANSIEscapeCodes(in: normalizedOutput)
+        let displaySource = matchSource
+        ClipFlowLogger.debug("[CLI] Match source output (len=\(matchSource.count)): \(matchSource.prefix(300))...")
+
+        let regexText = provider.cliOutputRegex.trimmingCharacters(in: .whitespacesAndNewlines)
+        ClipFlowLogger.debug("[CLI] Using output regex: \(regexText)")
+        guard !regexText.isEmpty else {
+            ClipFlowLogger.debug("[CLI] No output regex configured, returning full output")
+            return displaySource.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        guard let regex = try? NSRegularExpression(pattern: regexText, options: []) else {
+            ClipFlowLogger.error("[CLI] Invalid regex pattern: \(regexText)")
+            throw OpenAIError.invalidRequest
+        }
+
+        let range = NSRange(matchSource.startIndex..., in: matchSource)
+        guard let match = regex.firstMatch(in: matchSource, options: [], range: range) else {
+            ClipFlowLogger.warning("[CLI] Regex did not match output. Returning full output.")
+            return displaySource.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        ClipFlowLogger.debug("[CLI] Regex matched successfully")
+
+        let template = provider.cliOutputTemplate
+        ClipFlowLogger.debug("[CLI] Using output template: \(template)")
+        if template.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let fallback = captureGroup(match: match, index: 1, in: matchSource)
+                ?? captureGroup(match: match, index: 0, in: matchSource)
+                ?? matchSource
+            let final = stripANSIEscapeCodes(in: fallback)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            return final.isEmpty ? displaySource.trimmingCharacters(in: .whitespacesAndNewlines) : final
+        }
+
+        var rendered = template
+        let full = captureGroup(match: match, index: 0, in: matchSource) ?? ""
+        rendered = rendered
+            .replacingOccurrences(of: "{{match}}", with: full)
+            .replacingOccurrences(of: "{{g0}}", with: full)
+
+        for index in 1..<match.numberOfRanges {
+            let token = "{{g\(index)}}"
+            let value = captureGroup(match: match, index: index, in: matchSource) ?? ""
+            rendered = rendered.replacingOccurrences(of: token, with: value)
+        }
+
+        let final = stripANSIEscapeCodes(in: rendered)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if final.isEmpty {
+            ClipFlowLogger.warning("[CLI] Extracted output is empty after template. Returning full output.")
+            return displaySource.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        return final
+    }
+
+    private func normalizeCLIRawOutput(_ rawOutput: String) -> String {
+        rawOutput
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+    }
+
+    private func stripANSIEscapeCodes(in text: String) -> String {
+        guard let regex = try? NSRegularExpression(pattern: #"\u001B\[[0-?]*[ -/]*[@-~]"#, options: []) else {
+            return text
+        }
+        let range = NSRange(text.startIndex..., in: text)
+        return regex.stringByReplacingMatches(in: text, options: [], range: range, withTemplate: "")
+    }
+
+    private func captureGroup(match: NSTextCheckingResult, index: Int, in text: String) -> String? {
+        guard index < match.numberOfRanges,
+              let range = Range(match.range(at: index), in: text) else {
+            return nil
+        }
+        return String(text[range])
+    }
+
+    private func shellSingleQuoted(_ text: String) -> String {
+        if text.isEmpty { return "''" }
+        return "'" + text.replacingOccurrences(of: "'", with: "'\\''") + "'"
+    }
 }
 
 enum OpenAIError: LocalizedError {
@@ -180,7 +397,7 @@ enum OpenAIError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .notConfigured, .invalidAPIKey:
-            "AI service is not configured or invalid. Please check your API Key in settings.".localized()
+            "AI service is not configured or invalid. Please check AI Service settings.".localized()
         case .providerNotFound:
             "Provider not found".localized()
         case .streamFailed(let error):

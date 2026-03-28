@@ -4545,6 +4545,150 @@
                 }
             }
         },
+        "Task Rewrite": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Task Rewrite"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "任务改写"
+                    }
+                }
+            }
+        },
+        "Auto rewrite copied text when Focus Todo opens": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Auto rewrite copied text when Focus Todo opens"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "打开 Focus Todo 时自动改写复制的文本"
+                    }
+                }
+            }
+        },
+        "Local CLI": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Local CLI"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "本地 CLI"
+                    }
+                }
+            }
+        },
+        "Rewrite AI Service": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Rewrite AI Service"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "重写 AI 服务"
+                    }
+                }
+            }
+        },
+        "Follow global AI Service selection": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Follow global AI Service selection"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "跟随全局 AI 服务选择"
+                    }
+                }
+            }
+        },
+        "You can choose a dedicated provider for rewrite, or follow the global AI Service selection.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "You can choose a dedicated provider for rewrite, or follow the global AI Service selection."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "你可以为重写单独指定服务，或跟随全局 AI 服务选择。"
+                    }
+                }
+            }
+        },
+        "Selected rewrite AI service was not found. Please reselect it in Focus Todo settings.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Selected rewrite AI service was not found. Please reselect it in Focus Todo settings."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "未找到所选重写 AI 服务，请在 Focus Todo 设置中重新选择。"
+                    }
+                }
+            }
+        },
+        "Selected rewrite AI service is not available. Please check its configuration.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Selected rewrite AI service is not available. Please check its configuration."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "所选重写 AI 服务不可用，请检查其配置。"
+                    }
+                }
+            }
+        },
+        "Unnamed Provider": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Unnamed Provider"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "未命名服务"
+                    }
+                }
+            }
+        },
         "Configure AI provider in settings to use rewrite": {
             "localizations": {
                 "en": {
@@ -6333,6 +6477,310 @@
                     "stringUnit": {
                         "state": "translated",
                         "value": "已完成"
+                    }
+                }
+            }
+        },
+        "API Mode": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "API Mode"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "API 模式"
+                    }
+                }
+            }
+        },
+        "CLI Mode": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "CLI Mode"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "CLI 模式"
+                    }
+                }
+            }
+        },
+        "API mode: call remote OpenAI-compatible services with Base URL + API Key.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "API mode: call remote OpenAI-compatible services with Base URL + API Key."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "API 模式：通过 Base URL + API Key 调用远程 OpenAI 兼容服务。"
+                    }
+                }
+            }
+        },
+        "CLI mode: run a local command and extract answer text from command output.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "CLI mode: run a local command and extract answer text from command output."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "CLI 模式：执行本地命令，并从命令输出中提取回答文本。"
+                    }
+                }
+            }
+        },
+        "Base URL: provider endpoint, such as https://api.openai.com/v1": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Base URL: provider endpoint, such as https://api.openai.com/v1"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Base URL：服务商接口地址，例如 https://api.openai.com/v1"
+                    }
+                }
+            }
+        },
+        "API Key: credential used to authorize requests.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "API Key: credential used to authorize requests."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "API Key：用于请求鉴权的密钥。"
+                    }
+                }
+            }
+        },
+        "Model List: available models separated by commas.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Model List: available models separated by commas."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Model List：可用模型列表，使用逗号分隔。"
+                    }
+                }
+            }
+        },
+        "Default Model: model used when no model is explicitly specified.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Default Model: model used when no model is explicitly specified."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Default Model：未显式指定模型时使用的默认模型。"
+                    }
+                }
+            }
+        },
+        "CLI Command Template: use {{input}} for shell-escaped prompt, {{input_raw}} for raw text.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "CLI Command Template: use {{input}} for shell-escaped prompt, {{input_raw}} for raw text."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "CLI Command Template：使用 {{input}} 传递 shell 转义后的文本，使用 {{input_raw}} 传递原始文本。"
+                    }
+                }
+            }
+        },
+        "Output Extraction Regex: first regex match is used from stdout/stderr output.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Output Extraction Regex: first regex match is used from stdout/stderr output."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Output Extraction Regex：从 stdout/stderr 输出中取第一个正则匹配结果。"
+                    }
+                }
+            }
+        },
+        "Output Template: use {{match}}/{{g0}}/{{g1}}... to build the final response.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Output Template: use {{match}}/{{g0}}/{{g1}}... to build the final response."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Output Template：使用 {{match}}/{{g0}}/{{g1}}... 组装最终响应文本。"
+                    }
+                }
+            }
+        },
+        "Configure API providers and local CLI providers in one unified list": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Configure API providers and local CLI providers in one unified list"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "在统一列表中配置 API 服务商和本地 CLI 服务商"
+                    }
+                }
+            }
+        },
+        "Test request uses the currently selected provider from the list above.": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Test request uses the currently selected provider from the list above."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "测试请求会使用上方列表中当前选中的服务商。"
+                    }
+                }
+            }
+        },
+        "Local command execution": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Local command execution"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "本地命令执行"
+                    }
+                }
+            }
+        },
+        "Test CLI Configuration": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Test CLI Configuration"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "测试 CLI 配置"
+                    }
+                }
+            }
+        },
+        "Test Input": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Test Input"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "测试输入"
+                    }
+                }
+            }
+        },
+        "Run Test": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Run Test"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "开始测试"
+                    }
+                }
+            }
+        },
+        "Testing...": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Testing..."
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "测试中..."
+                    }
+                }
+            }
+        },
+        "Test Result": {
+            "localizations": {
+                "en": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "Test Result"
+                    }
+                },
+                "zh-Hans": {
+                    "stringUnit": {
+                        "state": "translated",
+                        "value": "测试结果"
                     }
                 }
             }

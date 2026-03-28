@@ -19,10 +19,18 @@ struct ProviderRow: View {
             .help("Select Provider".localized())
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(provider.name)
-                    .font(.system(size: 13))
+                HStack(spacing: 6) {
+                    Text(provider.name)
+                        .font(.system(size: 13))
+                    Text(provider.providerType == .api ? "API" : "CLI")
+                        .font(.system(size: 10, weight: .medium))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.flexokiAccent.opacity(0.12))
+                        .clipShape(Capsule())
+                }
 
-                Text(provider.baseURL)
+                Text(provider.providerType == .api ? provider.baseURL : "Local command execution".localized())
                     .font(.system(size: 11))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -31,8 +39,12 @@ struct ProviderRow: View {
             Spacer()
 
             HStack(spacing: 6) {
-                if !provider.apiKey.isEmpty {
+                if provider.providerType == .api && !provider.apiKey.isEmpty {
                     Image(systemName: "checkmark.shield")
+                        .foregroundStyle(.green)
+                        .font(.system(size: 11))
+                } else if provider.providerType == .cli && !provider.cliCommandTemplate.isEmpty {
+                    Image(systemName: "terminal")
                         .foregroundStyle(.green)
                         .font(.system(size: 11))
                 }

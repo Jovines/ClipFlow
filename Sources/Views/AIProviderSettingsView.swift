@@ -20,6 +20,23 @@ struct AIProviderSettingsView: View {
         service.currentProvider
     }
 
+    private var selectedProvider: AIProviderConfig? {
+        guard let selection = currentSelection else { return nil }
+        return providers.first(where: { $0.id == selection.providerId })
+    }
+
+    private var isTestActionDisabled: Bool {
+        guard !isTesting, !testMessage.isEmpty else { return true }
+        guard let selectedProvider else { return true }
+
+        switch selectedProvider.providerType {
+        case .api:
+            return selectedProvider.apiKey.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        case .cli:
+            return selectedProvider.cliCommandTemplate.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
             headerSection
@@ -27,7 +44,9 @@ struct AIProviderSettingsView: View {
             providerListSection
             Divider()
             if let selection = currentSelection,
-               let provider = providers.first(where: { $0.id == selection.providerId }) {
+               let provider = selectedProvider,
+               provider.providerType == .api,
+               !provider.models.isEmpty {
                 modelSelectionSection(for: provider, selection: selection)
                 Divider()
             }
@@ -71,7 +90,7 @@ struct AIProviderSettingsView: View {
                     .font(.system(size: 14, weight: .semibold))
             }
 
-            Text("Configure and manage multiple AI service providers, supporting OpenAI, Minimax, DeepSeek and more".localized())
+            Text("Configure API providers and local CLI providers in one unified list".localized())
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -182,6 +201,11 @@ struct AIProviderSettingsView: View {
             }
 
             VStack(spacing: 12) {
+                Text("Test request uses the currently selected provider from the list above.".localized())
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
                 TextField("Enter test message...".localized(), text: $testMessage)
                     .textFieldStyle(.plain)
                     .font(.system(size: 13))
@@ -199,7 +223,7 @@ struct AIProviderSettingsView: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-                .disabled(currentSelection == nil || testMessage.isEmpty || isTesting)
+                .disabled(isTestActionDisabled)
 
                 if !testResponse.isEmpty {
                     testResponseView
@@ -227,9 +251,16 @@ struct AIProviderSettingsView: View {
     }
 
     private func selectProvider(_ provider: AIProviderConfig) {
+        let selectedModel: String
+        if provider.providerType == .api {
+            selectedModel = provider.defaultModel.isEmpty ? (provider.models.first ?? "") : provider.defaultModel
+        } else {
+            selectedModel = ""
+        }
+
         let selection = AIProviderSelection(
             providerId: provider.id,
-            model: provider.defaultModel
+            model: selectedModel
         )
         service.currentProvider = selection
     }

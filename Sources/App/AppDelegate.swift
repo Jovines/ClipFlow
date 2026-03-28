@@ -37,6 +37,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         ClipboardMonitor.shared.stop()
         windowManager.cleanup()
         focusTodoWindowManager.cleanup()
+        Task {
+            await PersistentShellSession.shared.terminateSession()
+        }
         if let userDefaultsObserver {
             NotificationCenter.default.removeObserver(userDefaultsObserver)
         }

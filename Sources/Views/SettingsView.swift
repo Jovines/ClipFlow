@@ -13,6 +13,8 @@ struct SettingsView: View {
     @AppStorage("minUsageCountForRecommendation") private var minUsageCountForRecommendation = 2
     @AppStorage(FocusTodoPreferences.clipboardPrefillSecondsKey) private var focusTodoClipboardPrefillSeconds = FocusTodoPreferences.defaultClipboardPrefillSeconds
     @AppStorage(FocusTodoPreferences.collapsedOpacityKey) private var focusTodoCollapsedOpacity = FocusTodoPreferences.defaultCollapsedOpacity
+    @AppStorage(FocusTodoPreferences.rewriteAutoFromClipboardKey) private var focusTodoRewriteAutoFromClipboard = FocusTodoPreferences.defaultRewriteAutoFromClipboard
+    @AppStorage(FocusTodoPreferences.rewriteProviderIdKey) private var focusTodoRewriteProviderId = FocusTodoPreferences.defaultRewriteProviderId
 
     @State private var shortcut = HotKeyManager.Shortcut.defaultShortcut
     @State private var todoToggleShortcut = FocusTodoShortcutManager.Action.togglePanel.defaultShortcut
@@ -29,6 +31,7 @@ struct SettingsView: View {
     
     @StateObject private var themeManager = ThemeManager.shared
     @StateObject private var languageManager = LanguageManager.shared
+    @StateObject private var aiService = OpenAIService.shared
     @State private var showRestartAlert = false
     @State private var previousLanguage: AppLanguage = .en
     @State private var accessibilityTrusted = AXIsProcessTrustedWithOptions(nil)
@@ -544,6 +547,53 @@ extension SettingsView {
 
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 8) {
+                    Image(systemName: "wand.and.stars")
+                        .foregroundStyle(.secondary)
+                        .font(.system(size: 14))
+                    Text("Task Rewrite".localized())
+                        .font(.system(size: 14, weight: .semibold))
+                }
+
+                VStack(alignment: .leading, spacing: 12) {
+                    Toggle(isOn: $focusTodoRewriteAutoFromClipboard) {
+                        Text("Auto rewrite copied text when Focus Todo opens".localized())
+                            .font(.system(size: 13))
+                    }
+                    .toggleStyle(.checkbox)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Rewrite AI Service".localized())
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(.secondary)
+
+                        Picker("Rewrite AI Service".localized(), selection: $focusTodoRewriteProviderId) {
+                            Text("Follow global AI Service selection".localized())
+                                .tag(FocusTodoPreferences.defaultRewriteProviderId)
+
+                            ForEach(aiService.availableProviders.filter(\.isEnabled)) { provider in
+                                Text(rewriteProviderDisplayName(provider))
+                                    .tag(provider.id.uuidString)
+                            }
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.menu)
+                    }
+
+                    Text("You can choose a dedicated provider for rewrite, or follow the global AI Service selection.".localized())
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                }
+                .padding(12)
+                .background(settingsCardBackground)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .disabled(!focusTodoEnabled)
+                .opacity(focusTodoEnabled ? 1 : 0.5)
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
                     Image(systemName: "checklist")
                         .foregroundStyle(.secondary)
                         .font(.system(size: 14))
@@ -865,6 +915,19 @@ extension SettingsView {
         case .markDone:
             todoDoneShortcut = savedShortcut
         }
+    }
+
+    private func rewriteProviderDisplayName(_ provider: AIProviderConfig) -> String {
+        let name = provider.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let localizedName: String
+        if name == "Local CLI" {
+            localizedName = "Local CLI".localized
+        } else {
+            localizedName = name
+        }
+
+        let displayName = localizedName.isEmpty ? "Unnamed Provider".localized : localizedName
+        return "\(displayName) [\(provider.providerType.displayName)]"
     }
 
     private func shortcutSettingRow(title: String, shortcut: Binding<HotKeyManager.Shortcut>) -> some View {

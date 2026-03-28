@@ -17,9 +17,18 @@ struct PresetRow: View {
                     .clipShape(RoundedRectangle(cornerRadius: 8))
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(preset.name)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(themeManager.text)
+                    HStack(spacing: 6) {
+                        Text(preset.name)
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(themeManager.text)
+
+                        Text(preset.providerType == .api ? "API" : "CLI")
+                            .font(.system(size: 10, weight: .medium))
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.flexokiAccent.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
 
                     Text(preset.description)
                         .font(.system(size: 11))
